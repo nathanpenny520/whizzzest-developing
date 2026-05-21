@@ -24,7 +24,7 @@
         <div class="flex flex-col md:flex-row items-center gap-8">
           <div class="md:w-1/2">
             <div class="video-container relative w-full rounded-lg shadow-lg overflow-hidden bg-gray-900 aspect-video">
-              <iframe src="//player.bilibili.com/player.html?bvid=BV147L86TEvP&page=1"
+              <iframe src="https://player.bilibili.com/player.html?bvid=BV147L86TEvP&page=1"
                 scrolling="no" border="0" frameborder="no" framespacing="0"
                 allowfullscreen="true" class="w-full h-full">
               </iframe>

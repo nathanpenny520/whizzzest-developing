@@ -24,7 +24,7 @@
         <div class="flex flex-col md:flex-row items-center gap-8 mb-16">
           <div class="md:w-1/2">
             <div class="video-container relative w-full rounded-lg shadow-lg overflow-hidden bg-gray-900 aspect-video">
-              <iframe src="//player.bilibili.com/player.html?bvid=BV1mLL86BEET&page=1"
+              <iframe src="https://player.bilibili.com/player.html?bvid=BV1mLL86BEET&page=1"
                 scrolling="no" border="0" frameborder="no" framespacing="0"
                 allowfullscreen="true" class="w-full h-full">
               </iframe>
@@ -49,7 +49,7 @@
          <div class="flex flex-col md:flex-row items-center gap-8 mb-16">
           <div class="md:w-1/2">
             <div class="video-container relative w-full rounded-lg shadow-lg overflow-hidden bg-gray-900 aspect-video">
-              <iframe src="//player.bilibili.com/player.html?bvid=BV1psL86aEJG&page=1"
+              <iframe src="https://player.bilibili.com/player.html?bvid=BV1psL86aEJG&page=1"
                 scrolling="no" border="0" frameborder="no" framespacing="0"
                 allowfullscreen="true" class="w-full h-full">
               </iframe>
@@ -74,7 +74,7 @@
         <div class="flex flex-col md:flex-row items-center gap-8 mb-16">
           <div class="md:w-1/2">
             <div class="video-container relative w-full rounded-lg shadow-lg overflow-hidden bg-gray-900 aspect-video">
-              <iframe src="//player.bilibili.com/player.html?bvid=BV1tLL86BEwB&page=1"
+              <iframe src="https://player.bilibili.com/player.html?bvid=BV1tLL86BEwB&page=1"
                 scrolling="no" border="0" frameborder="no" framespacing="0"
                 allowfullscreen="true" class="w-full h-full">
               </iframe>
@@ -100,7 +100,7 @@
         <div class="flex flex-col md:flex-row items-center gap-8 mb-16">
           <div class="md:w-1/2">
             <div class="video-container relative w-full rounded-lg shadow-lg overflow-hidden bg-gray-900 aspect-video">
-              <iframe src="//player.bilibili.com/player.html?bvid=BV127L86TE24&page=1"
+              <iframe src="https://player.bilibili.com/player.html?bvid=BV127L86TE24&page=1"
                 scrolling="no" border="0" frameborder="no" framespacing="0"
                 allowfullscreen="true" class="w-full h-full">
               </iframe>
@@ -125,7 +125,7 @@
         <div class="flex flex-col md:flex-row items-center gap-8 mb-16">
           <div class="md:w-1/2">
             <div class="video-container relative w-full rounded-lg shadow-lg overflow-hidden bg-gray-900 aspect-video">
-              <iframe src="//player.bilibili.com/player.html?bvid=BV127L86TE2o&page=1"
+              <iframe src="https://player.bilibili.com/player.html?bvid=BV127L86TE2o&page=1"
                 scrolling="no" border="0" frameborder="no" framespacing="0"
                 allowfullscreen="true" class="w-full h-full">
               </iframe>
