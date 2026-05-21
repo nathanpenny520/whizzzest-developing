@@ -153,6 +153,6 @@ refactor(map): 地图逻辑迁移至 useAmap
 - **LLM API**：使用 MiniMax-M2.5 模型，通过 `llmapi.paratera.com` 代理，密钥在 `packages/backend/.env`
 - **Redis**：`brew services start redis`，端口 6379，优惠券库存原子操作依赖
 - **万能验证码**：开发环境登录使用 `000000`（6 位），生产环境需接入短信服务
-- **测试账户**：ADMIN `ADMIN_PHONE_PLACEHOLDER`，MERCHANT `merchant_001`/`merchant_002`/`merchant_003`（种子数据）
+- **测试账户**：ADMIN ``，MERCHANT `merchant_001`/`merchant_002`/`merchant_003`（种子数据）
 - **大文件**：视频文件未纳入 Git（> 100MB），部署时手动上传
 - **CSP**：vite.config.ts 中配置了严格的内容安全策略，修改外部资源时需同步更新
