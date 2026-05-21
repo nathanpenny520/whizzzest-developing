@@ -9,6 +9,9 @@ concurrency:
   group: deploy
   cancel-in-progress: true
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   deploy:
     name: 构建并部署
