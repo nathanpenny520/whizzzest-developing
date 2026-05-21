@@ -1,53 +1,93 @@
-name: Deploy to GitHub Pages
+name: Deploy to Production
 
 on:
   push:
-    branches: ['main']
+    branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 concurrency:
-  group: 'pages'
+  group: deploy
   cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './dist'
-
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    name: 构建并部署
     runs-on: ubuntu-latest
-    needs: build
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: 构建前端
+        run: pnpm build
+        env:
+          VITE_AMAP_KEY: ${{ secrets.VITE_AMAP_KEY }}
+          VITE_AMAP_SECURITY_CODE: ${{ secrets.VITE_AMAP_SECURITY_CODE }}
+
+      - name: 构建后端
+        run: pnpm build:backend
+
+      - name: 准备后端部署包
+        run: |
+          cd packages/backend
+          mkdir -p deploy
+          cp -r dist deploy/
+          cp -r prisma deploy/
+          # 移除 workspace 协议依赖，contracts 是纯类型，运行时不需要
+          sed 's/"@wanzai\/contracts": "workspace:\*",//' package.json > deploy/package.json
+
+      - name: 设置 SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: 部署前端到 Nginx
+        run: |
+          rsync -avz --delete \
+            packages/frontend/dist/ \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/usr/share/nginx/html/dist/
+
+      - name: 部署后端并重启
+        run: |
+          # 逐目录 rsync，避免 --delete 误删 .env 和 node_modules
+          rsync -avz --delete \
+            packages/backend/dist/ \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/usr/share/nginx/wanzai-backend/dist/
+
+          rsync -avz --delete \
+            packages/backend/prisma/ \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/usr/share/nginx/wanzai-backend/prisma/
+
+          rsync -avz \
+            packages/backend/deploy/package.json \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/usr/share/nginx/wanzai-backend/package.json
+
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} '
+            cd /usr/share/nginx/wanzai-backend && \
+            npm install --prod 2>&1 && \
+            npx prisma generate && \
+            npx prisma migrate deploy && \
+            pm2 describe wanzai-backend >/dev/null 2>&1 && \
+              pm2 reload wanzai-backend || \
+              pm2 start dist/main.js --name wanzai-backend && \
+            pm2 save
+          '
+
+      - name: 健康检查
+        run: |
+          sleep 3
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} '
+            echo "前端: $(curl -sf -o /dev/null -w "%{http_code}" http://localhost/)"
+            echo "后端: $(curl -sf -o /dev/null -w "%{http_code}" http://localhost:8080/api/v1/)"
+          '

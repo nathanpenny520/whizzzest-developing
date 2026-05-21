@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "FireworkRecipe" ADD COLUMN IF NOT EXISTS "likeCount" INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "Merchant" ADD COLUMN IF NOT EXISTS "nameEn" TEXT;

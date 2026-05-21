@@ -24,13 +24,6 @@ dist-ssr
 *.sln
 *.sw?
 
-# Server
-/server/node_modules
-/server/dist
-/server/logs
-/server/.env
-!/server/.env.example
-
 # Environment files (contains sensitive API keys)
 .env
 .env.local
@@ -46,6 +39,9 @@ coverage
 # Temporary files
 *.tmp
 *.temp
+
+# Backend deploy build artifacts
+packages/backend/deploy/
 
 # Video files (>100MB, use Git LFS or local storage)
 src/assets/videos/*.mp4
