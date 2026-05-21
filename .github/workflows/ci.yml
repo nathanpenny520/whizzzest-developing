@@ -28,6 +28,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: 生成 Prisma 客户端
+        run: pnpm --filter @wanzai/backend exec prisma generate
+
       - run: pnpm typecheck
 
   lint:
