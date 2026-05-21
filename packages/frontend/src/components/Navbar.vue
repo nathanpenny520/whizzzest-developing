@@ -20,10 +20,7 @@
             class="cluster-btn"
             :class="{ active: openCluster === cluster.key }"
             @click="openCluster === cluster.key ? (openCluster = '') : (openCluster = cluster.key)"
-            @mouseenter="
-              clearCloseTimer()
-              openCluster = cluster.key
-            "
+            @mouseenter="onClusterHover(cluster.key)"
           >
             <span class="cluster-icon">{{ cluster.icon }}</span>
             <span>{{ cluster.label }}</span>
@@ -39,10 +36,7 @@
                 <!-- 可点击项（有 path 或 action） -->
                 <span
                   v-if="item.path || (item as any).action === 'chat'"
-                  @click="
-                    handleClusterItem(item)
-                    openCluster = ''
-                  "
+                  @click="onDropdownItem(item)"
                   class="dropdown-item"
                 >
                   <span class="item-icon">{{ item.icon || '·' }}</span>
@@ -70,38 +64,24 @@
           <button class="user-btn">{{ authStore.user?.nickname || t('common.user') }}</button>
           <div v-if="userMenuOpen" class="user-dropdown">
             <div class="user-role">{{ roleLabel }}</div>
-            <span
-              @click="
-                goTo('/profile')
-                userMenuOpen = false
-              "
-              class="ud-item"
-              >{{ t('profile.personalCenter') }}</span
-            >
+            <span @click="onUserMenuItem('/profile')" class="ud-item">{{
+              t('profile.personalCenter')
+            }}</span>
             <span
               v-if="authStore.user?.role === 'MERCHANT'"
-              @click="
-                goTo('/merchant/dashboard')
-                userMenuOpen = false
-              "
+              @click="onUserMenuItem('/merchant/dashboard')"
               class="ud-item"
               >{{ t('auth.merchantDashboard') }}</span
             >
             <span
               v-if="authStore.user?.role === 'ADMIN'"
-              @click="
-                goTo('/admin')
-                userMenuOpen = false
-              "
+              @click="onUserMenuItem('/admin')"
               class="ud-item"
               >{{ t('auth.adminPanel') }}</span
             >
             <span
               v-if="authStore.user?.role === 'TOURIST'"
-              @click="
-                goTo('/merchant/apply')
-                userMenuOpen = false
-              "
+              @click="onUserMenuItem('/merchant/apply')"
               class="ud-item"
               >{{ t('auth.merchantApply') }}</span
             >
@@ -154,53 +134,27 @@
         </div>
         <div class="mobile-auth">
           <LanguageSwitcher />
-          <button
-            v-if="!authStore.isLoggedIn"
-            @click="
-              handleLogin()
-              mobileOpen = false
-            "
-            class="mobile-login-btn"
-          >
+          <button v-if="!authStore.isLoggedIn" @click="onMobileLogin" class="mobile-login-btn">
             {{ t('common.login') }}
           </button>
           <template v-else>
             <span class="mobile-user-name">{{ authStore.user?.nickname }}</span>
-            <span
-              @click="
-                goTo('/profile')
-                mobileOpen = false
-              "
-              class="ud-item"
-              >{{ t('profile.personalCenter') }}</span
-            >
+            <span @click="onMobileNav('/profile')" class="ud-item">{{
+              t('profile.personalCenter')
+            }}</span>
             <span
               v-if="authStore.user?.role === 'MERCHANT'"
-              @click="
-                goTo('/merchant/dashboard')
-                mobileOpen = false
-              "
+              @click="onMobileNav('/merchant/dashboard')"
               class="ud-item"
               >{{ t('auth.merchantDashboard') }}</span
             >
             <span
               v-if="authStore.user?.role === 'ADMIN'"
-              @click="
-                goTo('/admin')
-                mobileOpen = false
-              "
+              @click="onMobileNav('/admin')"
               class="ud-item"
               >{{ t('auth.adminPanel') }}</span
             >
-            <button
-              @click="
-                handleLogout()
-                mobileOpen = false
-              "
-              class="ud-item logout"
-            >
-              {{ t('auth.logout') }}
-            </button>
+            <button @click="onMobileLogout" class="ud-item logout">{{ t('auth.logout') }}</button>
           </template>
         </div>
       </div>
@@ -279,11 +233,7 @@ const clusters = computed(() => [
     items: [
       { path: '', action: 'chat', icon: '🤖', label: t('nav.aiHuaNuo') },
       { path: '/firework', icon: '🎇', label: t('nav.digitalFirework') },
-      {
-        path: '/firework/leaderboard',
-        icon: '🏆',
-        label: t('nav.fireworkRankings'),
-      },
+      { path: '/firework/leaderboard', icon: '🏆', label: t('nav.fireworkRankings') },
       { path: '', action: 'none', icon: '🎪', label: t('nav.miniGames') },
     ],
   },
@@ -303,9 +253,34 @@ const localizedPath = (rawPath: string) => {
   return locale.value === 'en' ? `/en${rawPath}` : rawPath
 }
 const navigateTo = (rawPath: string, mobile = false) => {
-  if (rawPath === '') return // AI/mock items
+  if (rawPath === '') return
   if (mobile) router.push(localizedPath(rawPath))
   else router.push(localizedPath(rawPath))
+}
+
+function onClusterHover(key: string) {
+  clearCloseTimer()
+  openCluster.value = key
+}
+function onDropdownItem(item: ClusterItem) {
+  handleClusterItem(item)
+  openCluster.value = ''
+}
+function onUserMenuItem(path: string) {
+  goTo(path)
+  userMenuOpen.value = false
+}
+function onMobileLogin() {
+  handleLogin()
+  mobileOpen.value = false
+}
+function onMobileLogout() {
+  handleLogout()
+  mobileOpen.value = false
+}
+function onMobileNav(path: string) {
+  goTo(path)
+  mobileOpen.value = false
 }
 
 function handleClusterItem(item: ClusterItem) {
