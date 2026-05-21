@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 问题咨询
+    url: https://github.com/nathanpenny520/WhizzZest/discussions
+    about: 如有使用问题或一般性讨论，请在 Discussions 中发起
+  - name: 安全漏洞
+    url: mailto:whizzzest@outlook.com
+    about: 请通过邮件报告安全漏洞，不要创建公开 Issue

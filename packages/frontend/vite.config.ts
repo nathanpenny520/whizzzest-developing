@@ -116,6 +116,10 @@ export default defineConfig({
         target: 'http://localhost:3001',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/ai/, '/api')
+      },
+      '/api/v1': {
+        target: 'http://localhost:3002',
+        changeOrigin: true
       }
     },
     headers: {
@@ -123,7 +127,7 @@ export default defineConfig({
       'X-Frame-Options': 'DENY',
       'X-XSS-Protection': '1; mode=block',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
-      'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://webapi.amap.com https://cache.amap.com https://restapi.amap.com https://jsapi-service.amap.com https://*.amap.com; style-src 'self' 'unsafe-inline' https://cache.amap.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' http://localhost:3001 https://whizzzest-yanjingwanzai.top https://restapi.amap.com https://webapi.amap.com https://lbs.amap.com https://jsapi-service.amap.com https://*.amap.com; font-src 'self' data:; worker-src 'self' blob:;"
+      'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://webapi.amap.com https://cache.amap.com https://restapi.amap.com https://jsapi-service.amap.com https://*.amap.com; style-src 'self' 'unsafe-inline' https://cache.amap.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' http://localhost:3001 http://localhost:3002 https://whizzzest-yanjingwanzai.top https://restapi.amap.com https://webapi.amap.com https://lbs.amap.com https://jsapi-service.amap.com https://*.amap.com; font-src 'self' data:; worker-src 'self' blob:;"
     }
   },
   preview: {

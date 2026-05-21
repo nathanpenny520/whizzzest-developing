@@ -197,12 +197,23 @@
         </div>
       </div>
     </section>
+
+    <!-- 优惠券专区（API 驱动） -->
+    <section v-if="coupons.length > 0" class="coupon-section">
+      <h2 class="section-title">{{ t('coupon.title') }}</h2>
+      <div class="coupon-grid">
+        <CouponCard v-for="c in coupons" :key="c.id" :coupon="c" :pre-claimed="claimedIds.has(c.id)" />
+      </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { api } from '@/api/client'
+import { useAuthStore } from '@/stores/auth'
+import CouponCard from '@/components/CouponCard.vue'
 import wanzaihuapaoImg from '../assets/images/changfang.png';
 import huapaoqingImg from '../assets/images/hezuoqiye.png';
 import teamImg from '../assets/images/team.png';
@@ -216,9 +227,31 @@ import tailinWenziImg from '../assets/images/tailin-wenzi.jpeg';
 import tailinGongchangImg from '../assets/images/tailin-gongchang.jpg';
 import tailinWeixinImg from '../assets/images/tailin-accountweixin.jpeg';
 
-const { t } = useI18n();
+const { t, locale } = useI18n()
+const isZh = computed(() => (locale.value as string) === 'zh-CN')
+const authStore = useAuthStore()
 
-const currentSlide = ref(0);
+// 优惠券数据（API 驱动）
+interface CouponItem { id: string; title: string; titleEn?: string; discount: number; totalStock: number; usedStock: number; merchant?: { name: string; nameEn?: string } }
+const coupons = ref<CouponItem[]>([])
+const claimedIds = ref(new Set<string>())
+
+onMounted(async () => {
+  try {
+    const res = await api.get('/coupons/public')
+    coupons.value = res.data.data || []
+  } catch { /* fallback */ }
+  // 恢复已领取状态（防止刷新后丢失）
+  if (authStore.isLoggedIn) {
+    try {
+      const my = await api.get('/coupons/my')
+      const ids: string[] = (my.data.data || []).map((uc: { couponId: string }) => uc.couponId)
+      claimedIds.value = new Set(ids)
+    } catch { /* */ }
+  }
+})
+
+const currentSlide = ref(0)
 let autoPlayInterval: ReturnType<typeof setInterval> | null = null;
 
 const nextSlide = () => {
@@ -369,5 +402,70 @@ onUnmounted(() => {
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* 优惠券专区 */
+.coupon-section {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+.coupon-section .section-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.coupon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.coupon-card {
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d1f3d 100%);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 14px;
+  padding: 20px;
+  color: #fff;
+}
+.coupon-merchant {
+  font-size: 11px;
+  color: #f59e0b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.coupon-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.coupon-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #9ca3af;
+  margin-bottom: 14px;
+}
+.coupon-claim {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, #dc2626, #d97706);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.coupon-claim:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.claim-error {
+  color: #ef4444;
+  font-size: 13px;
+  text-align: center;
+  margin: 0 0 12px;
 }
 </style>

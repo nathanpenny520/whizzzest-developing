@@ -1,7 +1,7 @@
 // 万载文旅知识库
 // 包含烟花文化、美食特产、旅游景点、非遗文化等信息
 
-const knowledgeBase = [
+export const knowledgeBase = [
   // ===== 烟花文化 =====
   {
     id: 'fireworks_001',
@@ -435,65 +435,52 @@ const knowledgeBase = [
     keywords: ['泰麟', '花炮', '小排炮', '双桥', 'wztlhp'],
     content: '泰麟花炮是焰境·万载的合作伙伴，官网链接：http://www.wztlhp.com/。是中国花炮百强企业，专注精品小排炮20余年，位于万载县双桥镇。'
   }
-];
+]
 
 /**
  * 关键词匹配评分
  */
-function scoreKeywords(question, item) {
-  const questionLower = question.toLowerCase();
-  let score = 0;
+function scoreKeywords(question: string, item: { keywords: string[] }): number {
+  const questionLower = question.toLowerCase()
+  let score = 0
 
   for (const keyword of item.keywords) {
     if (questionLower.includes(keyword.toLowerCase())) {
-      score += 1;
+      score += 1
     }
   }
 
-  return score;
+  return score
 }
 
 /**
  * 简单RAG检索
- * @param {string} question - 用户问题
- * @param {number} topK - 返回最相关的K条知识点
- * @returns {Array} - 相关知识点列表
  */
-function retrieveKnowledge(question, topK = 3) {
-  // 计算每条知识点的匹配分数
+export function retrieveKnowledge(question: string, topK = 3) {
   const scoredItems = knowledgeBase.map(item => ({
     ...item,
     score: scoreKeywords(question, item)
-  }));
+  }))
 
-  // 过滤有匹配的知识点，按分数排序，取前K条
   const matchedItems = scoredItems
     .filter(item => item.score > 0)
     .sort((a, b) => b.score - a.score)
-    .slice(0, topK);
+    .slice(0, topK)
 
-  return matchedItems;
+  return matchedItems
 }
 
 /**
  * 构建RAG上下文
- * @param {Array} knowledgeItems - 知识点列表
- * @returns {string} - 格式化的上下文文本
  */
-function buildContext(knowledgeItems) {
+export function buildContext(knowledgeItems: Array<{ category: string; content: string }>): string {
   if (knowledgeItems.length === 0) {
-    return '';
+    return ''
   }
 
   const contextParts = knowledgeItems.map(item =>
     `[${item.category}]\n${item.content}`
-  );
+  )
 
-  return contextParts.join('\n\n');
+  return contextParts.join('\n\n')
 }
-
-module.exports = {
-  knowledgeBase,
-  retrieveKnowledge,
-  buildContext
-};

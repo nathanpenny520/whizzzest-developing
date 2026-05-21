@@ -47,3 +47,6 @@ packages/backend/deploy/
 src/assets/videos/*.mp4
 src/assets/videos/*.webm
 src/assets/videos/*.mov
+packages/frontend/src/assets/videos/*.mp4
+packages/frontend/src/assets/videos/*.webm
+packages/frontend/src/assets/videos/*.mov

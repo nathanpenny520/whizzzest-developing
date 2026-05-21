@@ -16,6 +16,7 @@
 import { ref, onMounted, onUnmounted, watch, computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AMapLoader from '@amap/amap-jsapi-loader'
+import { emitter } from '@/eventBus'
 import type { Location, TravelRoute } from '@/data/locations'
 
 // Props 定义
@@ -358,6 +359,10 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  // 取消 mitt 订阅
+  emitter.off('map:navigate')
+  emitter.off('map:highlight')
+
   if (mapInstance) {
     mapInstance.destroy()
     mapInstance = null
@@ -365,6 +370,59 @@ onUnmounted(() => {
   markers = []
   routeMarkers = []
   polylines = []
+})
+
+// 暴露给父组件的方法
+defineExpose({
+  flyTo(lng: number, lat: number, zoom = 15) {
+    if (mapInstance) {
+      mapInstance.setZoomAndCenter(zoom, [lng, lat])
+    }
+  },
+  highlightMarker(id: string) {
+    // 查找并打开对应 marker 的信息窗口
+    const marker = markers.find((m: { getExtData?: () => { id: string } }) => {
+      try {
+        return m.getExtData?.()?.id === id
+      } catch {
+        return false
+      }
+    })
+    if (marker) {
+      const pos = marker.getPosition()
+      if (pos && mapInstance) {
+        mapInstance.setZoomAndCenter(15, [pos.lng, pos.lat])
+        // 模拟点击 marker 打开信息窗
+        ;(marker as { emit?: (event: string, e: unknown) => void }).emit?.('click', {
+          target: marker,
+        })
+      }
+    }
+  },
+})
+
+// 监听 AI 指令
+emitter.on('map:navigate', ({ lng, lat }: { lng: number; lat: number }) => {
+  if (mapInstance) {
+    mapInstance.setZoomAndCenter(15, [lng, lat])
+  }
+})
+
+emitter.on('map:highlight', ({ merchantId }: { merchantId: string }) => {
+  // 查找商户 marker 并高亮
+  const marker = markers.find((m: { getExtData?: () => { id: string } }) => {
+    try {
+      return m.getExtData?.()?.id === merchantId
+    } catch {
+      return false
+    }
+  })
+  if (marker && mapInstance) {
+    const pos = marker.getPosition()
+    if (pos) {
+      mapInstance.setZoomAndCenter(16, [pos.lng, pos.lat])
+    }
+  }
 })
 </script>
 

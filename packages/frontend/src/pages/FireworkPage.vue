@@ -16,6 +16,11 @@
       </div>
     </div>
 
+    <!-- 操作提示（首次显示，4秒后消失） -->
+    <div v-if="showHint" class="firework-hint">
+      {{ t('firework.hint') }}
+    </div>
+
     <div class="controls" v-if="!loading">
       <div class="btn pause-btn" @click="togglePause">
         <svg v-if="isPaused" fill="white" width="24" height="24" viewBox="0 0 24 24">
@@ -33,11 +38,23 @@
           <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
         </svg>
       </div>
+      <div class="btn save-btn" @click="handleSave" :title="currentLocale === 'zh-CN' ?'保存配方' : 'Save Recipe'">
+        <svg fill="white" width="22" height="22" viewBox="0 0 24 24">
+          <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" />
+        </svg>
+      </div>
       <div class="btn settings-btn" @click="showSettings = !showSettings">
         <svg fill="white" width="24" height="24" viewBox="0 0 24 24">
           <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" />
         </svg>
       </div>
+    </div>
+
+    <!-- Sim Speed 拖拽条 (Phase B2) -->
+    <div class="sim-speed-bar" ref="simSpeedBarRef"
+      @mousedown="startSimSpeedDrag" @touchstart.prevent="startSimSpeedDrag">
+      <div class="sim-speed-fill" :style="{ width: (simSpeed * 100) + '%' }" />
+      <div class="sim-speed-label" :class="{ visible: showSimSpeedLabel }">{{ (simSpeed * 100).toFixed(0) }}%</div>
     </div>
 
     <div class="menu" :class="{ hide: !showSettings }">
@@ -65,6 +82,7 @@
               <option value="Ring">{{ t('firework.types.ring') }}</option>
               <option value="Strobe">{{ t('firework.types.strobe') }}</option>
               <option value="Willow">{{ t('firework.types.willow') }}</option>
+              <option value="Text">{{ t('firework.types.text') }}</option>
             </select>
           </div>
           <div class="form-option form-option--select">
@@ -101,6 +119,20 @@
             <label>{{ t('firework.finaleMode') }}</label>
             <input type="checkbox" v-model="finaleMode" />
           </div>
+          <div class="form-option form-option--checkbox">
+            <label>{{ t('firework.longExposure') }}</label>
+            <input type="checkbox" v-model="longExposure" />
+          </div>
+          <div class="form-option form-option--select">
+            <label>{{ t('firework.launchSequence') }}</label>
+            <select v-model="launchSequence">
+              <option value="random">{{ t('firework.seqRandom') }}</option>
+              <option value="twoRandom">{{ t('firework.seqTwoRandom') }}</option>
+              <option value="triple">{{ t('firework.seqTriple') }}</option>
+              <option value="pyramid">{{ t('firework.seqPyramid') }}</option>
+              <option value="smallBarrage">{{ t('firework.seqSmallBarrage') }}</option>
+            </select>
+          </div>
           <div class="form-option form-option--checkbox form-option--fullscreen">
             <label>{{ t('firework.fullscreen') }}</label>
             <input type="checkbox" v-model="fullscreen" @change="toggleFullscreen" />
@@ -111,7 +143,84 @@
               <option v-for="opt in backgroundOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
             </select>
           </div>
+          <!-- 文字烟花 -->
+          <div class="form-option">
+            <label>{{ t('firework.textFirework.label') }}</label>
+            <div class="text-firework-row">
+              <input v-model="textFireworkInput" maxlength="4"
+                :placeholder="t('firework.textFirework.placeholder')"
+                class="text-firework-input" />
+              <button @click="launchTextFirework" class="text-firework-btn"
+                :disabled="!textFireworkInput.trim()">
+                {{ t('firework.textFirework.launch') }}
+              </button>
+            </div>
+          </div>
+          <!-- 文字预设 -->
+          <div class="form-option">
+            <label>{{ t('firework.textPresets.label') }}</label>
+            <div class="text-presets-row">
+              <input v-model="newPreset" maxlength="4"
+                :placeholder="t('firework.textPresets.placeholder')"
+                class="text-firework-input" @keyup.enter="addTextPreset" />
+              <button @click="addTextPreset" class="text-firework-btn"
+                :disabled="!newPreset.trim() || textPresets.length >= 8">
+                {{ t('firework.textPresets.add') }}
+              </button>
+            </div>
+            <div class="text-presets-tags" v-if="textPresets.length">
+              <span v-for="(p, i) in textPresets" :key="i" class="preset-tag"
+                @click="textFireworkInput = p; launchTextFirework()">
+                {{ p }}
+                <button class="preset-remove" @click.stop="removeTextPreset(i)">×</button>
+              </span>
+            </div>
+          </div>
+          <!-- 颜色选择器 Phase D1 -->
+          <div class="form-option">
+            <label>{{ t('firework.customColor') }}</label>
+            <div class="color-picker-row">
+              <button v-for="c in presetColors" :key="c" class="color-swatch"
+                :style="{ background: c }"
+                :class="{ active: customColor === c }"
+                @click="customColor = customColor === c ? null : c" />
+              <input type="color" v-model="colorPickerHex" class="color-hex-input"
+                @change="customColor = colorPickerHex" />
+              <button v-if="customColor" class="color-reset" @click="customColor = null">×</button>
+            </div>
+          </div>
+          <!-- 录制模式 Phase C1 -->
+          <div class="form-option form-option--checkbox">
+            <label>{{ t('firework.recordMode') }}</label>
+            <input type="checkbox" v-model="isRecording" />
+          </div>
+          <div v-if="isRecording" class="record-status">
+            {{ t('firework.recording', { count: timeline.length, time: formatDuration(totalRecordTime) }) }}
+            <button class="text-firework-btn" @click="clearRecording">{{ t('firework.clearRecording') }}</button>
+          </div>
+          <!-- 高级参数 Phase D3 -->
+          <details class="advanced-params">
+            <summary>{{ t('firework.advancedParams') }}</summary>
+            <div class="form-option">
+              <label>{{ t('firework.gravity') }} ({{ gravity }})</label>
+              <input type="range" min="0.5" max="1.5" step="0.1" v-model.number="gravity" class="param-slider" />
+            </div>
+            <div class="form-option">
+              <label>{{ t('firework.particleDensity') }} ({{ particleDensity }})</label>
+              <input type="range" min="0.5" max="2.0" step="0.1" v-model.number="particleDensity" class="param-slider" />
+            </div>
+            <div class="form-option">
+              <label>{{ t('firework.sparkAmount') }} ({{ sparkAmount }})</label>
+              <input type="range" min="0.5" max="2.0" step="0.1" v-model.number="sparkAmount" class="param-slider" />
+            </div>
+            <p class="param-hint">{{ t('firework.advancedHint') }}</p>
+          </details>
         </form>
+
+        <!-- 热门排行榜（嵌入设置面板底部） -->
+        <div class="leaderboard-in-menu">
+          <FireworkLeaderboard />
+        </div>
       </div>
     </div>
 
@@ -125,6 +234,32 @@
     <div class="lang-btn" @click="toggleLanguage">
       <span>{{ currentLocale === 'zh-CN' ? 'EN' : '中文' }}</span>
     </div>
+
+    <!-- 保存对话框 -->
+    <div v-if="showSaveDialog" class="save-overlay" @click.self="showSaveDialog = false">
+      <div class="save-card" v-if="!saveSuccess">
+        <h3>{{ t('firework.saveDialog.title') }}</h3>
+        <input v-model="saveTitle" class="save-input" maxlength="30"
+          :placeholder="t('firework.saveDialog.placeholder')" />
+        <div class="save-btns">
+          <button class="save-submit" @click="doSave" :disabled="saveLoading">
+            {{ saveLoading ? t('firework.saveDialog.saving') : t('firework.saveDialog.save') }}
+          </button>
+          <button class="save-cancel" @click="showSaveDialog = false">{{ t('firework.saveDialog.cancel') }}</button>
+        </div>
+      </div>
+      <div class="save-card" v-else>
+        <h3>{{ t('firework.saveDialog.success') }}</h3>
+        <p class="save-slug">{{ t('firework.saveDialog.shareGenerated') }}</p>
+        <div class="share-url-box">
+          <code>{{ shareUrl }}</code>
+        </div>
+        <div class="save-btns">
+          <button class="save-submit" @click="copyShareLink">{{ t('firework.saveDialog.copyLink') }}</button>
+          <button class="save-cancel" @click="showSaveDialog = false">{{ t('firework.saveDialog.close') }}</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -135,10 +270,13 @@
  * Github：https://github.com/NianBroken/Firework_Simulator
  * 本项目采用 Apache-2.0 许可证
  */
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { useI18n } from 'vue-i18n';
-import defaultBgImage from '../assets/images/guchen_yanhua.jpeg';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/stores/auth'
+import { api } from '@/api/client'
+import FireworkLeaderboard from '@/components/FireworkLeaderboard.vue'
+import defaultBgImage from '../assets/images/guchen_yanhua.jpeg'
 import shootingstarsBgImage from '../assets/images/shootingstars.jpeg';
 import moonuniverseBgImage from '../assets/images/moonuniverse.jpeg';
 import mountainsBgImage from '../assets/images/mountains.jpeg';
@@ -161,8 +299,9 @@ const { t, locale } = useI18n();
 const currentLocale = computed(() => locale.value);
 
 // 状态
-const loading = ref(true);
-const loadingStatus = ref(t('firework.loadingStatus'));
+const loading = ref(true)
+const loadingStatus = ref(t('firework.loadingStatus'))
+const initError = ref('')
 const isPaused = ref(false);
 const soundEnabled = ref(true);
 const showSettings = ref(false);
@@ -173,16 +312,177 @@ const skyLighting = ref('2');
 const autoLaunch = ref(true);
 const finaleMode = ref(false);
 const fullscreen = ref(false);
-const backgroundType = ref('default');
+const showHint = ref(true)
+setTimeout(() => { showHint.value = false }, 4000)
+
+const backgroundType = ref('default')
+
+// 文字烟花（Phase A1/A2: 整合为主引擎 Shell 类型）
+const textFireworkInput = ref('')
+const textPresets = ref<string[]>(loadTextPresets())
+const newPreset = ref('')
+
+// 在 window 上暴露预设列表供引擎 textShell 使用
+;(window as any).__wanzaiTextPresets = textPresets.value
+
+function addTextPreset() {
+  const val = newPreset.value.trim()
+  if (!val || textPresets.value.length >= 8) return
+  textPresets.value.push(val)
+  saveTextPresets(textPresets.value)
+  ;(window as any).__wanzaiTextPresets = textPresets.value
+  newPreset.value = ''
+}
+function removeTextPreset(i: number) {
+  textPresets.value.splice(i, 1)
+  saveTextPresets(textPresets.value)
+  ;(window as any).__wanzaiTextPresets = textPresets.value
+}
+
+// 手动发射文字烟花：创建 Text Shell 直接爆在屏幕中间
+function launchTextFirework() {
+  const text = textFireworkInput.value.trim()
+  if (!text || !fireworkEngine) return
+
+  const lattice = rasterizeText(text, 3)
+  if (!lattice || lattice.points.length === 0) return
+
+  const cx = 0.5
+  const cy = 0.35
+  const x = cx * fireworkEngine.width
+  const y = cy * fireworkEngine.height
+
+  const config = textShell(0, text) as any
+  if (!config) return
+  config.textLattice = lattice
+
+  const shell = new Shell(config)
+  shell.burst(x, y, fireworkEngine)
+}
+
+// Phase B/C/D 新增状态
+const longExposure = ref(false)
+const launchSequence = ref('random')
+const simSpeed = ref(0.9)
+const showSimSpeedLabel = ref(false)
+const isRecording = ref(false)
+const timeline = ref<{ delay: number; shellType: string; shellSize: number; x: number; height: number; text?: string }[]>([])
+const recordStartTime = ref(0)
+const totalRecordTime = computed(() => isRecording.value ? Date.now() - recordStartTime.value : 0)
+const customColor = ref<string | null>(null)
+const presetColors = ['#ff0043', '#14fc56', '#1e7fff', '#e60aff', '#ffbf36', '#ffffff']
+const colorPickerHex = ref('#ff0043')
+const gravity = ref(0.9)
+const particleDensity = ref(1.0)
+const sparkAmount = ref(1.0)
+const simSpeedBarRef = ref<HTMLElement | null>(null)
+let simSpeedLabelTimer: ReturnType<typeof setTimeout> | null = null
+
+function formatDuration(ms: number) {
+  const s = Math.floor(ms / 1000)
+  const m = Math.floor(s / 60)
+  return `${m}:${String(s % 60).padStart(2, '0')}`
+}
+
+function clearRecording() {
+  timeline.value = []
+  recordStartTime.value = 0
+}
+
+// Sim Speed 拖拽
+function startSimSpeedDrag(e: MouseEvent | TouchEvent) {
+  e.preventDefault()
+  const update = (clientX: number) => {
+    if (!simSpeedBarRef.value) return
+    const rect = simSpeedBarRef.value.getBoundingClientRect()
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
+    simSpeed.value = Math.round(ratio * 100) / 100
+    if (fireworkEngine) fireworkEngine.config.simSpeed = simSpeed.value
+  }
+  if ('touches' in e) update(e.touches[0].clientX)
+  else update(e.clientX)
+
+  const onMove = (ev: MouseEvent | TouchEvent) => {
+    const cx = 'touches' in ev ? (ev as TouchEvent).touches[0].clientX : (ev as MouseEvent).clientX
+    update(cx)
+  }
+  const onUp = () => {
+    document.removeEventListener('mousemove', onMove)
+    document.removeEventListener('touchmove', onMove)
+    document.removeEventListener('mouseup', onUp)
+    document.removeEventListener('touchend', onUp)
+  }
+  document.addEventListener('mousemove', onMove)
+  document.addEventListener('touchmove', onMove)
+  document.addEventListener('mouseup', onUp)
+  document.addEventListener('touchend', onUp)
+}
+
+// 保存配方
+const showSaveDialog = ref(false)
+const saveTitle = ref('')
+const shareSlug = ref('')
+const saveSuccess = ref(false)
+const saveLoading = ref(false)
+
+const authStore = useAuthStore()
+
+function handleSave() {
+  authStore.requireLogin(() => {
+    showSaveDialog.value = true
+    saveSuccess.value = false
+    saveTitle.value = currentLocale.value === 'zh-CN' ? '我的烟花秀' : 'My Firework Show'
+    shareSlug.value = ''
+  }, 'save_firework')
+}
+
+async function doSave() {
+  if (saveLoading.value) return
+  saveLoading.value = true
+  try {
+    const config = {
+      shellType: shellType.value,
+      shellSize: Number(shellSize.value),
+      quality: Number(quality.value),
+      skyLighting: Number(skyLighting.value),
+      autoLaunch: autoLaunch.value,
+      finaleMode: finaleMode.value,
+      soundEnabled: soundEnabled.value,
+      backgroundImage: backgroundType.value === 'none' ? null : backgroundType.value,
+      longExposure: longExposure.value,
+      simSpeed: simSpeed.value,
+      launchSequence: launchSequence.value,
+      textFirework: { enabled: textPresets.value.length > 0, preset: textPresets.value },
+      customColor: customColor.value,
+      textPresets: textPresets.value,
+      gravity: gravity.value,
+      particleDensity: particleDensity.value,
+      sparkAmount: sparkAmount.value,
+      timeline: timeline.value.length > 0 ? timeline.value : undefined,
+    }
+    const res = await api.post('/fireworks', { title: saveTitle.value, config })
+    shareSlug.value = res.data.data.shareSlug
+    saveSuccess.value = true
+  } catch {
+    alert(t('common.saveFailed'))
+  } finally {
+    saveLoading.value = false
+  }
+}
+
+const shareUrl = computed(() => `${window.location.origin}/firework/share/${shareSlug.value}`)
+
+function copyShareLink() {
+  navigator.clipboard.writeText(shareUrl.value).catch(() => {})
+}
 
 // DOM refs
 const stageContainer = ref<HTMLElement | null>(null);
 const backgroundLayer = ref<HTMLElement | null>(null);
 const skyLightLayer = ref<HTMLElement | null>(null);
 const canvasContainer = ref<HTMLElement | null>(null);
-const trailsCanvas = ref<HTMLCanvasElement | null>(null);
-const mainCanvas = ref<HTMLCanvasElement | null>(null);
-
+const trailsCanvas = ref<HTMLCanvasElement | null>(null)
+const mainCanvas = ref<HTMLCanvasElement | null>(null)
 // 烟花引擎实例
 let fireworkEngine: FireworkEngine | null = null;
 
@@ -195,8 +495,20 @@ onMounted(() => {
     locale.value = 'zh-CN';
     localStorage.setItem('locale', 'zh-CN');
   }
-  initFirework();
-});
+  initFirework()
+
+  // 8 秒超时兜底
+  setTimeout(() => {
+    if (loading.value) {
+      loading.value = false
+      if (!fireworkEngine) {
+        initError.value = currentLocale.value === 'zh-CN'
+          ? '引擎初始化超时，请刷新页面重试'
+          : 'Engine init timeout, please refresh'
+      }
+    }
+  }, 8000)
+})
 
 onUnmounted(() => {
   if (fireworkEngine) {
@@ -256,7 +568,7 @@ function toggleFullscreen() {
   }
 }
 
-watch([shellType, shellSize, quality, skyLighting, autoLaunch, finaleMode, backgroundType], () => {
+watch([shellType, shellSize, quality, skyLighting, autoLaunch, finaleMode, backgroundType, longExposure, launchSequence, simSpeed, gravity, particleDensity, sparkAmount, customColor], () => {
   if (fireworkEngine) {
     const selectedBg = backgroundOptions.value.find((opt: any) => opt.value === backgroundType.value);
     fireworkEngine.updateConfig({
@@ -266,6 +578,13 @@ watch([shellType, shellSize, quality, skyLighting, autoLaunch, finaleMode, backg
       skyLighting: parseInt(skyLighting.value),
       autoLaunch: autoLaunch.value,
       finaleMode: finaleMode.value,
+      longExposure: longExposure.value,
+      launchSequence: launchSequence.value,
+      simSpeed: simSpeed.value,
+      gravity: gravity.value,
+      particleDensity: particleDensity.value,
+      sparkAmount: sparkAmount.value,
+      customColor: customColor.value,
       backgroundImage: selectedBg?.image || null
     });
   }
@@ -295,12 +614,34 @@ function initFirework() {
       autoLaunch: autoLaunch.value,
       finaleMode: finaleMode.value,
       soundEnabled: soundEnabled.value,
-      backgroundImage: selectedBg?.image || null
+      backgroundImage: selectedBg?.image || null,
+      longExposure: longExposure.value,
+      simSpeed: simSpeed.value,
+      launchSequence: launchSequence.value,
+      gravity: gravity.value,
+      particleDensity: particleDensity.value,
+      sparkAmount: sparkAmount.value,
+      customColor: customColor.value,
     },
     () => {
       loading.value = false;
     }
   );
+
+  // Phase C1: 录制模式回调
+  fireworkEngine.onShellLaunch = (shellType, shellSize, x, height) => {
+    if (isRecording.value) {
+      if (!recordStartTime.value) recordStartTime.value = Date.now()
+      timeline.value.push({
+        delay: Date.now() - recordStartTime.value,
+        shellType,
+        shellSize,
+        x,
+        height,
+        text: shellType === 'Text' ? textFireworkInput.value || undefined : undefined,
+      })
+    }
+  }
 }
 
 // ========== 烟花引擎类（复刻自原始代码） ==========
@@ -373,6 +714,65 @@ function makePistilColor(shellColor: string): string {
   return shellColor === COLOR.White || shellColor === COLOR.Gold
     ? randomColor({ notColor: shellColor })
     : whiteOrGold();
+}
+
+// 文字栅格化（Phase A1：文字烟花融入主引擎）
+function rasterizeText(text: string, density = 3): { width: number; height: number; points: { x: number; y: number }[] } {
+  const offCanvas = document.createElement('canvas')
+  const fontSize = 80 + Math.random() * 50
+  offCanvas.width = Math.ceil(text.length * fontSize * 0.8 + 20)
+  offCanvas.height = Math.ceil(fontSize * 1.4)
+  const ctx = offCanvas.getContext('2d')
+  if (!ctx) return { width: 0, height: 0, points: [] }
+
+  ctx.fillStyle = '#ffffff'
+  ctx.font = `bold ${fontSize}px "PingFang SC","Microsoft YaHei",sans-serif`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(text, offCanvas.width / 2, offCanvas.height / 2)
+
+  const imageData = ctx.getImageData(0, 0, offCanvas.width, offCanvas.height)
+  const points: { x: number; y: number }[] = []
+  for (let y = 0; y < offCanvas.height; y += density) {
+    for (let x = 0; x < offCanvas.width; x += density) {
+      const idx = (y * offCanvas.width + x) * 4
+      if (imageData.data[idx + 3] > 100) {
+        points.push({ x, y })
+      }
+    }
+  }
+  return { width: offCanvas.width, height: offCanvas.height, points }
+}
+
+// 文字烟花 Shell 工厂（与其他 12 种 Shell 类型平级）
+function textShell(_size: number, text: string): any {
+  const lattice = rasterizeText(text)
+  if (lattice.points.length === 0) return null
+  const color = Math.random() < 0.5 ? [COLOR.Gold, COLOR.Red] : [COLOR.Gold, randomColor({ notColor: COLOR.Gold })]
+  return {
+    shellSize: 3,
+    spreadSize: Math.max(lattice.width, lattice.height) * 0.8,
+    starLife: 1200,
+    starLifeVariation: 0.3,
+    starDensity: 0.3,
+    color,
+    glitter: 'light',
+    glitterColor: COLOR.Gold,
+    textLattice: lattice,
+    textStrobe: Math.random() < 0.5,
+  }
+}
+
+// 文字烟花预设（localStorage 持久化）
+function loadTextPresets(): string[] {
+  try {
+    const stored = localStorage.getItem('wanzai_text_presets')
+    if (stored) return JSON.parse(stored)
+  } catch {}
+  return ['万载', '花傩', '焰境', '烟花']
+}
+function saveTextPresets(presets: string[]) {
+  localStorage.setItem('wanzai_text_presets', JSON.stringify(presets))
 }
 
 // 创建粒子集合（按颜色分组）
@@ -745,6 +1145,11 @@ function getShellTypes(quality: number): Record<string, (size: number) => any> {
     'Ring': (size) => ringShell(size),
     'Strobe': (size) => strobeShell(size),
     'Willow': (size) => willowShell(size),
+    'Text': (size) => {
+      const presets = (window as any).__wanzaiTextPresets || []
+      const text = presets.length > 0 ? presets[(Math.random() * presets.length) | 0] : '万载'
+      return textShell(size, text)
+    },
   };
 
   shellTypes['Random'] = (size) => {
@@ -763,13 +1168,13 @@ class Shell {
   starLife!: number;
   starLifeVariation: number;
   starDensity!: number;
-  starCount: number;
-  color: string | string[] | 'random';
-  secondColor: string | null;
+  starCount!: number;
+  color!: string | string[] | 'random';
+  secondColor: string | null = null;
   glitter!: string;
-  glitterColor: string;
+  glitterColor!: string;
   pistil!: boolean;
-  pistilColor: string | false;
+  pistilColor: string | false = false;
   streamers!: boolean;
   crossette!: boolean;
   crackle!: boolean;
@@ -777,9 +1182,11 @@ class Shell {
   fallingLeaves!: boolean;
   ring!: boolean;
   strobe!: boolean;
-  strobeColor: string | null;
+  strobeColor: string | null = null;
   horsetail!: boolean;
-  comet: any;
+  textLattice: any = null;
+  textStrobe: boolean = false;
+  comet: any = null;
 
   constructor(options: any) {
     Object.assign(this, options);
@@ -1018,6 +1425,34 @@ class Shell {
       }
     }
 
+    // 文字烟花：为每个采样点创建 Star/Spark（Phase A1）
+    if (this.textLattice) {
+      const lattice = this.textLattice
+      const dcenterX = lattice.width / 2
+      const dcenterY = lattice.height / 2
+      const useStrobe = this.textStrobe
+
+      for (const pt of lattice.points) {
+        const px = x + (pt.x - dcenterX) * 0.7
+        const py = y + (pt.y - dcenterY) * 0.7
+
+        if (useStrobe) {
+          const star = StarManager.add(px, py, color || randomColor(), 0, Math.random() * 0.15, 800 + Math.random() * 400)
+          star.strobe = true
+          star.strobeFreq = Math.random() * 20 + 40
+          star.transitionTime = star.fullLife * (Math.random() * 0.3 + 0.2)
+          star.secondColor = this.glitterColor || COLOR.Gold
+        } else {
+          const sparkSpeed = Math.pow(Math.random(), 0.15) * 1.4
+          const angle = Math.random() * PI_2
+          SparkManager.add(px, py, color || randomColor(), angle, sparkSpeed, 600 + Math.random() * 400)
+          // 尾影
+          const tailAngle = Math.random() * PI_2
+          SparkManager.add(px + 5, py + 10, color || COLOR.Gold, tailAngle, Math.pow(Math.random(), 0.05) * 0.4, 400 + Math.random() * 300)
+        }
+      }
+    }
+
     // Pistil
     if (this.pistil && this.pistilColor) {
       const innerShell = new Shell({
@@ -1231,6 +1666,8 @@ class FireworkEngine {
     bufferSource.start(0);
   }
 
+  onShellLaunch: ((shellType: string, shellSize: number, x: number, height: number) => void) | null = null
+
   handlePointer(e: MouseEvent | TouchEvent) {
     if (this.isPaused) return;
 
@@ -1247,6 +1684,10 @@ class FireworkEngine {
     const posY = 1 - y / this.height;
 
     this.launchShell(posX, posY);
+
+    if (this.onShellLaunch) {
+      this.onShellLaunch(this.config.shellType, this.config.shellSize, posX, posY);
+    }
   }
 
   launchShell(x: number, height: number) {
@@ -1258,8 +1699,65 @@ class FireworkEngine {
     const shellConfigFunc = shellTypes[shellTypeName] || shellTypes['Random'];
     const shellConfig = shellConfigFunc(size);
 
+    // Phase D1: customColor 覆盖随机颜色
+    if (this.config.customColor && shellConfig.color && typeof shellConfig.color === 'string' && shellConfig.color !== 'random') {
+      shellConfig.color = this.config.customColor
+    }
+
     const shell = new Shell(shellConfig);
     shell.launch(x, height, this);
+  }
+
+  // Phase B3: Launch Sequences
+  executeSequence(seq: string) {
+    const width = this.width
+    const hw = width / 2
+    const isDesktop = width > 768
+
+    switch (seq) {
+      case 'twoRandom': {
+        this.autoLaunchTimer = 1800 + Math.random() * 1200
+        this.launchShell(0.3 + Math.random() * 0.1, 0.3 + Math.random() * 0.4)
+        this.launchShell(0.6 + Math.random() * 0.1, 0.3 + Math.random() * 0.4)
+        break
+      }
+      case 'triple': {
+        this.autoLaunchTimer = 2800 + Math.random() * 1500
+        this.launchShell(0.5, 0.4 + Math.random() * 0.2)
+        setTimeout(() => this.launchShell(0.25 + Math.random() * 0.1, 0.2 + Math.random() * 0.3), 1000 + Math.random() * 400)
+        setTimeout(() => this.launchShell(0.65 + Math.random() * 0.1, 0.2 + Math.random() * 0.3), 1000 + Math.random() * 400)
+        break
+      }
+      case 'pyramid': {
+        this.autoLaunchTimer = 5000
+        const count = isDesktop ? 7 : 4
+        const startX = (1 - (count - 1) * 0.08) / 2
+        for (let i = 0; i < count; i++) {
+          const posX = startX + i * 0.08
+          setTimeout(() => this.launchShell(posX, 0.3 + Math.random() * 0.3), i * 80)
+          setTimeout(() => this.launchShell(posX, 0.1 + Math.random() * 0.2), i * 80 + 200)
+        }
+        break
+      }
+      case 'smallBarrage': {
+        this.autoLaunchTimer = 15000
+        const bc = isDesktop ? 11 : 5
+        const stepX = 0.9 / bc
+        const startX = 0.05
+        for (let i = 0; i < bc; i++) {
+          const posX = startX + stepX * i
+          const h = 0.2 + Math.cos((i / bc) * Math.PI * 2) * 0.15 + Math.random() * 0.1
+          setTimeout(() => this.launchShell(posX, h), i * 60 + Math.random() * 30)
+        }
+        break
+      }
+      default: { // random
+        this.autoLaunchTimer = this.config.finaleMode ? 200 : 1500 + Math.random() * 1000
+        const x = 0.2 + Math.random() * 0.6
+        const height = 0.2 + Math.random() * 0.5
+        this.launchShell(x, height)
+      }
+    }
   }
 
   startLoop() {
@@ -1290,25 +1788,31 @@ class FireworkEngine {
   update(frameTime: number, lag: number) {
     this.currentFrame++;
 
-    const timeStep = frameTime;
-    const speed = lag;
+    const simSpeed = this.config.simSpeed ?? 0.9
+    const timeStep = frameTime * simSpeed
+    const speed = lag * simSpeed
 
-    // 自动发射
+    // 自动发射（Phase B3: Launch Sequences）
     if (this.config.autoLaunch) {
       this.autoLaunchTimer -= timeStep;
       if (this.autoLaunchTimer <= 0) {
-        this.autoLaunchTimer = this.config.finaleMode ? 200 : 1500 + Math.random() * 1000;
-        const x = 0.2 + Math.random() * 0.6;
-        const height = 0.2 + Math.random() * 0.5;
-        this.launchShell(x, height);
+        const seq = this.config.launchSequence || 'random'
+        this.executeSequence(seq)
       }
     }
 
-    // 物理常量
+    // 物理常量（Phase D3: 自定义参数）
+    const gravityMult = this.config.gravity ?? 0.9
+    const densityMult = this.config.particleDensity ?? 1.0
+    const sparkMult = this.config.sparkAmount ?? 1.0
+
     const starDrag = 1 - (1 - StarManager.airDrag) * speed;
     const starDragHeavy = 1 - (1 - StarManager.airDragHeavy) * speed;
     const sparkDrag = 1 - (1 - SparkManager.airDrag) * speed;
-    const gAcc = (timeStep / 1000) * GRAVITY;
+    const gAcc = (timeStep / 1000) * (GRAVITY * gravityMult / 0.9);
+
+    // 粒子密度 → 动态调整 spark 频率
+    const densitySparkMod = 1 / Math.max(0.3, densityMult)
 
     // 更新所有颜色的星星
     COLOR_CODES_W_INVIS.forEach((colorCode: string) => {
@@ -1350,7 +1854,7 @@ class FireworkEngine {
           if (star.sparkFreq) {
             star.sparkTimer -= timeStep;
             while (star.sparkTimer < 0) {
-              star.sparkTimer += star.sparkFreq * 0.75 + star.sparkFreq * burnRateInverse * 4;
+              star.sparkTimer += (star.sparkFreq * 0.75 + star.sparkFreq * burnRateInverse * 4) * sparkMult / densitySparkMod;
               SparkManager.add(
                 star.x, star.y, star.sparkColor,
                 Math.random() * PI_2,
@@ -1472,7 +1976,8 @@ class FireworkEngine {
     if (hasBackground) {
       ctx.clearRect(0, 0, this.width, this.height);
     } else {
-      ctx.fillStyle = `rgba(0, 0, 0, ${0.175 * lag})`;
+      const fadeAlpha = this.config.longExposure ? 0.005 * lag : 0.175 * lag
+      ctx.fillStyle = `rgba(0, 0, 0, ${fadeAlpha})`;
       ctx.fillRect(0, 0, this.width, this.height);
     }
 
@@ -1830,4 +2335,304 @@ class FireworkEngine {
 .lang-btn:hover {
   background: rgba(255,0,0,0.7);
 }
+
+/* 保存对话框 */
+.save-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+.save-card {
+  background: #1a1a2e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 28px 24px;
+  width: 340px;
+  max-width: 90vw;
+  text-align: center;
+  color: #fff;
+}
+.save-card h3 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+.save-slug {
+  color: #9ca3af;
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+.share-url-box {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 16px;
+}
+.share-url-box code {
+  font-size: 12px;
+  color: #f59e0b;
+  word-break: break-all;
+}
+.save-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  margin-bottom: 16px;
+  outline: none;
+  box-sizing: border-box;
+}
+.save-input:focus {
+  border-color: #f59e0b;
+}
+.save-btns {
+  display: flex;
+  gap: 10px;
+}
+.save-submit {
+  flex: 1;
+  padding: 10px;
+  background: linear-gradient(135deg, #dc2626, #d97706);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.save-submit:disabled {
+  opacity: 0.5;
+}
+.save-cancel {
+  padding: 10px 16px;
+  background: transparent;
+  color: #9ca3af;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.leaderboard-in-menu {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 文字烟花 */
+.text-firework-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.text-firework-input {
+  flex: 1;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+.text-firework-input:focus {
+  border-color: #f59e0b;
+}
+.text-firework-btn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.text-firework-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* 操作提示 */
+.firework-hint {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 120;
+  background: rgba(26, 26, 46, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px 20px;
+  color: #e2e8f0;
+  font-size: 13px;
+  white-space: nowrap;
+  animation: hintFade 4s ease forwards;
+  pointer-events: none;
+}
+@keyframes hintFade {
+  0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Phase A2/B/C/D 新增 UI 样式 */
+/* 文字预设标签 */
+.text-presets-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.text-presets-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.preset-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 20px;
+  color: #f59e0b;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.preset-tag:hover {
+  background: rgba(245, 158, 11, 0.3);
+}
+.preset-remove {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  line-height: 1;
+}
+.preset-remove:hover { color: #ef4444; }
+
+/* 颜色选择器 */
+.color-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.color-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.color-swatch:hover { transform: scale(1.15); }
+.color-swatch.active { border-color: #fff; transform: scale(1.15); }
+.color-hex-input {
+  width: 28px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+}
+.color-reset {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0 4px;
+}
+.color-reset:hover { color: #ef4444; }
+
+/* 录制状态 */
+.record-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 8px;
+  color: #fca5a5;
+  font-size: 13px;
+}
+
+/* 高级参数 */
+.advanced-params {
+  margin-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 12px;
+}
+.advanced-params summary {
+  color: rgba(255,255,255,0.6);
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 0;
+}
+.advanced-params summary:hover { color: #fff; }
+.param-slider {
+  width: 100%;
+  accent-color: #f59e0b;
+  cursor: pointer;
+}
+.param-hint {
+  color: rgba(255,255,255,0.35);
+  font-size: 11px;
+  margin: 8px 0 0;
+}
+
+/* Sim Speed 拖拽条 (Phase B2) */
+.sim-speed-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,0.8);
+  cursor: pointer;
+  z-index: 110;
+  transition: height 0.15s;
+}
+.sim-speed-bar:hover { height: 14px; }
+.sim-speed-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #ef4444);
+  border-radius: 0 4px 4px 0;
+}
+.sim-speed-label {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  color: #f59e0b;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 10px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.sim-speed-label.visible { opacity: 1; }
 </style>

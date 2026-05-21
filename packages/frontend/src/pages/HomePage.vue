@@ -30,42 +30,46 @@
         </div>
         <!-- Overlay -->
         <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-        
-        <!-- Navigation Buttons -->
-        <button 
-          @click="goToPrev"
-          class="absolute left-2 md:left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 active:bg-opacity-50 text-white rounded-full w-12 h-12 md:w-10 md:h-10 flex items-center justify-center transition-all z-20 touch-manipulation"
-          aria-label="Previous slide"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <button 
-          @click="goToNext"
-          class="absolute right-2 md:right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 active:bg-opacity-50 text-white rounded-full w-12 h-12 md:w-10 md:h-10 flex items-center justify-center transition-all z-20 touch-manipulation"
-          aria-label="Next slide"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-        
-        <!-- Indicators -->
-        <div class="absolute bottom-4 left-0 right-0 flex justify-center space-x-2 z-20">
-          <button 
-            v-for="(_, index) in carouselItems" 
-            :key="index"
-            @click="goToSlide(index)"
-            class="w-3 h-3 md:w-2 md:h-2 rounded-full transition-all touch-manipulation p-1"
-            :class="activeSlide === index ? 'bg-white w-8 md:w-6' : 'bg-white bg-opacity-50'"
-            :aria-label="`Go to slide ${index + 1}`"
-          ></button>
-        </div>
       </div>
-      
+
+      <!-- Navigation Buttons - outside carousel container to fix z-index issue -->
+      <button
+        @click="goToPrev"
+        class="absolute left-2 md:left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 active:bg-opacity-50 text-white rounded-full w-12 h-12 md:w-10 md:h-10 flex items-center justify-center transition-all z-30 touch-manipulation"
+        aria-label="Previous slide"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <button
+        @click="goToNext"
+        class="absolute right-2 md:right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 active:bg-opacity-50 text-white rounded-full w-12 h-12 md:w-10 md:h-10 flex items-center justify-center transition-all z-30 touch-manipulation"
+        aria-label="Next slide"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
+      <!-- Indicators - outside carousel container to fix z-index issue -->
+      <div class="absolute bottom-4 left-0 right-0 flex justify-center space-x-2 z-30">
+        <button
+          v-for="(_, index) in carouselItems"
+          :key="index"
+          @click="goToSlide(index)"
+          class="w-10 h-10 md:w-8 md:h-8 rounded-full transition-all touch-manipulation p-4 md:p-3 flex items-center justify-center"
+          :aria-label="`Go to slide ${index + 1}`"
+        >
+          <span
+            class="w-3 h-3 md:w-2 md:h-2 rounded-full"
+            :class="activeSlide === index ? 'bg-white' : 'bg-white bg-opacity-50'"
+          ></span>
+        </button>
+      </div>
+
       <!-- Hero Content -->
-      <div class="relative z-10 text-center text-white px-4">
+      <div class="relative z-10 text-center text-white px-4 pointer-events-none">
         <h1 class="text-4xl md:text-6xl font-bold mb-6">{{ t('home.hero.title') }}</h1>
         <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
           {{ t('home.hero.subtitle') }}
@@ -73,10 +77,15 @@
         <div class="flex justify-center">
           <router-link
             :to="getLocalizedPath('/routes')"
-            class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full transition-colors"
+            class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full transition-colors pointer-events-auto"
           >
             {{ t('home.hero.cta') }}
           </router-link>
+        </div>
+        <!-- 登录欢迎 -->
+        <div v-if="authStore.isLoggedIn" class="mt-6 flex items-center justify-center gap-2 text-white/80 text-sm">
+          <span>🎆</span>
+          <span>{{ t('common.welcomeBack', { name: authStore.user?.nickname || '' }) }}</span>
         </div>
       </div>
     </section>
@@ -305,20 +314,20 @@
       </div>
     </section>
 
-    <!-- AI Chat Widget -->
-    <AIChatWidget />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useI18n } from 'vue-i18n';
-import MusicPlayer from '../components/MusicPlayer.vue';
-import AIChatWidget from '../components/AIChat/AIChatWidget.vue';
-import { useLocalizedPath } from '../composables/useLocalizedPath';
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import MusicPlayer from '../components/MusicPlayer.vue'
+import { useLocalizedPath } from '../composables/useLocalizedPath'
+import { useAuthStore } from '@/stores/auth'
 
-const { t, locale } = useI18n();
-const { getLocalizedPath } = useLocalizedPath();
+const { t, locale } = useI18n()
+const { getLocalizedPath } = useLocalizedPath()
+const authStore = useAuthStore()
+const isZh = computed(() => (locale.value as string) === 'zh-CN')
 
 import image1 from '../assets/images/yzxf_bswz.jpeg';
 import image2 from '../assets/images/guchen_xuejing.png';

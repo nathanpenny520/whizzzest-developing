@@ -11,7 +11,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
 import { resolve, dirname } from 'path'
 
-const distDir = resolve(import.meta.dirname, '../dist')
+const distDir = resolve(import.meta.dirname, '../packages/frontend/dist')
 
 // 路由配置：每个路由对应一个页面及其 SEO 信息
 const routes = [

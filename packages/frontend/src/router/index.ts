@@ -1,5 +1,7 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import i18n from '../locales';
+import { createRouter, createWebHistory } from 'vue-router'
+import i18n from '../locales'
+import { registerAuthGuard } from './guards'
+
 
 const routes = [
   {
@@ -181,7 +183,75 @@ const routes = [
       title: 'About WhizzZest - Team Introduction & Mission | WhizzZest',
       locale: 'en'
     }
-  }
+  },
+  {
+    path: '/firework/share/:slug',
+    name: 'FireworkShare',
+    component: () => import('../pages/FireworkSharePage.vue'),
+    meta: {
+      title: '烟花配方分享 | 焰境·万载',
+      locale: 'zh-CN',
+    },
+  },
+  {
+    path: '/en/firework/share/:slug',
+    name: 'FireworkShareEn',
+    component: () => import('../pages/FireworkSharePage.vue'),
+    meta: {
+      title: 'Firework Recipe Share | WhizzZest',
+      locale: 'en',
+    },
+  },
+  {
+    path: '/merchant/apply',
+    name: 'MerchantApply',
+    component: () => import('../pages/MerchantApply.vue'),
+    meta: { title: '商户入驻 | 焰境·万载', locale: 'zh-CN', requiresRole: 'TOURIST' },
+  },
+  {
+    path: '/merchant/dashboard',
+    name: 'MerchantDashboard',
+    component: () => import('../pages/MerchantDashboard.vue'),
+    meta: { title: '商户后台 | 焰境·万载', locale: 'zh-CN', requiresRole: 'MERCHANT' },
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: () => import('../pages/AdminPage.vue'),
+    meta: { title: '管理后台 | 焰境·万载', locale: 'zh-CN', requiresRole: 'ADMIN' },
+  },
+  // 英文路由
+  {
+    path: '/en/merchant/apply',
+    name: 'MerchantApplyEn',
+    component: () => import('../pages/MerchantApply.vue'),
+    meta: { title: 'Merchant Apply | WhizzZest', locale: 'en', requiresRole: 'TOURIST' },
+  },
+  {
+    path: '/en/merchant/dashboard',
+    name: 'MerchantDashboardEn',
+    component: () => import('../pages/MerchantDashboard.vue'),
+    meta: { title: 'Merchant Dashboard | WhizzZest', locale: 'en', requiresRole: 'MERCHANT' },
+  },
+  {
+    path: '/en/admin',
+    name: 'AdminEn',
+    component: () => import('../pages/AdminPage.vue'),
+    meta: { title: 'Admin Panel | WhizzZest', locale: 'en', requiresRole: 'ADMIN' },
+  },
+  // 个人中心（中英双语）
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: () => import('../pages/ProfilePage.vue'),
+    meta: { title: '个人中心 | 焰境·万载', locale: 'zh-CN' },
+  },
+  {
+    path: '/en/profile',
+    name: 'ProfileEn',
+    component: () => import('../pages/ProfilePage.vue'),
+    meta: { title: 'Profile | WhizzZest', locale: 'en' },
+  },
 ];
 
 const router = createRouter({
@@ -232,4 +302,6 @@ router.beforeEach((to, _from, next) => {
   next();
 });
 
-export default router;
+registerAuthGuard(router)
+
+export default router

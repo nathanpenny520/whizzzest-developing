@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  phone     String?  @unique
+  openId    String?  @unique
+  nickname  String
+  avatarUrl String?
+  role      UserRole @default(TOURIST)
+  createdAt DateTime @default(now())
+
+  fireworks  FireworkRecipe[]
+  coupons    UserCoupon[]
+  merchant   Merchant?
+}
+
+enum UserRole {
+  TOURIST
+  MERCHANT
+  ADMIN
+}
+
+model Merchant {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id])
+  name       String
+  nameEn     String?
+  category   String   // dining, lodging, firework, specialty
+  mapLng     Float
+  mapLat     Float
+  isVerified Boolean  @default(false)
+  coverImage String?
+  businessHours String?
+  phone      String?
+  description String?
+  createdAt  DateTime @default(now())
+
+  coupons    Coupon[]
+}
+
+model FireworkRecipe {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  config    Json     // IFireworkConfig
+  shareSlug String   @unique
+  viewCount Int      @default(0)
+  likeCount Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Coupon {
+  id         String   @id @default(uuid())
+  merchantId String
+  merchant   Merchant @relation(fields: [merchantId], references: [id])
+  title      String
+  titleEn    String?
+  discount   Float
+  totalStock Int
+  usedStock  Int      @default(0)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  userCoupons UserCoupon[]
+}
+
+model UserCoupon {
+  id         String   @id @default(uuid())
+  couponId   String
+  coupon     Coupon   @relation(fields: [couponId], references: [id])
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  redeemCode String   @unique
+  isRedeemed Boolean  @default(false)
+  claimedAt  DateTime @default(now())
+  redeemedAt DateTime?
+}
+
+model KnowledgeEntry {
+  id        String   @id @default(uuid())
+  category  String
+  content   String
+  contentEn String?
+  keywords  String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

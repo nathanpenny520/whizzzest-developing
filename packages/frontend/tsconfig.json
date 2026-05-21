@@ -21,12 +21,10 @@
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
   "include": ["src/**/*.ts", "src/**/*.vue", "vite-env.d.ts"],
-  "exclude": ["node_modules", "server"]
+  "exclude": ["node_modules"]
 }

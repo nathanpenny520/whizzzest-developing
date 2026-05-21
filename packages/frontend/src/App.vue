@@ -16,14 +16,18 @@
     </main>
     <Footer />
     <BackToTop />
+    <LoginModal />
+    <AIChatWidget />
   </div>
 </template>
 
 <script setup lang="ts">
-import Navbar from './components/Navbar.vue';
-import Footer from './components/Footer.vue';
-import BackToTop from './components/BackToTop.vue';
-import SeoHead from './components/SeoHead.vue';
+import Navbar from './components/Navbar.vue'
+import Footer from './components/Footer.vue'
+import BackToTop from './components/BackToTop.vue'
+import SeoHead from './components/SeoHead.vue'
+import LoginModal from './components/LoginModal.vue'
+import AIChatWidget from './components/AIChat/AIChatWidget.vue'
 </script>
 
 <style scoped>
