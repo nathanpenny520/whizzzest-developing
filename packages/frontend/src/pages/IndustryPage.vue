@@ -23,15 +23,11 @@
         <h2 class="text-3xl font-bold text-center mb-12">{{ t('industry.sections.history.title') }}</h2>
         <div class="flex flex-col md:flex-row items-center gap-8">
           <div class="md:w-1/2">
-            <div class="video-container relative w-full rounded-lg shadow-lg overflow-hidden bg-gray-900" style="height: 400px; position: relative;">
-              <video 
-                controls
-                class="w-full h-full object-cover"
-                preload="metadata"
-              >
-                <source :src="huapaoqingVideo" type="video/mp4">
-                {{ t('common.videoNotSupported') }}
-              </video>
+            <div class="video-container relative w-full rounded-lg shadow-lg overflow-hidden bg-gray-900 aspect-video">
+              <iframe src="//player.bilibili.com/player.html?bvid=BV147L86TEvP&page=1"
+                scrolling="no" border="0" frameborder="no" framespacing="0"
+                allowfullscreen="true" class="w-full h-full">
+              </iframe>
             </div>
             <p class="text-sm text-gray-600 mt-3">{{ t('common.videoHint') }}</p>
           </div>
@@ -177,8 +173,7 @@ import Chart from 'chart.js/auto';
 const { t, locale } = useI18n();
 const { getLocalizedPath } = useLocalizedPath();
 
-// 视频文件较大，未纳入 Git。部署时手动上传到 /assets/videos/
-const huapaoqingVideo = '/assets/videos/huapaoqing.mp4'
+// 视频通过 B 站播放器嵌入，无需本地视频文件
 
 const industryChart = ref<HTMLCanvasElement | null>(null);
 const marketChart = ref<HTMLCanvasElement | null>(null);

@@ -54,7 +54,7 @@ jobs:
 
       - name: 部署前端到 Nginx
         run: |
-          rsync -avz --delete --exclude=assets/videos \
+          rsync -avz --delete \
             packages/frontend/dist/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/usr/share/nginx/html/dist/
 

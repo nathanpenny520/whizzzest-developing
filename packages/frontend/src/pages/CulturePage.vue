@@ -24,14 +24,10 @@
         <div class="flex flex-col md:flex-row items-center gap-8 mb-16">
           <div class="md:w-1/2">
             <div class="video-container relative w-full rounded-lg shadow-lg overflow-hidden bg-gray-900 aspect-video">
-              <video 
-                controls
-                class="w-full h-full object-cover"
-                preload="metadata"
-              >
-                <source :src="yanhuaVideo" type="video/mp4">
-                {{ t('common.videoNotSupported') }}
-              </video>
+              <iframe src="//player.bilibili.com/player.html?bvid=BV1mLL86BEET&page=1"
+                scrolling="no" border="0" frameborder="no" framespacing="0"
+                allowfullscreen="true" class="w-full h-full">
+              </iframe>
             </div>
             <p class="text-sm text-gray-600 mt-3">{{ t('common.videoHint') }}</p>
           </div>
@@ -53,14 +49,10 @@
          <div class="flex flex-col md:flex-row items-center gap-8 mb-16">
           <div class="md:w-1/2">
             <div class="video-container relative w-full rounded-lg shadow-lg overflow-hidden bg-gray-900 aspect-video">
-              <video 
-                controls
-                class="w-full h-full object-cover"
-                preload="metadata"
-              >
-                <source :src="deshengguVideo" type="video/mp4">
-                {{ t('common.videoNotSupported') }}
-              </video>
+              <iframe src="//player.bilibili.com/player.html?bvid=BV1psL86aEJG&page=1"
+                scrolling="no" border="0" frameborder="no" framespacing="0"
+                allowfullscreen="true" class="w-full h-full">
+              </iframe>
             </div>
             <p class="text-sm text-gray-600 mt-3">{{ t('common.videoHint') }}</p>
           </div>
@@ -82,14 +74,10 @@
         <div class="flex flex-col md:flex-row items-center gap-8 mb-16">
           <div class="md:w-1/2">
             <div class="video-container relative w-full rounded-lg shadow-lg overflow-hidden bg-gray-900 aspect-video">
-              <video 
-                controls
-                class="w-full h-full object-cover"
-                preload="metadata"
-              >
-                <source :src="xiabuVideo" type="video/mp4">
-                {{ t('common.videoNotSupported') }}
-              </video>
+              <iframe src="//player.bilibili.com/player.html?bvid=BV1tLL86BEwB&page=1"
+                scrolling="no" border="0" frameborder="no" framespacing="0"
+                allowfullscreen="true" class="w-full h-full">
+              </iframe>
             </div>
             <p class="text-sm text-gray-600 mt-3">{{ t('common.videoHint') }}</p>
           </div>
@@ -112,14 +100,10 @@
         <div class="flex flex-col md:flex-row items-center gap-8 mb-16">
           <div class="md:w-1/2">
             <div class="video-container relative w-full rounded-lg shadow-lg overflow-hidden bg-gray-900 aspect-video">
-              <video 
-                controls
-                class="w-full h-full object-cover"
-                preload="metadata"
-              >
-                <source :src="kaikounuoVideo" type="video/mp4">
-                {{ t('common.videoNotSupported') }}
-              </video>
+              <iframe src="//player.bilibili.com/player.html?bvid=BV127L86TE24&page=1"
+                scrolling="no" border="0" frameborder="no" framespacing="0"
+                allowfullscreen="true" class="w-full h-full">
+              </iframe>
             </div>
             <p class="text-sm text-gray-600 mt-3">{{ t('common.videoHint') }}</p>
           </div>
@@ -141,14 +125,10 @@
         <div class="flex flex-col md:flex-row items-center gap-8 mb-16">
           <div class="md:w-1/2">
             <div class="video-container relative w-full rounded-lg shadow-lg overflow-hidden bg-gray-900 aspect-video">
-              <video 
-                controls
-                class="w-full h-full object-cover"
-                preload="metadata"
-              >
-                <source :src="zhipengshangeVideo" type="video/mp4">
-                {{ t('common.videoNotSupported') }}
-              </video>
+              <iframe src="//player.bilibili.com/player.html?bvid=BV127L86TE2o&page=1"
+                scrolling="no" border="0" frameborder="no" framespacing="0"
+                allowfullscreen="true" class="w-full h-full">
+              </iframe>
             </div>
             <p class="text-sm text-gray-600 mt-3">{{ t('common.videoHint') }}</p>
           </div>
@@ -194,13 +174,7 @@ import { useLocalizedPath } from '../composables/useLocalizedPath';
 const { t } = useI18n();
 const { getLocalizedPath } = useLocalizedPath();
 
-// 视频文件较大（~510MB），未纳入 Git。部署时手动上传到 /assets/videos/
-// 构建不会因文件缺失而失败，运行时缺失则视频区域优雅降级
-const yanhuaVideo = '/assets/videos/yanhua.mp4'
-const deshengguVideo = '/assets/videos/deshengu.mp4'
-const xiabuVideo = '/assets/videos/xiabu.mp4'
-const kaikounuoVideo = '/assets/videos/kaikounuo（bilibili）.mp4'
-const zhipengshangeVideo = '/assets/videos/zhipengshange.mp4'
+// 视频通过 B 站播放器嵌入，无需本地视频文件
 </script>
 
 <style scoped>

@@ -70,7 +70,7 @@ wanzai/
 │   │   │   ├── stores/        ← Pinia auth store
 │   │   │   ├── types/         ← 前端类型
 │   │   │   ├── locales/       ← i18n 文本（1218+ 行）
-│   │   │   ├── assets/        ← 图片/音频（视频除外，见下方说明）
+│   │   │   ├── assets/        ← 图片/音频（视频通过 B 站播放器嵌入）
 │   │   │   └── router/        ← 28 条双语路由 + role-based 守卫
 │   │   ├── public/            ← favicon、robots.txt、sitemap.xml、CNAME
 │   │   ├── vite.config.ts
@@ -212,21 +212,6 @@ pnpm build:backend # 构建后端 → packages/backend/dist/
 | 优惠券 | `/coupons/:id/claim` | POST | 登录 | 领券（Redis 防超发） |
 | 优惠券 | `/coupons/my` | GET | 登录 | 我的券 |
 | 优惠券 | `/coupons/redeem` | POST | MERCHANT | 核销 |
-
-## 视频文件说明
-
-项目中的视频文件（`packages/frontend/src/assets/videos/`）未纳入 Git 版本控制：
-
-| 文件 | 大小 | 用途 |
-|------|------|------|
-| `deshengu.mp4` | 68 MB | 得胜鼓表演 |
-| `huapaoqing.mp4` | 15 MB | 花炮庆典 |
-| `kaikounuo（bilibili）.mp4` | 104 MB | 开口傩非遗展示 |
-| `xiabu.mp4` | 95 MB | 夏布工艺 |
-| `yanhua.mp4` | 96 MB | 烟花燃放 |
-| `zhipengshange.mp4` | 132 MB | 纸棚山歌 |
-
-**约 510 MB**，远超 GitHub 推荐的文件大小限制。部署时需手动上传到服务器的 `/usr/share/nginx/html/dist/assets/videos/` 目录。
 
 ## 部署
 
