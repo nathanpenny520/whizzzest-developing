@@ -12,7 +12,7 @@
 
 ## 项目简介
 
-**焰境·万载**是围绕江西省万载县打造的数字文旅平台，以"中国花炮之乡"的千年烟花文化为核心，融合非遗传承、美食特产、旅游导览，逐步引入 AI 动漫角色"**花傩**"作为数字灵魂。
+**焰境·万载**是围绕江西省万载县打造的数字文旅平台，以"中国花炮之乡"的千年烟花文化为核心，融合非遗传承、美食特产、旅游导览，以 AI 动漫角色"**花傩**"为数字灵魂。
 
 | 功能 | 说明 |
 |------|------|
@@ -34,7 +34,7 @@
 | 前端框架 | Vue 3.5 + TypeScript 5.9 | Composition API |
 | 构建工具 | Vite 7 | 开发/构建 |
 | CSS | Tailwind CSS 3.4 | 实用优先 |
-| 状态管理 | Pinia 3 | 替代原 composables |
+| 状态管理 | Pinia 3 | 全局状态 |
 | 国际化 | vue-i18n 11 | 中英双语 |
 | 地图 | 高德地图 JS API 2.0 | POI + 路线 |
 | 烟花引擎 | Canvas 2D + Web Worker | 粒子模拟 |
@@ -44,7 +44,7 @@
 | 认证 | Passport + JWT | 渐进式鉴权 |
 | 包管理 | pnpm workspace | Monorepo |
 | 测试 | Vitest + Supertest | 单元 + 集成 |
-| CI/CD | GitHub Actions | 自动构建部署 |
+| CI/CD | GitHub Actions | 自动构建部署到生产服务器 |
 | 共享类型 | @wanzai/contracts | 契约层 |
 
 ## 项目结构
@@ -63,37 +63,44 @@ wanzai/
 │   │
 │   ├── frontend/              ← Vue 3 SPA
 │   │   ├── src/
-│   │   │   ├── pages/         ← 15 个页面
-│   │   │   ├── components/    ← 通用组件 + AIChat/
-│   │   │   ├── composables/   ← useAIChat 等
-│   │   │   ├── api/           ← axios 封装
+│   │   │   ├── pages/         ← 17 个页面（含商户后台、管理员页等）
+│   │   │   ├── components/    ← 通用组件 + AIChat/ + 花傩角色
+│   │   │   ├── composables/   ← useAIChat、useHuaNuo 等
+│   │   │   ├── api/           ← axios 封装（client.ts）
+│   │   │   ├── stores/        ← Pinia auth store
 │   │   │   ├── types/         ← 前端类型
-│   │   │   ├── locales/       ← i18n 文本
-│   │   │   ├── assets/        ← 图片/视频/音频
-│   │   │   └── router/        ← 路由配置
-│   │   ├── public/            ← favicon、robots.txt、sitemap.xml
+│   │   │   ├── locales/       ← i18n 文本（1218+ 行）
+│   │   │   ├── assets/        ← 图片/音频（视频除外，见下方说明）
+│   │   │   └── router/        ← 28 条双语路由 + role-based 守卫
+│   │   ├── public/            ← favicon、robots.txt、sitemap.xml、CNAME
 │   │   ├── vite.config.ts
 │   │   └── tailwind.config.js
 │   │
 │   └── backend/               ← NestJS 后端
 │       ├── src/
 │       │   ├── modules/
-│       │   │   ├── ai/        ← AI 对话 + RAG
-│       │   │   ├── auth/      ← JWT 认证
+│       │   │   ├── ai/        ← AI 对话 + RAG + LLM 调用
+│       │   │   ├── auth/      ← JWT 认证 + 万能验证码
 │       │   │   ├── user/      ← 用户 CRUD
 │       │   │   ├── firework/  ← 烟花配方
-│       │   │   └── knowledge/ ← 知识库管理
+│       │   │   ├── knowledge/ ← 知识库管理（从 DB 读取 System Prompt）
+│       │   │   ├── merchant/  ← 商户入驻 + ADMIN 审核
+│       │   │   └── coupon/    ← 优惠券 + Redis 库存 + 核销
 │       │   ├── prisma/        ← PrismaService
+│       │   ├── redis/         ← RedisService（ioredis 封装）
+│       │   ├── common/        ← 守卫、装饰器
 │       │   └── main.ts
 │       └── prisma/
-│           ├── schema.prisma  ← 数据模型
-│           ├── seed.ts        ← 知识库迁移
-│           └── migrations/    ← 迁移文件
+│           ├── schema.prisma  ← 6 个数据模型
+│           ├── seed.ts        ← 68 条知识库 + 3 个演示商户
+│           └── migrations/    ← 4 个数据库迁移
 │
 ├── scripts/                   ← 预渲染等构建脚本
+├── .github/workflows/         ← CI（类型检查+Lint+测试）+ 自动部署
 ├── pnpm-workspace.yaml        ← pnpm 工作空间
 ├── eslint.config.js           ← ESLint 9 flat config
 ├── .prettierrc                ← Prettier 配置
+├── CLAUDE.md                  ← Claude Code 项目文档
 └── package.json               ← 根 workspace
 ```
 
@@ -104,36 +111,33 @@ wanzai/
 - Node.js >= 18.0
 - pnpm >= 8.0
 - PostgreSQL 16（本地开发需安装并运行）
-- Redis 7（可选，Phase 4 后需要）
+- Redis 7（需要运行）
 
 ### 1. 安装依赖
 
 ```bash
-# 安装 pnpm（如未安装）
 npm install -g pnpm
-
-# 安装所有工作空间依赖
 pnpm install
 ```
 
 ### 2. 配置环境变量
 
-**前端** (`packages/frontend/.env`)：
+**前端** (`packages/frontend/.env`，参考 `.env.example`)：
 
 ```bash
-# 高德地图（必须）
-VITE_AMAP_KEY=你的Key
-VITE_AMAP_SECURITY_CODE=你的安全密钥
+VITE_AMAP_KEY=你的高德地图Key
+VITE_AMAP_SECURITY_CODE=你的高德地图安全密钥
 ```
 
-**后端** (`packages/backend/.env`)：
+**后端** (`packages/backend/.env`，参考 `.env.example`)：
 
 ```bash
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/wanzai?schema=public"
-JWT_SECRET="change-me-in-production"
-MODEL_NAME="MiniMax-M2.5"
-API_KEY="你的API密钥"
-BASE_URL="https://llmapi.paratera.com"
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/wanzai
+JWT_SECRET=随机字符串（建议 openssl rand -hex 32）
+REDIS_URL=redis://localhost:6379
+API_KEY=你的LLM_API密钥
+BASE_URL=https://llmapi.paratera.com
+MODEL_NAME=MiniMax-M2.5
 PORT=3002
 ```
 
@@ -150,70 +154,79 @@ createdb wanzai
 cd packages/backend
 pnpm prisma migrate dev
 
-# 导入知识库种子数据（68 条）
+# 导入种子数据（68 条知识库 + 演示商户）
 pnpm prisma:seed
 ```
 
 ### 4. 启动开发环境
 
 ```bash
-# 终端 1：启动 NestJS 后端（端口 3002）
+# 终端 1：NestJS 后端（端口 3002）
 pnpm dev:backend
 
-# 终端 2：启动 Vite 前端（端口 5173）
+# 终端 2：Vite 前端（端口 5173）
 pnpm dev
 ```
 
-访问 `http://localhost:5173` 即可查看网站。
+访问 `http://localhost:5173`。
 
 ### 5. 类型检查与测试
 
 ```bash
-# 全量类型检查
-pnpm typecheck
-
-# 运行测试
-pnpm test
-
-# Lint
-pnpm lint
+pnpm typecheck   # 全量类型检查
+pnpm test        # 运行测试
+pnpm lint        # ESLint
 ```
 
-### 6. 构建生产版本
+### 6. 构建
 
 ```bash
-pnpm build
+pnpm build         # 构建前端 → packages/frontend/dist/
+pnpm build:backend # 构建后端 → packages/backend/dist/
 ```
-
-构建产物位于 `packages/frontend/dist/`。
 
 ## API 接口
 
-### v1 API（NestJS，端口 3002）
+所有接口前缀 `https://whizzzest-yanjingwanzai.top/api/v1/`。
 
 | 模块 | 端点 | 方法 | 鉴权 | 说明 |
 |------|------|------|------|------|
-| AI | `/api/v1/ai/chat` | POST | 公开 | 花傩 AI 对话 |
-| 知识库 | `/api/v1/knowledge` | GET/POST | ADMIN | 知识条目管理 |
-| 知识库 | `/api/v1/knowledge/:id` | PUT/DELETE | ADMIN | 知识条目更新 |
-| 认证 | `/api/v1/auth/login` | POST | 公开 | 手机号注册/登录 |
-| 认证 | `/api/v1/auth/refresh` | POST | 公开 | 刷新 Token |
-| 用户 | `/api/v1/users/me` | GET/PUT | 登录 | 当前用户资料 |
-| 用户 | `/api/v1/users/:id` | GET | 登录 | 用户信息 |
-| 烟花 | `/api/v1/fireworks` | POST | 登录 | 保存配方 |
-| 烟花 | `/api/v1/fireworks/mine` | GET | 登录 | 我的配方 |
-| 烟花 | `/api/v1/fireworks/:slug` | GET | 公开 | 获取分享配方 |
-| 烟花 | `/api/v1/fireworks/popular` | GET | 公开 | 热门排行榜 |
-| 烟花 | `/api/v1/fireworks/:id` | DELETE | 登录 | 删除配方 |
-| 商户 | `/api/v1/merchants/apply` | POST | 登录 | 入驻申请 |
-| 商户 | `/api/v1/merchants/me` | GET/PUT | 登录 | 商户资料 |
-| 商户 | `/api/v1/merchants` | GET | 公开 | 商户列表 |
-| 商户 | `/api/v1/merchants/:id/verify` | PUT | ADMIN | 审核商户 |
-| 优惠券 | `/api/v1/coupons` | POST | MERCHANT | 发布优惠券 |
-| 优惠券 | `/api/v1/coupons/public` | GET | 公开 | 可领券列表 |
-| 优惠券 | `/api/v1/coupons/:id/claim` | POST | 登录 | 领券（Redis 防超发） |
-| 优惠券 | `/api/v1/coupons/my` | GET | 登录 | 我的券 |
-| 优惠券 | `/api/v1/coupons/redeem` | POST | MERCHANT | 核销 |
+| AI | `/ai/chat` | POST | 公开 | 花傩 AI 对话（RAG 增强） |
+| 知识库 | `/knowledge` | GET/POST | ADMIN | 知识条目管理 |
+| 知识库 | `/knowledge/:id` | PUT/DELETE | ADMIN | 知识条目更新 |
+| 认证 | `/auth/login` | POST | 公开 | 手机号注册/登录（万能码 `000000`） |
+| 认证 | `/auth/refresh` | POST | 公开 | 刷新 Token |
+| 用户 | `/users/me` | GET/PUT | 登录 | 当前用户资料 |
+| 用户 | `/users/:id` | GET | 登录 | 用户信息 |
+| 烟花 | `/fireworks` | POST | 登录 | 保存配方 |
+| 烟花 | `/fireworks/mine` | GET | 登录 | 我的配方 |
+| 烟花 | `/fireworks/:slug` | GET | 公开 | 获取分享配方 |
+| 烟花 | `/fireworks/popular` | GET | 公开 | 热门排行榜 |
+| 烟花 | `/fireworks/:id` | DELETE | 登录 | 删除配方 |
+| 商户 | `/merchants/apply` | POST | 登录 | 入驻申请 |
+| 商户 | `/merchants/me` | GET/PUT | MERCHANT | 商户资料 |
+| 商户 | `/merchants` | GET | 公开 | 商户列表 |
+| 商户 | `/merchants/:id/verify` | PUT | ADMIN | 审核商户 |
+| 优惠券 | `/coupons` | POST | MERCHANT | 发布优惠券 |
+| 优惠券 | `/coupons/public` | GET | 公开 | 可领券列表 |
+| 优惠券 | `/coupons/:id/claim` | POST | 登录 | 领券（Redis 防超发） |
+| 优惠券 | `/coupons/my` | GET | 登录 | 我的券 |
+| 优惠券 | `/coupons/redeem` | POST | MERCHANT | 核销 |
+
+## 视频文件说明
+
+项目中的视频文件（`packages/frontend/src/assets/videos/`）未纳入 Git 版本控制：
+
+| 文件 | 大小 | 用途 |
+|------|------|------|
+| `deshengu.mp4` | 68 MB | 得胜鼓表演 |
+| `huapaoqing.mp4` | 15 MB | 花炮庆典 |
+| `kaikounuo（bilibili）.mp4` | 104 MB | 开口傩非遗展示 |
+| `xiabu.mp4` | 95 MB | 夏布工艺 |
+| `yanhua.mp4` | 96 MB | 烟花燃放 |
+| `zhipengshange.mp4` | 132 MB | 纸棚山歌 |
+
+**约 510 MB**，远超 GitHub 推荐的文件大小限制。部署时需手动上传到服务器的 `/usr/share/nginx/html/dist/assets/videos/` 目录。
 
 ## 部署
 
@@ -221,24 +234,36 @@ pnpm build
 
 ```
 Nginx (端口 80/443)
-├── 前端静态文件 (packages/frontend/dist/)
-├── /api/v1/ → localhost:3002 (NestJS)
+├── 前端静态文件 /usr/share/nginx/html/dist/
+├── /api/ → localhost:8080 (NestJS，pm2 管理)
 └── 后端依赖 PostgreSQL :5432 + Redis :6379
 ```
 
-### 生产环境
+### 自动部署
+
+push 到 `main` 分支后，GitHub Actions 自动执行（`.github/workflows/deploy.yml`）：
+
+1. 构建前端 + 后端
+2. rsync 前端 dist → `/usr/share/nginx/html/dist/`
+3. rsync 后端 dist + prisma → `/usr/share/nginx/wanzai-backend/`
+4. `npm install --prod` → `prisma generate` → `prisma migrate deploy`
+5. `pm2 reload wanzai-backend`
+6. 健康检查
+
+详细配置和服务器运维指南见 **[更新配置网站服务器.md](更新配置网站服务器.md)**。
+
+### 手动部署
 
 ```bash
-# 构建前端
-pnpm build
+# 构建
+pnpm build && pnpm build:backend
 
-# 构建后端
-pnpm build:backend
+# 上传到服务器
+scp -r packages/frontend/dist/* root@server:/usr/share/nginx/html/dist/
+scp -r packages/backend/dist/* root@server:/usr/share/nginx/wanzai-backend/dist/
 
-# PM2 启动后端
-pm2 start packages/backend/dist/main.js --name wanzai-backend
-
-# Nginx 配置参考 docs/nginx.conf（见下方说明）
+# 重启服务
+ssh root@server "pm2 reload wanzai-backend"
 ```
 
 ## 开发规范
@@ -273,21 +298,24 @@ chore: 升级依赖版本
 - Prettier：printWidth 100，singleQuote，no semicolons
 - ESLint 9 flat config，提交前自动 lint
 
-## PWA 使用
-
-1. 浏览器访问网站
-2. 地址栏右侧点击"安装"图标
-3. 支持离线访问、桌面图标、全屏体验
-
 ## 国际化
 
 - 中文：`zh-CN`（默认）
 - 英文：`en`
 - 切换：导航栏语言按钮 / URL 路径 `/en` 前缀
 
-## 开发者指南
+## PWA
 
-详细的开发、部署、API 测试和功能验证指南请参阅 **[开发者使用与验证指南](./docs/DEVELOPER_GUIDE.md)**。
+1. 浏览器访问网站
+2. 地址栏右侧点击"安装"图标
+3. 支持离线访问、桌面图标、全屏体验
+
+## 相关文档
+
+- **[CLAUSE.md](CLAUDE.md)** — Claude Code 项目文档（架构速查、常用命令）
+- **[更新配置网站服务器.md](更新配置网站服务器.md)** — 服务器迁移与运维指南
+- **[焰境万载重构方案.md](焰境万载重构方案.md)** — 完整重构蓝图与 6 阶段路线图
+- **[docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)** — 开发者使用与验证指南
 
 ## 许可证
 
