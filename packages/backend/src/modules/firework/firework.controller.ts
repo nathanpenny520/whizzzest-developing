@@ -30,8 +30,8 @@ export class FireworkController {
   }
 
   @Public()
-  @Post(':slug/like')
-  async like(@Param('slug') slug: string): Promise<{ code: number; data: { likeCount: number } | null; message: string }> {
+  @Post('like')
+  async like(@Body('slug') slug: string): Promise<{ code: number; data: { likeCount: number } | null; message: string }> {
     const result = await this.fireworkService.like(slug)
     return { code: 0, data: result, message: 'ok' }
   }

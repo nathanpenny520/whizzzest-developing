@@ -141,6 +141,7 @@ const clusters = computed(() => [
     items: [
       { path: '', action: 'chat', icon: '🤖', label: isZh.value ? 'AI 花傩' : 'AI Hua Nuo' },
       { path: '/firework', icon: '🎇', label: isZh.value ? '数字烟花' : 'Digital Fireworks' },
+      { path: '/firework/leaderboard', icon: '🏆', label: isZh.value ? '烟花排行榜' : 'Firework Rankings' },
       { path: '', action: 'none', icon: '🎪', label: isZh.value ? '小游戏' : 'Mini Games' },
     ],
   },

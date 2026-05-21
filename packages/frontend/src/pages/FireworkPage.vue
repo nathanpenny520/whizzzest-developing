@@ -16,11 +16,6 @@
       </div>
     </div>
 
-    <!-- 操作提示（首次显示，4秒后消失） -->
-    <div v-if="showHint" class="firework-hint">
-      {{ t('firework.hint') }}
-    </div>
-
     <div class="controls" v-if="!loading">
       <div class="btn pause-btn" @click="togglePause">
         <svg v-if="isPaused" fill="white" width="24" height="24" viewBox="0 0 24 24">
@@ -52,9 +47,12 @@
 
     <!-- Sim Speed 拖拽条 (Phase B2) -->
     <div class="sim-speed-bar" ref="simSpeedBarRef"
-      @mousedown="startSimSpeedDrag" @touchstart.prevent="startSimSpeedDrag">
+      @mousedown="startSimSpeedDrag" @touchstart.prevent="startSimSpeedDrag"
+      @mouseenter="showSimSpeedLabel = true" @mouseleave="hideSimSpeedLabel">
       <div class="sim-speed-fill" :style="{ width: (simSpeed * 100) + '%' }" />
-      <div class="sim-speed-label" :class="{ visible: showSimSpeedLabel }">{{ (simSpeed * 100).toFixed(0) }}%</div>
+      <div class="sim-speed-label" :class="{ visible: showSimSpeedLabel }">
+        {{ t('firework.simSpeed') }}: {{ (simSpeed * 100).toFixed(0) }}%
+      </div>
     </div>
 
     <div class="menu" :class="{ hide: !showSettings }">
@@ -120,8 +118,9 @@
             <input type="checkbox" v-model="finaleMode" />
           </div>
           <div class="form-option form-option--checkbox">
-            <label>{{ t('firework.longExposure') }}</label>
+            <label :title="t('firework.longExposureHint')">{{ t('firework.longExposure') }}</label>
             <input type="checkbox" v-model="longExposure" />
+            <span class="form-hint">{{ t('firework.longExposureHint') }}</span>
           </div>
           <div class="form-option form-option--select">
             <label>{{ t('firework.launchSequence') }}</label>
@@ -143,19 +142,6 @@
               <option v-for="opt in backgroundOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
             </select>
           </div>
-          <!-- 文字烟花 -->
-          <div class="form-option">
-            <label>{{ t('firework.textFirework.label') }}</label>
-            <div class="text-firework-row">
-              <input v-model="textFireworkInput" maxlength="4"
-                :placeholder="t('firework.textFirework.placeholder')"
-                class="text-firework-input" />
-              <button @click="launchTextFirework" class="text-firework-btn"
-                :disabled="!textFireworkInput.trim()">
-                {{ t('firework.textFirework.launch') }}
-              </button>
-            </div>
-          </div>
           <!-- 文字预设 -->
           <div class="form-option">
             <label>{{ t('firework.textPresets.label') }}</label>
@@ -170,7 +156,7 @@
             </div>
             <div class="text-presets-tags" v-if="textPresets.length">
               <span v-for="(p, i) in textPresets" :key="i" class="preset-tag"
-                @click="textFireworkInput = p; launchTextFirework()">
+                @click="launchTextFirework(p)">
                 {{ p }}
                 <button class="preset-remove" @click.stop="removeTextPreset(i)">×</button>
               </span>
@@ -216,11 +202,6 @@
             <p class="param-hint">{{ t('firework.advancedHint') }}</p>
           </details>
         </form>
-
-        <!-- 热门排行榜（嵌入设置面板底部） -->
-        <div class="leaderboard-in-menu">
-          <FireworkLeaderboard />
-        </div>
       </div>
     </div>
 
@@ -231,6 +212,11 @@
       <span>{{ t('firework.back') }}</span>
     </div>
 
+    <router-link :to="currentLocale === 'zh-CN' ? '/firework/leaderboard' : '/en/firework/leaderboard'"
+      class="leaderboard-entry-btn">
+      🏆 {{ currentLocale === 'zh-CN' ? '排行榜' : 'Rankings' }}
+    </router-link>
+
     <div class="lang-btn" @click="toggleLanguage">
       <span>{{ currentLocale === 'zh-CN' ? 'EN' : '中文' }}</span>
     </div>
@@ -239,6 +225,7 @@
     <div v-if="showSaveDialog" class="save-overlay" @click.self="showSaveDialog = false">
       <div class="save-card" v-if="!saveSuccess">
         <h3>{{ t('firework.saveDialog.title') }}</h3>
+        <p class="save-desc">{{ t('firework.saveDialog.description') }}</p>
         <input v-model="saveTitle" class="save-input" maxlength="30"
           :placeholder="t('firework.saveDialog.placeholder')" />
         <div class="save-btns">
@@ -275,7 +262,6 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { api } from '@/api/client'
-import FireworkLeaderboard from '@/components/FireworkLeaderboard.vue'
 import defaultBgImage from '../assets/images/guchen_yanhua.jpeg'
 import shootingstarsBgImage from '../assets/images/shootingstars.jpeg';
 import moonuniverseBgImage from '../assets/images/moonuniverse.jpeg';
@@ -312,13 +298,10 @@ const skyLighting = ref('2');
 const autoLaunch = ref(true);
 const finaleMode = ref(false);
 const fullscreen = ref(false);
-const showHint = ref(true)
-setTimeout(() => { showHint.value = false }, 4000)
 
 const backgroundType = ref('default')
 
 // 文字烟花（Phase A1/A2: 整合为主引擎 Shell 类型）
-const textFireworkInput = ref('')
 const textPresets = ref<string[]>(loadTextPresets())
 const newPreset = ref('')
 
@@ -339,9 +322,8 @@ function removeTextPreset(i: number) {
   ;(window as any).__wanzaiTextPresets = textPresets.value
 }
 
-// 手动发射文字烟花：创建 Text Shell 直接爆在屏幕中间
-function launchTextFirework() {
-  const text = textFireworkInput.value.trim()
+// 发射文字烟花：创建 Text Shell 直接爆在屏幕中间
+function launchTextFirework(text: string) {
   if (!text || !fireworkEngine) return
 
   const lattice = rasterizeText(text, 3)
@@ -356,6 +338,18 @@ function launchTextFirework() {
   if (!config) return
   config.textLattice = lattice
 
+  // 录制文字烟花
+  if (isRecording.value) {
+    timeline.value.push({
+      delay: Date.now() - recordStartTime.value,
+      shellType: 'Text',
+      shellSize: 3,
+      x: cx,
+      height: cy,
+      text,
+    })
+  }
+
   const shell = new Shell(config)
   shell.burst(x, y, fireworkEngine)
 }
@@ -368,7 +362,21 @@ const showSimSpeedLabel = ref(false)
 const isRecording = ref(false)
 const timeline = ref<{ delay: number; shellType: string; shellSize: number; x: number; height: number; text?: string }[]>([])
 const recordStartTime = ref(0)
-const totalRecordTime = computed(() => isRecording.value ? Date.now() - recordStartTime.value : 0)
+const totalRecordTime = ref(0)
+let recordTimer: ReturnType<typeof setInterval> | null = null
+
+watch(isRecording, (val) => {
+  if (val) {
+    recordStartTime.value = Date.now()
+    totalRecordTime.value = 0
+    recordTimer = setInterval(() => {
+      totalRecordTime.value = Date.now() - recordStartTime.value
+    }, 200)
+  } else {
+    if (recordTimer) { clearInterval(recordTimer); recordTimer = null }
+  }
+})
+
 const customColor = ref<string | null>(null)
 const presetColors = ['#ff0043', '#14fc56', '#1e7fff', '#e60aff', '#ffbf36', '#ffffff']
 const colorPickerHex = ref('#ff0043')
@@ -377,6 +385,10 @@ const particleDensity = ref(1.0)
 const sparkAmount = ref(1.0)
 const simSpeedBarRef = ref<HTMLElement | null>(null)
 let simSpeedLabelTimer: ReturnType<typeof setTimeout> | null = null
+
+function hideSimSpeedLabel() {
+  simSpeedLabelTimer = setTimeout(() => { showSimSpeedLabel.value = false }, 800)
+}
 
 function formatDuration(ms: number) {
   const s = Math.floor(ms / 1000)
@@ -392,6 +404,8 @@ function clearRecording() {
 // Sim Speed 拖拽
 function startSimSpeedDrag(e: MouseEvent | TouchEvent) {
   e.preventDefault()
+  showSimSpeedLabel.value = true
+  if (simSpeedLabelTimer) clearTimeout(simSpeedLabelTimer)
   const update = (clientX: number) => {
     if (!simSpeedBarRef.value) return
     const rect = simSpeedBarRef.value.getBoundingClientRect()
@@ -407,6 +421,7 @@ function startSimSpeedDrag(e: MouseEvent | TouchEvent) {
     update(cx)
   }
   const onUp = () => {
+    hideSimSpeedLabel()
     document.removeEventListener('mousemove', onMove)
     document.removeEventListener('touchmove', onMove)
     document.removeEventListener('mouseup', onUp)
@@ -511,6 +526,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (recordTimer) { clearInterval(recordTimer); recordTimer = null }
   if (fireworkEngine) {
     fireworkEngine.destroy();
     fireworkEngine = null;
@@ -628,17 +644,15 @@ function initFirework() {
     }
   );
 
-  // Phase C1: 录制模式回调
+  // Phase C1: 录制模式回调（所有通过 launchShell 的发射都会被记录）
   fireworkEngine.onShellLaunch = (shellType, shellSize, x, height) => {
     if (isRecording.value) {
-      if (!recordStartTime.value) recordStartTime.value = Date.now()
       timeline.value.push({
         delay: Date.now() - recordStartTime.value,
         shellType,
         shellSize,
         x,
         height,
-        text: shellType === 'Text' ? textFireworkInput.value || undefined : undefined,
       })
     }
   }
@@ -1147,7 +1161,8 @@ function getShellTypes(quality: number): Record<string, (size: number) => any> {
     'Willow': (size) => willowShell(size),
     'Text': (size) => {
       const presets = (window as any).__wanzaiTextPresets || []
-      const text = presets.length > 0 ? presets[(Math.random() * presets.length) | 0] : '万载'
+      if (presets.length === 0) return null // 无预设时不发射
+      const text = presets[(Math.random() * presets.length) | 0]
       return textShell(size, text)
     },
   };
@@ -1684,10 +1699,6 @@ class FireworkEngine {
     const posY = 1 - y / this.height;
 
     this.launchShell(posX, posY);
-
-    if (this.onShellLaunch) {
-      this.onShellLaunch(this.config.shellType, this.config.shellSize, posX, posY);
-    }
   }
 
   launchShell(x: number, height: number) {
@@ -1699,13 +1710,30 @@ class FireworkEngine {
     const shellConfigFunc = shellTypes[shellTypeName] || shellTypes['Random'];
     const shellConfig = shellConfigFunc(size);
 
-    // Phase D1: customColor 覆盖随机颜色
-    if (this.config.customColor && shellConfig.color && typeof shellConfig.color === 'string' && shellConfig.color !== 'random') {
-      shellConfig.color = this.config.customColor
+    // Text shell 在无预设时返回 null，跳过发射
+    if (!shellConfig) return;
+
+    // Phase D1: customColor 覆盖颜色（修复：处理数组/random/INVISIBLE）
+    const cc = this.config.customColor
+    if (cc) {
+      if (Array.isArray(shellConfig.color)) {
+        shellConfig.color = [cc, cc]
+      } else if (shellConfig.color === 'random' || shellConfig.color === INVISIBLE) {
+        shellConfig.color = cc
+      } else if (typeof shellConfig.color === 'string') {
+        shellConfig.color = cc
+      }
+      if (shellConfig.glitterColor) shellConfig.glitterColor = cc
+      if (shellConfig.secondColor) shellConfig.secondColor = cc
+      if (shellConfig.strobeColor) shellConfig.strobeColor = cc
     }
 
     const shell = new Shell(shellConfig);
     shell.launch(x, height, this);
+
+    if (this.onShellLaunch) {
+      this.onShellLaunch(this.config.shellType, this.config.shellSize, x, height);
+    }
   }
 
   // Phase B3: Launch Sequences
@@ -1740,7 +1768,7 @@ class FireworkEngine {
         break
       }
       case 'smallBarrage': {
-        this.autoLaunchTimer = 15000
+        this.autoLaunchTimer = 8000
         const bc = isDesktop ? 11 : 5
         const stepX = 0.9 / bc
         const startX = 0.05
@@ -1974,6 +2002,7 @@ class FireworkEngine {
     // 淡出效果
     ctx.globalCompositeOperation = 'source-over';
     if (hasBackground) {
+      // 有背景图片时清除为透明，让 CSS 背景可见
       ctx.clearRect(0, 0, this.width, this.height);
     } else {
       const fadeAlpha = this.config.longExposure ? 0.005 * lag : 0.175 * lag
@@ -2281,6 +2310,12 @@ class FireworkEngine {
   height: 20px;
   cursor: pointer;
 }
+.form-hint {
+  display: block;
+  color: rgba(255,255,255,0.35);
+  font-size: 11px;
+  margin-top: 2px;
+}
 
 .form-option--fullscreen {
   display: none;
@@ -2336,6 +2371,25 @@ class FireworkEngine {
   background: rgba(255,0,0,0.7);
 }
 
+/* 排行榜入口按钮 */
+.leaderboard-entry-btn {
+  position: absolute;
+  top: 80px;
+  left: 20px;
+  color: #f59e0b;
+  background: rgba(0,0,0,0.5);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  z-index: 100;
+  transition: background 0.3s;
+}
+.leaderboard-entry-btn:hover {
+  background: rgba(245,158,11,0.3);
+}
+
 /* 保存对话框 */
 .save-overlay {
   position: fixed;
@@ -2376,6 +2430,12 @@ class FireworkEngine {
   font-size: 12px;
   color: #f59e0b;
   word-break: break-all;
+}
+.save-desc {
+  color: #9ca3af;
+  font-size: 12px;
+  margin: 0 0 14px;
+  line-height: 1.5;
 }
 .save-input {
   width: 100%;
@@ -2420,13 +2480,7 @@ class FireworkEngine {
   cursor: pointer;
 }
 
-.leaderboard-in-menu {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* 文字烟花 */
+/* 文字预设标签 */
 .text-firework-row {
   display: flex;
   gap: 8px;
@@ -2446,48 +2500,6 @@ class FireworkEngine {
 .text-firework-input:focus {
   border-color: #f59e0b;
 }
-.text-firework-btn {
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #f59e0b, #ef4444);
-  border: none;
-  border-radius: 8px;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.text-firework-btn:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-/* 操作提示 */
-.firework-hint {
-  position: fixed;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 120;
-  background: rgba(26, 26, 46, 0.9);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 10px 20px;
-  color: #e2e8f0;
-  font-size: 13px;
-  white-space: nowrap;
-  animation: hintFade 4s ease forwards;
-  pointer-events: none;
-}
-@keyframes hintFade {
-  0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
-  10% { opacity: 1; transform: translateX(-50%) translateY(0); }
-  80% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-/* Phase A2/B/C/D 新增 UI 样式 */
 /* 文字预设标签 */
 .text-presets-row {
   display: flex;

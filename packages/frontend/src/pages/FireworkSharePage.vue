@@ -25,7 +25,7 @@
         <div class="config-grid">
           <div class="config-item">
             <span class="config-label">{{ t('firework.shellType') }}</span>
-            <span class="config-value">{{ recipe.config?.shellType || '-' }}</span>
+            <span class="config-value">{{ shellTypeLabel }}</span>
           </div>
           <div class="config-item">
             <span class="config-label">{{ t('firework.shellSize') }}</span>
@@ -44,36 +44,37 @@
             <span class="config-value">{{ recipe.config?.autoLaunch ? '✓' : '✗' }}</span>
           </div>
           <div class="config-item" v-if="recipe.config?.timeline?.length">
-            <span class="config-label">Timeline</span>
-            <span class="config-value">{{ recipe.config.timeline.length }} events</span>
+            <span class="config-label">{{ t('firework.share.timeline') }}</span>
+            <span class="config-value">{{ recipe.config.timeline.length }} {{ t('firework.share.events') }}</span>
           </div>
         </div>
       </div>
 
       <div class="share-actions">
         <button @click="startReplay" class="btn-primary">
-          {{ replaying ? 'Replaying...' : 'Watch Replay' }}
+          {{ replaying ? t('firework.share.replaying') : t('firework.share.watchReplay') }}
         </button>
         <button @click="handleLike" class="btn-like" :disabled="liked">
-          {{ liked ? '❤️ Liked' : '🤍 Like' }}
+          {{ liked ? '❤️ ' + t('firework.share.liked') : '🤍 ' + t('firework.share.like') }}
           <span v-if="currentLikeCount">({{ currentLikeCount }})</span>
         </button>
         <button @click="copyLink" class="btn-secondary">
           {{ t('firework.share.copyLink') }}
         </button>
         <template v-if="isOwner">
-          <button @click="startEdit" class="btn-secondary">{{ editMode ? 'Cancel' : 'Edit Title' }}</button>
+          <button @click="startEdit" class="btn-secondary">
+            {{ editMode ? t('firework.share.cancel') : t('firework.share.editTitle') }}
+          </button>
           <button @click="handleDelete" class="btn-danger" :disabled="deleting">
-            {{ deleting ? 'Deleting...' : 'Delete' }}
+            {{ deleting ? t('firework.share.deleting') : t('firework.share.delete') }}
           </button>
         </template>
       </div>
 
-      <!-- Edit inline -->
       <div v-if="editMode" class="edit-row">
         <input v-model="editTitle" class="save-input" maxlength="30" />
         <button @click="doEdit" class="save-submit" :disabled="editSaving">
-          {{ editSaving ? 'Saving...' : 'Save' }}
+          {{ editSaving ? t('firework.share.saving') : t('firework.share.save') }}
         </button>
       </div>
 
@@ -84,10 +85,10 @@
           <canvas ref="replayMain" class="replay-canvas" />
         </div>
         <div class="replay-info">
-          {{ recipe.title }} · {{ recipe.authorName || t('firework.share.visitor') }}
+          {{ recipe.title }} · {{ t('firework.share.replayBy') }} {{ recipe.authorName || t('firework.share.visitor') }}
         </div>
-        <div class="replay-progress" v-if="replayDuration > 0">
-          <div class="replay-progress-fill" :style="{ width: (replayProgress / replayDuration * 100) + '%' }" />
+        <div class="replay-progress" v-if="replayDuration > 0" @click="seekReplay">
+          <div class="replay-progress-fill" :style="{ width: seekPercent + '%' }" />
         </div>
         <button @click="stopReplay" class="replay-close">✕</button>
       </div>
@@ -96,13 +97,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { api } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 const authStore = useAuthStore()
 
@@ -116,6 +117,24 @@ const editTitle = ref('')
 const editSaving = ref(false)
 const deleting = ref(false)
 
+// Shell type name mapping
+const shellTypeMap: Record<string, string> = {
+  Random: 'firework.types.random', Crackle: 'firework.types.crackle',
+  Crossette: 'firework.types.crossette', Crysanthemum: 'firework.types.crysanthemum',
+  'Falling Leaves': 'firework.types.fallingLeaves', Floral: 'firework.types.floral',
+  Ghost: 'firework.types.ghost', 'Horse Tail': 'firework.types.horseTail',
+  Palm: 'firework.types.palm', Ring: 'firework.types.ring',
+  Strobe: 'firework.types.strobe', Willow: 'firework.types.willow',
+  Text: 'firework.types.text',
+}
+
+const shellTypeLabel = computed(() => {
+  const st = recipe.value?.config?.shellType
+  if (!st) return '-'
+  const key = shellTypeMap[st]
+  return key ? t(key) : st
+})
+
 onMounted(async () => {
   const slug = route.params.slug as string
   try {
@@ -123,10 +142,8 @@ onMounted(async () => {
     if (res.data.code === 0 && res.data.data) {
       recipe.value = res.data.data
       currentLikeCount.value = res.data.data.likeCount ?? 0
-      // Check liked
       const likedMap = JSON.parse(localStorage.getItem('wanzai_liked') || '{}')
       liked.value = !!likedMap[slug]
-      // Check owner
       if (authStore.user && authStore.user.id === res.data.data.userId) {
         isOwner.value = true
       }
@@ -136,15 +153,13 @@ onMounted(async () => {
   }
 })
 
-function copyLink() {
-  navigator.clipboard.writeText(window.location.href).catch(() => {})
-}
+function copyLink() { navigator.clipboard.writeText(window.location.href).catch(() => {}) }
 
 async function handleLike() {
   const slug = route.params.slug as string
   if (liked.value) return
   try {
-    const res = await api.post(`/fireworks/${slug}/like`)
+    const res = await api.post('/fireworks/like', { slug })
     if (res.data.code === 0) {
       currentLikeCount.value = res.data.data.likeCount
       liked.value = true
@@ -156,10 +171,7 @@ async function handleLike() {
 }
 
 function startEdit() {
-  if (editMode.value) {
-    editMode.value = false
-    return
-  }
+  if (editMode.value) { editMode.value = false; return }
   editTitle.value = recipe.value?.title || ''
   editMode.value = true
 }
@@ -171,7 +183,7 @@ async function doEdit() {
     const res = await api.put(`/fireworks/${recipe.value.id}`, { title: editTitle.value })
     recipe.value.title = res.data.data.title
     editMode.value = false
-  } catch { alert('Failed to update') }
+  } catch { alert(t('firework.share.updateFailed')) }
   finally { editSaving.value = false }
 }
 
@@ -182,11 +194,11 @@ async function handleDelete() {
   try {
     await api.delete(`/fireworks/${recipe.value.id}`)
     recipe.value = null
-  } catch { alert('Failed to delete') }
+  } catch { alert(t('firework.share.deleteFailed')) }
   finally { deleting.value = false }
 }
 
-// --- Replay engine (minimal, inline) ---
+// --- Replay engine with audio + clickable progress ---
 const replaying = ref(false)
 const replayWrap = ref<HTMLElement | null>(null)
 const replayTrails = ref<HTMLCanvasElement | null>(null)
@@ -194,108 +206,129 @@ const replayMain = ref<HTMLCanvasElement | null>(null)
 const replayProgress = ref(0)
 const replayDuration = ref(0)
 let replayEngine: any = null
+let replayAudioCtx: AudioContext | null = null
+let replayBurstBuffer: AudioBuffer | null = null
+
+const seekPercent = computed(() => replayDuration.value > 0 ? Math.min(100, replayProgress.value / replayDuration.value * 100) : 0)
+
+async function loadReplayAudio() {
+  try {
+    const ctx = new AudioContext()
+    const resp = await fetch('/firework/audio/burst1.mp3')
+    const buf = await resp.arrayBuffer()
+    replayBurstBuffer = await ctx.decodeAudioData(buf)
+    replayAudioCtx = ctx
+  } catch { /* audio optional */ }
+}
+
+function playBurst() {
+  if (!replayAudioCtx || !replayBurstBuffer) return
+  if (replayAudioCtx.state === 'suspended') replayAudioCtx.resume()
+  const src = replayAudioCtx.createBufferSource()
+  src.buffer = replayBurstBuffer
+  const gain = replayAudioCtx.createGain()
+  gain.gain.value = 0.3
+  src.connect(gain); gain.connect(replayAudioCtx.destination)
+  src.start(0)
+}
 
 async function startReplay() {
   if (!recipe.value) return
   replaying.value = true
   replayProgress.value = 0
   await nextTick()
+  await loadReplayAudio()
 
   const config = recipe.value.config || {}
   const timeline = config.timeline
-  if (timeline && timeline.length > 0) {
-    replayDuration.value = Math.max(...timeline.map((e: any) => e.delay)) + 3000
-  } else {
-    replayDuration.value = 3000
-  }
+  replayDuration.value = timeline?.length
+    ? Math.max(...timeline.map((e: any) => e.delay)) + 3000
+    : 3000
 
-  // Create mini engine for replay
-  const trails = replayTrails.value
-  const main = replayMain.value
-  const wrap = replayWrap.value
+  const trails = replayTrails.value, main = replayMain.value, wrap = replayWrap.value
   if (!trails || !main || !wrap) return
 
-  wrap.style.width = window.innerWidth + 'px'
-  wrap.style.height = window.innerHeight + 'px'
-  trails.width = window.innerWidth
-  trails.height = window.innerHeight
-  main.width = window.innerWidth
-  main.height = window.innerHeight
+  wrap.style.width = innerWidth + 'px'
+  wrap.style.height = innerHeight + 'px'
+  trails.width = main.width = innerWidth
+  trails.height = main.height = innerHeight
 
-  const tctx = trails.getContext('2d')!
-  const mctx = main.getContext('2d')!
-
-  // Mini engine: launch a shell at each timeline event
+  const tctx = trails.getContext('2d')!, mctx = main.getContext('2d')!
   const shellTypes = getMiniShellTypes()
-  const startTime = Date.now()
-  const events = timeline || [{ delay: 500, shellType: config.shellType || 'Random', shellSize: config.shellSize || 2, x: 0.5, height: 0.35 }]
+  let startTime = Date.now()
+  const events = timeline?.length ? timeline : [{ delay: 500, shellType: config.shellType || 'Random', shellSize: config.shellSize || 2, x: 0.5, height: 0.35 }]
+  firedEvents = new Set<number>()
+  let lastBurstTime = 0
 
-  let fired = new Set<number>()
+  replayEngine = { active: true, startTime }
 
-  replayEngine = { active: true }
   const loop = () => {
     if (!replayEngine.active) return
-    const elapsed = Date.now() - startTime
+    const elapsed = Date.now() - replayEngine.startTime
     replayProgress.value = elapsed
 
-    // Fire pending events
-    for (let i = 0; i < events?.length; i++) {
-      if (fired.has(i)) continue
+    for (let i = 0; i < events.length; i++) {
+      if (firedEvents.has(i)) continue
       if (elapsed >= (events[i]?.delay || 0)) {
-        fired.add(i)
+        firedEvents.add(i)
         const ev = events[i]
-        const sc = shellTypes[ev.shellType] || shellTypes['Random']
+        const sc = shellTypes[ev.shellType] || shellTypes.Random
         if (sc) {
           const s = new MiniShell(sc(ev.shellSize || 2))
-          launchMiniShell(s, ev.x || 0.5, ev.height || 0.35, window.innerWidth, window.innerHeight)
+          launchMiniShell(s, ev.x || 0.5, ev.height || 0.35, innerWidth, innerHeight)
+          if (elapsed - lastBurstTime > 150) { playBurst(); lastBurstTime = elapsed }
         }
       }
     }
 
-    // Physics
     updateMiniParticles(16.67)
 
-    // Render
     tctx.fillStyle = 'rgba(0,0,0,0.15)'
-    tctx.fillRect(0, 0, window.innerWidth, window.innerHeight)
+    tctx.fillRect(0, 0, innerWidth, innerHeight)
     tctx.globalCompositeOperation = 'lighten'
-    tctx.lineWidth = 2
-    tctx.lineCap = 'round'
-    const colors = ['#ff0043', '#14fc56', '#1e7fff', '#e60aff', '#ffbf36', '#ffffff']
+    tctx.lineWidth = 2; tctx.lineCap = 'round'
+    const colors = ['#ff0043','#14fc56','#1e7fff','#e60aff','#ffbf36','#ffffff']
     for (const c of colors) {
-      tctx.strokeStyle = c
-      tctx.beginPath()
-      for (const s of miniStarActive.filter((s: any) => s.color === c)) {
-        tctx.moveTo(s.x, s.y); tctx.lineTo(s.prevX, s.prevY)
-      }
+      tctx.strokeStyle = c; tctx.beginPath()
+      for (const s of miniStarActive.filter((s: any) => s.color === c)) { tctx.moveTo(s.x,s.y); tctx.lineTo(s.prevX,s.prevY) }
       tctx.stroke()
       tctx.beginPath()
-      for (const s of miniSparkActive.filter((s: any) => s.color === c)) {
-        tctx.moveTo(s.x, s.y); tctx.lineTo(s.prevX, s.prevY)
-      }
+      for (const s of miniSparkActive.filter((s: any) => s.color === c)) { tctx.moveTo(s.x,s.y); tctx.lineTo(s.prevX,s.prevY) }
       tctx.stroke()
     }
     tctx.globalCompositeOperation = 'source-over'
+    mctx.clearRect(0, 0, innerWidth, innerHeight)
 
-    mctx.clearRect(0, 0, window.innerWidth, window.innerHeight)
-
-    if (elapsed < replayDuration.value) {
-      requestAnimationFrame(loop)
-    }
+    if (elapsed < replayDuration.value) requestAnimationFrame(loop)
   }
   requestAnimationFrame(loop)
 }
 
+function seekReplay(e: MouseEvent) {
+  if (!replayEngine || !replayDuration.value) return
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+  const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+  replayEngine.startTime = Date.now() - ratio * replayDuration.value
+  replayProgress.value = ratio * replayDuration.value
+  // Reset fired events
+  const timeline = recipe.value?.config?.timeline || []
+  firedEvents.clear()
+  for (let i = 0; i < timeline.length; i++) {
+    if ((timeline[i]?.delay || 0) <= replayProgress.value) firedEvents.add(i)
+  }
+}
+
+let firedEvents = new Set<number>()
+
 function stopReplay() {
   if (replayEngine) replayEngine.active = false
   replaying.value = false
-  miniStarActive = []
-  miniSparkActive = []
+  miniStarActive = []; miniSparkActive = []
+  if (replayAudioCtx) { replayAudioCtx.close(); replayAudioCtx = null; replayBurstBuffer = null }
 }
 
-// Minimal particle system for replay
-let miniStarActive: any[] = []
-let miniSparkActive: any[] = []
+// Minimal particle system
+let miniStarActive: any[] = [], miniSparkActive: any[] = []
 const G = 0.9
 
 class MiniShell {
@@ -303,7 +336,7 @@ class MiniShell {
   color: string | string[]; glitter: string; glitterColor: string
   constructor(o: any) {
     this.spreadSize = o.spreadSize || 400
-    this.starCount = o.starCount || Math.max(6, (this.spreadSize / 54) ** 2 * (o.starDensity || 1))
+    this.starCount = o.starCount || Math.max(6, (this.spreadSize/54)**2 * (o.starDensity||1))
     this.starLife = o.starLife || 1200
     this.color = o.color || '#ffbf36'
     this.glitter = o.glitter || ''
@@ -311,72 +344,60 @@ class MiniShell {
   }
 }
 
-function launchMiniShell(shell: MiniShell, posX: number, posH: number, w: number, h: number) {
-  const x = posX * w
-  const y = posH * h
-  const speed = shell.spreadSize / 96
-  const count = shell.starCount
-  for (let i = 0; i < count; i++) {
-    const angle = Math.random() * Math.PI * 2
-    const sm = Math.random()
-    const s = {
-      x, y, prevX: x, prevY: y, color: Array.isArray(shell.color) ? shell.color[i % 2] : shell.color,
-      speedX: Math.sin(angle) * speed * sm, speedY: Math.cos(angle) * speed * sm,
-      life: shell.starLife + Math.random() * shell.starLife * 0.3, sparkTimer: 0, sparkFreq: 200,
-    }
-    miniStarActive.push(s)
+function launchMiniShell(shell: MiniShell, px: number, ph: number, w: number, h: number) {
+  const x = px * w, y = ph * h, speed = shell.spreadSize / 96
+  for (let i = 0; i < shell.starCount; i++) {
+    const angle = Math.random() * Math.PI * 2, sm = Math.random()
+    miniStarActive.push({
+      x,y,prevX:x,prevY:y,
+      color: Array.isArray(shell.color) ? shell.color[i%2] : shell.color,
+      speedX: Math.sin(angle)*speed*sm, speedY: Math.cos(angle)*speed*sm,
+      life: shell.starLife + Math.random()*shell.starLife*0.3,
+      sparkTimer: 0, sparkFreq: 200 })
   }
 }
 
 function updateMiniParticles(dt: number) {
-  const g = (dt / 1000) * G
-  for (let i = miniStarActive.length - 1; i >= 0; i--) {
-    const s = miniStarActive[i]
-    s.life -= dt
-    if (s.life <= 0) { miniStarActive.splice(i, 1); continue }
-    s.prevX = s.x; s.prevY = s.y
-    s.x += s.speedX; s.y += s.speedY
-    s.speedX *= 0.98; s.speedY *= 0.98
-    s.speedY += g
-    if (s.sparkFreq) {
-      s.sparkTimer -= dt
-      while (s.sparkTimer < 0) {
-        s.sparkTimer += s.sparkFreq
-        miniSparkActive.push({ x: s.x, y: s.y, prevX: s.x, prevY: s.y, color: '#ffbf36', speedX: (Math.random() - 0.5) * 0.5, speedY: Math.random() * 0.5, life: 400 })
-      }
-    }
+  const g = (dt/1000)*G
+  for (let i = miniStarActive.length-1; i >= 0; i--) {
+    const s = miniStarActive[i]; s.life -= dt
+    if (s.life <= 0) { miniStarActive.splice(i,1); continue }
+    s.prevX=s.x; s.prevY=s.y; s.x+=s.speedX; s.y+=s.speedY
+    s.speedX*=0.98; s.speedY*=0.98; s.speedY+=g
+    if (s.sparkFreq) { s.sparkTimer -= dt
+      while (s.sparkTimer < 0) { s.sparkTimer += s.sparkFreq
+        miniSparkActive.push({ x:s.x,y:s.y,prevX:s.x,prevY:s.y,color:'#ffbf36',
+          speedX:(Math.random()-.5)*.5,speedY:Math.random()*.5,life:400 }) } }
   }
-  for (let i = miniSparkActive.length - 1; i >= 0; i--) {
-    const sp = miniSparkActive[i]
-    sp.life -= dt
-    if (sp.life <= 0) { miniSparkActive.splice(i, 1); continue }
-    sp.prevX = sp.x; sp.prevY = sp.y
-    sp.x += sp.speedX; sp.y += sp.speedY
-    sp.speedX *= 0.9; sp.speedY *= 0.9
-    sp.speedY += g
+  for (let i = miniSparkActive.length-1; i >= 0; i--) {
+    const sp = miniSparkActive[i]; sp.life -= dt
+    if (sp.life <= 0) { miniSparkActive.splice(i,1); continue }
+    sp.prevX=sp.x; sp.prevY=sp.y; sp.x+=sp.speedX; sp.y+=sp.speedY
+    sp.speedX*=0.9; sp.speedY*=0.9; sp.speedY+=g
   }
 }
 
 function getMiniShellTypes(): Record<string, (size: number) => any> {
-  const c = () => ['#ff0043', '#14fc56', '#1e7fff', '#e60aff', '#ffbf36', '#ffffff'][Math.floor(Math.random() * 6)]
+  const c = () => ['#ff0043','#14fc56','#1e7fff','#e60aff','#ffbf36','#ffffff'][Math.floor(Math.random()*6)]
   return {
-    Random: (s) => ({ spreadSize: 300 + s * 100, starDensity: 1.25, starLife: 900 + s * 200, color: c() }),
-    Crysanthemum: (s) => ({ spreadSize: 300 + s * 100, starDensity: 1.25, starLife: 900 + s * 200, color: c(), glitter: 'light', glitterColor: '#ffbf36' }),
-    Crackle: (s) => ({ spreadSize: 380 + s * 75, starDensity: 1, starLife: 600 + s * 100, color: Math.random() < 0.75 ? '#ffbf36' : c(), glitter: 'light', glitterColor: '#ffbf36' }),
-    Crossette: (s) => ({ spreadSize: 300 + s * 100, starDensity: 0.85, starLife: 750 + s * 160, color: c() }),
-    FallingLeaves: (s) => ({ spreadSize: 300 + s * 120, starDensity: 0.12, starLife: 500 + s * 50, color: '_INVISIBLE_', glitter: 'medium', glitterColor: '#ffbf36' }),
-    Floral: (s) => ({ spreadSize: 300 + s * 120, starDensity: 0.12, starLife: 500 + s * 50, color: c() }),
-    Ghost: (s) => ({ spreadSize: 300 + s * 100, starDensity: 1.1, starLife: 1400 + s * 200, color: c() }),
-    HorseTail: (s) => ({ spreadSize: 250 + s * 38, starDensity: 0.9, starLife: 2500 + s * 300, color: c() }),
-    Palm: (s) => ({ spreadSize: 250 + s * 75, starDensity: 0.4, starLife: 1800 + s * 200, color: c() }),
-    Ring: (s) => ({ spreadSize: 300 + s * 100, starDensity: 0.8, starLife: 900 + s * 200, color: c(), glitter: 'light', glitterColor: '#ffffff' }),
-    Strobe: (s) => ({ spreadSize: 280 + s * 92, starDensity: 1.1, starLife: 1100 + s * 200, color: c(), glitter: 'light', glitterColor: '#ffffff' }),
-    Willow: (s) => ({ spreadSize: 300 + s * 100, starDensity: 0.6, starLife: 3000 + s * 300, color: '_INVISIBLE_', glitter: 'willow', glitterColor: '#ffbf36' }),
+    Random: s => ({ spreadSize:300+s*100, starDensity:1.25, starLife:900+s*200, color:c() }),
+    Crysanthemum: s => ({ spreadSize:300+s*100, starDensity:1.25, starLife:900+s*200, color:c(), glitter:'light', glitterColor:'#ffbf36' }),
+    Crackle: s => ({ spreadSize:380+s*75, starDensity:1, starLife:600+s*100, color:Math.random()<.75?'#ffbf36':c(), glitter:'light', glitterColor:'#ffbf36' }),
+    Crossette: s => ({ spreadSize:300+s*100, starDensity:.85, starLife:750+s*160, color:c() }),
+    FallingLeaves: s => ({ spreadSize:300+s*120, starDensity:.12, starLife:500+s*50, color:'_INVISIBLE_', glitter:'medium', glitterColor:'#ffbf36' }),
+    Floral: s => ({ spreadSize:300+s*120, starDensity:.12, starLife:500+s*50, color:c() }),
+    Ghost: s => ({ spreadSize:300+s*100, starDensity:1.1, starLife:1400+s*200, color:c() }),
+    HorseTail: s => ({ spreadSize:250+s*38, starDensity:.9, starLife:2500+s*300, color:c() }),
+    Palm: s => ({ spreadSize:250+s*75, starDensity:.4, starLife:1800+s*200, color:c() }),
+    Ring: s => ({ spreadSize:300+s*100, starDensity:.8, starLife:900+s*200, color:c(), glitter:'light', glitterColor:'#ffffff' }),
+    Strobe: s => ({ spreadSize:280+s*92, starDensity:1.1, starLife:1100+s*200, color:c(), glitter:'light', glitterColor:'#ffffff' }),
+    Willow: s => ({ spreadSize:300+s*100, starDensity:.6, starLife:3000+s*300, color:'_INVISIBLE_', glitter:'willow', glitterColor:'#ffbf36' }),
   }
 }
 
 onUnmounted(() => {
   if (replayEngine) replayEngine.active = false
+  if (replayAudioCtx) { replayAudioCtx.close(); replayAudioCtx = null }
 })
 </script>
 
@@ -413,13 +434,13 @@ onUnmounted(() => {
 .save-input:focus { border-color: #f59e0b; }
 .save-submit { padding: 10px 20px; background: linear-gradient(135deg, #dc2626, #d97706); color: #fff; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
 
-/* Replay overlay */
 .replay-overlay { position: fixed; inset: 0; z-index: 9999; background: #000; display: flex; align-items: center; justify-content: center; }
 .replay-canvas-wrap { position: absolute; inset: 0; }
 .replay-canvas { position: absolute; inset: 0; mix-blend-mode: lighten; }
-.replay-info { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,.7); font-size: 14px; background: rgba(0,0,0,.6); padding: 6px 20px; border-radius: 20px; }
-.replay-progress { position: absolute; bottom: 30px; left: 10%; width: 80%; height: 4px; background: rgba(255,255,255,.15); border-radius: 2px; overflow: hidden; }
-.replay-progress-fill { height: 100%; background: linear-gradient(90deg, #f59e0b, #ef4444); transition: width .1s; }
+.replay-info { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,.7); font-size: 14px; background: rgba(0,0,0,.6); padding: 6px 20px; border-radius: 20px; pointer-events: none; }
+.replay-progress { position: absolute; bottom: 30px; left: 10%; width: 80%; height: 6px; background: rgba(255,255,255,.15); border-radius: 3px; overflow: hidden; cursor: pointer; }
+.replay-progress:hover { height: 10px; }
+.replay-progress-fill { height: 100%; background: linear-gradient(90deg, #f59e0b, #ef4444); transition: width .1s; pointer-events: none; }
 .replay-close { position: absolute; top: 20px; right: 20px; width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,.6); color: #fff; font-size: 20px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
 .replay-close:hover { background: rgba(239,68,68,.7); }
 </style>

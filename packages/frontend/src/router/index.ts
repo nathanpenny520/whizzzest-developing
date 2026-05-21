@@ -167,6 +167,18 @@ const routes = [
     }
   },
   {
+    path: '/firework/leaderboard',
+    name: 'FireworkLeaderboard',
+    component: () => import('../pages/FireworkLeaderboardPage.vue'),
+    meta: { title: '烟花排行榜 | 焰境·万载', locale: 'zh-CN' }
+  },
+  {
+    path: '/en/firework/leaderboard',
+    name: 'FireworkLeaderboardEn',
+    component: () => import('../pages/FireworkLeaderboardPage.vue'),
+    meta: { title: 'Firework Leaderboard | WhizzZest', locale: 'en' }
+  },
+  {
     path: '/about',
     name: 'About',
     component: () => import('../pages/AboutPage.vue'),
