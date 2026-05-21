@@ -15,6 +15,8 @@ export class KnowledgeService {
 
   /** 关键词匹配检索，返回 Top-K 相关知识条目 */
   async retrieveRelevant(question: string, _locale: string): Promise<KnowledgeEntry[]> {
+    if (!question) return []
+
     const all = await this.prisma.knowledgeEntry.findMany({
       where: { category: { not: '_system_prompt' } },
     })
@@ -44,9 +46,7 @@ export class KnowledgeService {
   /** 格式化检索结果为 LLM 上下文 */
   buildContext(entries: KnowledgeEntry[]): string {
     if (entries.length === 0) return ''
-    return entries
-      .map((e) => `[${e.category}]\n${e.content}`)
-      .join('\n\n')
+    return entries.map((e) => `[${e.category}]\n${e.content}`).join('\n\n')
   }
 
   /** 获取系统提示词（按 locale 选中文或英文，从 DB 读取，无数据时用默认值） */
