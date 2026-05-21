@@ -3,6 +3,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "moduleResolution": "node10",
+    "noImplicitAny": false,
     "noEmit": false,
     "declaration": true,
     "declarationMap": true,

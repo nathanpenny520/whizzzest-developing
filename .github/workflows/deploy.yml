@@ -33,6 +33,9 @@ jobs:
           VITE_AMAP_KEY: ${{ secrets.VITE_AMAP_KEY }}
           VITE_AMAP_SECURITY_CODE: ${{ secrets.VITE_AMAP_SECURITY_CODE }}
 
+      - name: 生成 Prisma 客户端
+        run: pnpm --filter @wanzai/backend exec prisma generate
+
       - name: 构建后端
         run: pnpm build:backend
 
