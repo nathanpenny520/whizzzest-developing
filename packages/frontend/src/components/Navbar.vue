@@ -52,7 +52,7 @@
                 <span v-else class="dropdown-item disabled">
                   <span class="item-icon">{{ item.icon || '🎪' }}</span>
                   {{ item.label }}
-                  <span class="coming-soon">{{ isZh ? '即将上线' : 'Soon' }}</span>
+                  <span class="coming-soon">{{ t('common.comingSoon') }}</span>
                 </span>
               </template>
             </div>
@@ -148,7 +148,7 @@
           >
             {{ item.label }}
             <span v-if="!item.path && (item as any).action !== 'chat'" class="coming-soon">{{
-              isZh ? '即将上线' : 'Soon'
+              t('common.comingSoon')
             }}</span>
           </span>
         </div>
@@ -157,7 +157,7 @@
           <button
             v-if="!authStore.isLoggedIn"
             @click="
-              handleLogin
+              handleLogin()
               mobileOpen = false
             "
             class="mobile-login-btn"
@@ -194,7 +194,7 @@
             >
             <button
               @click="
-                handleLogout
+                handleLogout()
                 mobileOpen = false
               "
               class="ud-item logout"
@@ -237,8 +237,6 @@ const userMenuOpen = ref(false)
 const mobileOpen = ref(false)
 let closeTimer: ReturnType<typeof setTimeout> | null = null
 
-const isZh = computed(() => (locale.value as string) === 'zh-CN')
-
 function closeClusterDelayed() {
   closeTimer = setTimeout(() => {
     openCluster.value = ''
@@ -262,7 +260,7 @@ const clusters = computed(() => [
   {
     key: 'culture',
     icon: '🏛️',
-    label: isZh.value ? '万载风物' : 'Wanzai Culture',
+    label: t('nav.clusterCulture'),
     items: [
       { path: '/', icon: '🏠', label: t('nav.home') },
       { path: '/culture', icon: '🎭', label: t('nav.culture') },
@@ -277,25 +275,25 @@ const clusters = computed(() => [
   {
     key: 'interactive',
     icon: '🎆',
-    label: isZh.value ? '互动体验' : 'Interactive',
+    label: t('nav.clusterInteractive'),
     items: [
-      { path: '', action: 'chat', icon: '🤖', label: isZh.value ? 'AI 花傩' : 'AI Hua Nuo' },
-      { path: '/firework', icon: '🎇', label: isZh.value ? '数字烟花' : 'Digital Fireworks' },
+      { path: '', action: 'chat', icon: '🤖', label: t('nav.aiHuaNuo') },
+      { path: '/firework', icon: '🎇', label: t('nav.digitalFirework') },
       {
         path: '/firework/leaderboard',
         icon: '🏆',
-        label: isZh.value ? '烟花排行榜' : 'Firework Rankings',
+        label: t('nav.fireworkRankings'),
       },
-      { path: '', action: 'none', icon: '🎪', label: isZh.value ? '小游戏' : 'Mini Games' },
+      { path: '', action: 'none', icon: '🎪', label: t('nav.miniGames') },
     ],
   },
   {
     key: 'business',
     icon: '💼',
-    label: isZh.value ? '商业服务' : 'Business',
+    label: t('nav.clusterBusiness'),
     items: [
       { path: '/merchant', icon: '🏪', label: t('nav.merchant') },
-      { path: '/merchant/apply', icon: '📝', label: isZh.value ? '商户入驻' : 'Merchant Apply' },
+      { path: '/merchant/apply', icon: '📝', label: t('nav.merchantApply') },
     ],
   },
 ])
