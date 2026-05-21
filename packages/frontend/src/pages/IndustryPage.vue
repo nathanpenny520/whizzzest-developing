@@ -177,7 +177,8 @@ import Chart from 'chart.js/auto';
 const { t, locale } = useI18n();
 const { getLocalizedPath } = useLocalizedPath();
 
-import huapaoqingVideo from '../assets/videos/huapaoqing.mp4';
+// 视频文件较大，未纳入 Git。部署时手动上传到 /assets/videos/
+const huapaoqingVideo = '/assets/videos/huapaoqing.mp4'
 
 const industryChart = ref<HTMLCanvasElement | null>(null);
 const marketChart = ref<HTMLCanvasElement | null>(null);

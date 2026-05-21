@@ -194,11 +194,13 @@ import { useLocalizedPath } from '../composables/useLocalizedPath';
 const { t } = useI18n();
 const { getLocalizedPath } = useLocalizedPath();
 
-import yanhuaVideo from '../assets/videos/yanhua.mp4';
-import deshengguVideo from '../assets/videos/deshengu.mp4';
-import xiabuVideo from '../assets/videos/xiabu.mp4';
-import kaikounuoVideo from '../assets/videos/kaikounuo（bilibili）.mp4';
-import zhipengshangeVideo from '../assets/videos/zhipengshange.mp4';
+// 视频文件较大（~510MB），未纳入 Git。部署时手动上传到 /assets/videos/
+// 构建不会因文件缺失而失败，运行时缺失则视频区域优雅降级
+const yanhuaVideo = '/assets/videos/yanhua.mp4'
+const deshengguVideo = '/assets/videos/deshengu.mp4'
+const xiabuVideo = '/assets/videos/xiabu.mp4'
+const kaikounuoVideo = '/assets/videos/kaikounuo（bilibili）.mp4'
+const zhipengshangeVideo = '/assets/videos/zhipengshange.mp4'
 </script>
 
 <style scoped>
