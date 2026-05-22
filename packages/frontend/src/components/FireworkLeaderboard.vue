@@ -12,10 +12,7 @@
           :key="s.value"
           class="lb-sort-btn"
           :class="{ active: currentSort === s.value }"
-          @click="
-            currentSort = s.value
-            fetchData()
-          "
+          @click="handleSort(s.value)"
         >
           {{ isZh ? s.labelZh : s.labelEn }}
         </button>
@@ -93,6 +90,11 @@ const currentSortLabel = computed(() => {
   const s = sortLabels[currentSort.value]
   return isZh.value ? s?.zh : s?.en
 })
+
+function handleSort(value: string) {
+  currentSort.value = value
+  fetchData()
+}
 
 function isLiked(slug: string) {
   return !!likedSlugs.value[slug]
