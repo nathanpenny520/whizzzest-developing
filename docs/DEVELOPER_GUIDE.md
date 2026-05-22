@@ -8,12 +8,12 @@
 
 ### 1.1 前置依赖
 
-| 依赖 | 版本 | 安装方式 |
-|------|------|---------|
-| Node.js | >= 18.0 | `brew install node` 或 [nvm](https://github.com/nvm-sh/nvm) |
-| pnpm | >= 8.0 | `npm install -g pnpm` |
-| PostgreSQL | 16 | `brew install postgresql@16` |
-| Redis | 7 | `brew install redis` |
+| 依赖       | 版本    | 安装方式                                                    |
+| ---------- | ------- | ----------------------------------------------------------- |
+| Node.js    | >= 18.0 | `brew install node` 或 [nvm](https://github.com/nvm-sh/nvm) |
+| pnpm       | >= 8.0  | `npm install -g pnpm`                                       |
+| PostgreSQL | 16      | `brew install postgresql@16`                                |
+| Redis      | 7       | `brew install redis`                                        |
 
 ### 1.2 启动服务
 
@@ -138,6 +138,7 @@ curl -s http://localhost:3002/api/v1/auth/login \
 ```
 
 **预期响应**：
+
 ```json
 {
   "code": 0,
@@ -203,6 +204,7 @@ curl -s http://localhost:3002/api/v1/ai/chat \
 ```
 
 **验证要点**：
+
 - 回复语气应体现花傩角色设定（俏皮、用"傩愿"等词）
 - RAG 检索结果应包含相关知识库内容
 - 如果 API_KEY 未配置，返回花傩"充电中"提示
@@ -220,10 +222,10 @@ curl -s http://localhost:3002/api/v1/ai/chat \
 ### 3.3 知识库管理（ADMIN）
 
 ```bash
-# 登录 ADMIN 账户（种子数据已预置：ADMIN_PHONE_PLACEHOLDER 为 ADMIN）
+# 登录 ADMIN 账户（种子数据已预置 ADMIN 账号，手机号见 .env 中 ADMIN_PHONES）
 ADMIN_TOKEN=$(curl -s http://localhost:3002/api/v1/auth/login \
   -X POST -H 'Content-Type: application/json' \
-  -d '{"phone":"ADMIN_PHONE_PLACEHOLDER","code":"000000"}' | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['accessToken'])")
+  -d '{"phone":"你的管理员手机号","code":"000000"}' | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['accessToken'])")
 
 # 查看全量知识库
 curl -s http://localhost:3002/api/v1/knowledge \
@@ -243,6 +245,7 @@ curl -s http://localhost:3002/api/v1/knowledge/_system_prompt_zh \
 ```
 
 **验证要点**：
+
 - 修改知识/提示词后立即生效，无需重启服务
 - 新添加的知识条目下次 AI 对话会被检索到
 
@@ -440,22 +443,22 @@ psql -d wanzai -c "SELECT title, total_stock, used_stock FROM \"Coupon\" WHERE i
 
 ### 4.1 页面导航测试
 
-| 页面 | 中文路径 | 英文路径 | 关键验证点 |
-|------|---------|---------|-----------|
-| 首页 | `/` | `/en` | Hero 轮播、导航栏三大集群、右下角花傩按钮（点击后可全屏对话、管理对话历史） |
-| 非遗文化 | `/culture` | `/en/culture` | 5 个非遗项目展示、视频播放 |
-| 美食特产 | `/food` | `/en/food` | 六大碗 + 其他美食、图片网格 |
-| 烟花产业 | `/industry` | `/en/industry` | Chart.js 图表（饼图+柱状图）、中英切换图表重建 |
-| 旅游线路 | `/routes` | `/en/routes` | 高德驾车路线、途经点标记 |
-| 赏烟地点 | `/viewing-spots` | `/en/viewing-spots` | 两个观赏点、提示卡片 |
-| 地图导览 | `/map` | `/en/map` | 分类筛选按钮、10 个景点标记 |
-| 商家展示 | `/merchant` | `/en/merchant` | 3 家种子商户展示、优惠券卡片、领券按钮 |
-| 数字烟花 | `/firework` | `/en/firework` | 点击发射烟花、播放/暂停/设置面板、**保存配方按钮** |
-| 关于我们 | `/about` | `/en/about` | 团队介绍、时间线、联系方式 |
-| 烟花分享 | `/firework/share/:slug` | `/en/firework/share/:slug` | 加载配方回放 |
-| 商户入驻 | `/merchant/apply` | — | 表单提交 |
-| 商户后台 | `/merchant/dashboard` | — | 需 MERCHANT 角色 |
-| 管理后台 | `/admin` | — | 需 ADMIN 角色 |
+| 页面     | 中文路径                | 英文路径                   | 关键验证点                                                                  |
+| -------- | ----------------------- | -------------------------- | --------------------------------------------------------------------------- |
+| 首页     | `/`                     | `/en`                      | Hero 轮播、导航栏三大集群、右下角花傩按钮（点击后可全屏对话、管理对话历史） |
+| 非遗文化 | `/culture`              | `/en/culture`              | 5 个非遗项目展示、视频播放                                                  |
+| 美食特产 | `/food`                 | `/en/food`                 | 六大碗 + 其他美食、图片网格                                                 |
+| 烟花产业 | `/industry`             | `/en/industry`             | Chart.js 图表（饼图+柱状图）、中英切换图表重建                              |
+| 旅游线路 | `/routes`               | `/en/routes`               | 高德驾车路线、途经点标记                                                    |
+| 赏烟地点 | `/viewing-spots`        | `/en/viewing-spots`        | 两个观赏点、提示卡片                                                        |
+| 地图导览 | `/map`                  | `/en/map`                  | 分类筛选按钮、10 个景点标记                                                 |
+| 商家展示 | `/merchant`             | `/en/merchant`             | 3 家种子商户展示、优惠券卡片、领券按钮                                      |
+| 数字烟花 | `/firework`             | `/en/firework`             | 点击发射烟花、播放/暂停/设置面板、**保存配方按钮**                          |
+| 关于我们 | `/about`                | `/en/about`                | 团队介绍、时间线、联系方式                                                  |
+| 烟花分享 | `/firework/share/:slug` | `/en/firework/share/:slug` | 加载配方回放                                                                |
+| 商户入驻 | `/merchant/apply`       | —                          | 表单提交                                                                    |
+| 商户后台 | `/merchant/dashboard`   | —                          | 需 MERCHANT 角色                                                            |
+| 管理后台 | `/admin`                | —                          | 需 ADMIN 角色                                                               |
 
 ### 4.2 花傩 AI 对话（含全屏与对话管理）
 
@@ -492,7 +495,7 @@ psql -d wanzai -c "SELECT title, total_stock, used_stock FROM \"Coupon\" WHERE i
 
 1. 用普通账户（如 `13800000001`）登录
 2. 访问 `/merchant/apply` → 填写商户信息 → 提交
-3. 用 ADMIN 账户登录（如 `ADMIN_PHONE_PLACEHOLDER`）
+3. 用 ADMIN 账户登录（手机号见 `.env` 中 `ADMIN_PHONES`）
 4. 访问 `/admin` → 商户审核 Tab → 找到刚才的申请 → 点击"通过"
 5. 将该用户角色设为 MERCHANT（通过数据库或 ADMIN 后台）
 6. 重新登录 → 访问 `/merchant/dashboard`

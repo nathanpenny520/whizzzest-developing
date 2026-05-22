@@ -77,6 +77,11 @@ jobs:
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/usr/share/nginx/wanzai-backend/package.json
 
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} '
+            grep -q "^ADMIN_PHONES=" /usr/share/nginx/wanzai-backend/.env 2>/dev/null || \
+              echo "ADMIN_PHONES=${{ secrets.ADMIN_PHONES }}" >> /usr/share/nginx/wanzai-backend/.env
+          '
+
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} '
             cd /usr/share/nginx/wanzai-backend && \
             npm install --prod 2>&1 && \
             npx prisma generate && \

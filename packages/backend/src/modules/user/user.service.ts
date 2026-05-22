@@ -22,19 +22,37 @@ export class UserService {
     })
   }
 
-  async findOrCreateByPhone(phone: string, locale = 'zh'): Promise<{ id: string; phone: string; nickname: string; role: string; isNew: boolean }> {
+  async findOrCreateByPhone(
+    phone: string,
+    locale = 'zh',
+  ): Promise<{ id: string; phone: string; nickname: string; role: string; isNew: boolean }> {
     const existing = await this.findByPhone(phone)
     if (existing) {
-      return { id: existing.id, phone: existing.phone!, nickname: existing.nickname, role: existing.role, isNew: false }
+      return {
+        id: existing.id,
+        phone: existing.phone!,
+        nickname: existing.nickname,
+        role: existing.role,
+        isNew: false,
+      }
     }
-    const adminPhones = (process.env.ADMIN_PHONES || 'ADMIN_PHONE_PLACEHOLDER').split(',').map(s => s.trim())
+    const adminPhones = (process.env.ADMIN_PHONES || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
     const isAdmin = adminPhones.includes(phone)
     const isEn = locale === 'en'
-    const nickname = isAdmin ? (isEn ? 'Admin' : '管理员') : (isEn ? 'Visitor' : '游客')
+    const nickname = isAdmin ? (isEn ? 'Admin' : '管理员') : isEn ? 'Visitor' : '游客'
     const created = await this.prisma.user.create({
       data: { phone, nickname, role: isAdmin ? 'ADMIN' : undefined },
     })
-    return { id: created.id, phone: created.phone!, nickname: created.nickname, role: created.role, isNew: true }
+    return {
+      id: created.id,
+      phone: created.phone!,
+      nickname: created.nickname,
+      role: created.role,
+      isNew: true,
+    }
   }
 
   async getStats() {
