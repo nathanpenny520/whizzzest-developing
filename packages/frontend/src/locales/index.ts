@@ -729,31 +729,31 @@ const messages = {
           title: '我们的团队',
           members: {
             member1: {
-              name: '林雨晴',
+              name: '龙紫琴',
               role: '项目负责人',
               description:
                 '统筹全局战略规划与团队协作，协调各方资源整合，确保项目高效推进与核心目标的精准达成。',
             },
             member2: {
-              name: '陈浩然',
+              name: '聂磐',
               role: '技术架构师',
               description:
                 '主导网站全栈开发与系统架构设计，运用前沿技术栈构建高性能平台，打造流畅的用户交互体验。',
             },
             member3: {
-              name: '周雅琪',
+              name: '黄婧瑶',
               role: '品牌运营总监',
               description:
                 '统筹新媒体矩阵运营与品牌传播策略，策划创意内容营销，持续提升平台影响力与用户触达率。',
             },
             member4: {
-              name: '苏婉婷',
+              name: '龙子萱',
               role: '视频创意总监',
               description:
                 '主导视觉内容的策划与制作，运用影像艺术语言生动展现万载烟花文化的独特魅力与深厚底蕴。',
             },
             member5: {
-              name: '刘思颖',
+              name: '闻可佳',
               role: '内容战略总监',
               description:
                 '制定平台内容规划与项目方案撰写，深度挖掘文化价值内涵，输出专业文案与品牌叙事体系。',
@@ -1622,31 +1622,31 @@ const messages = {
           title: 'Our Team',
           members: {
             member1: {
-              name: 'Lin Yuqing',
+              name: 'Long Ziqin',
               role: 'Project Director',
               description:
                 'Leads overall strategic planning and team coordination, orchestrates resource integration, and ensures efficient project execution with precise achievement of core objectives.',
             },
             member2: {
-              name: 'Chen Haoran',
+              name: 'Nie Pan',
               role: 'Technical Architect',
               description:
                 'Directs full-stack development and system architecture design, leveraging cutting-edge technology stacks to build high-performance platforms with seamless user interaction experience.',
             },
             member3: {
-              name: 'Zhou Yaqi',
+              name: 'Huang Jingyao',
               role: 'Brand Operations Director',
               description:
                 'Oversees new media matrix operations and brand communication strategies, plans creative content marketing, and continuously enhances platform influence and user reach.',
             },
             member4: {
-              name: 'Su Wanting',
+              name: 'Long Zixuan',
               role: 'Video Creative Director',
               description:
                 'Leads visual content planning and production, using cinematic art language to vividly showcase the unique charm and profound heritage of Wanzai fireworks culture.',
             },
             member5: {
-              name: 'Liu Siying',
+              name: 'Wen Kejia',
               role: 'Content Strategy Director',
               description:
                 'Formulates platform content planning and project documentation, deeply explores cultural value insights, and delivers professional copywriting and brand narrative systems.',
