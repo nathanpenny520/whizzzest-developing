@@ -847,6 +847,16 @@ const messages = {
         },
       },
     },
+    games: {
+      title: '万载小游戏',
+      subtitle: '休闲娱乐，等你探索',
+      minecraft188: 'Minecraft 1.8.8',
+      desc188: '经典版本，流畅稳定。浏览器原生运行，无需下载，即点即玩。',
+      play: '开始游戏',
+      back: '返回游戏列表',
+      moreComing: '更多游戏',
+      moreComingDesc: '更多精彩小游戏即将上线，敬请期待。',
+    },
   },
   en: {
     siteName: 'WhizzZest',
@@ -1725,6 +1735,18 @@ const messages = {
           service: 'Customer Service',
         },
       },
+    },
+    games: {
+      title: 'Mini Games',
+      subtitle:
+        'Casual entertainment awaits in WhizzZest! Experience the charm of Wanzai in a fun way.',
+      minecraft188: 'Minecraft 1.8.8',
+      desc188:
+        'Classic version, smooth and stable. Runs natively in your browser — no download needed.',
+      play: 'Play',
+      back: 'Back to Games',
+      moreComing: 'More Games',
+      moreComingDesc: 'More exciting mini games coming soon. Stay tuned!',
     },
   },
 }

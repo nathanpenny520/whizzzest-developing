@@ -195,6 +195,24 @@ const routes = [
     keywords: 'about us,WhizzZest team,Wanzai tourism,mission,vision',
     h1: 'About Us',
     noscript: 'WhizzZest Wanzai team introduction page. Please enable JavaScript for the best experience.'
+  },
+  {
+    path: '/games',
+    dir: 'games',
+    title: '焰境·万载 - 像素世界 | 万载小游戏',
+    description: '万载文旅像素世界 — 浏览器版Minecraft 1.8.8，经典版本，流畅稳定。无需下载，即点即玩。',
+    keywords: '万载,小游戏,minecraft,像素世界,浏览器游戏',
+    h1: '像素世界',
+    noscript: '万载小游戏页面 — 浏览器版Minecraft 1.8.8。请启用 JavaScript 以获得最佳体验。'
+  },
+  {
+    path: '/en/games',
+    dir: 'en/games',
+    title: 'WhizzZest - Pixel World | Mini Games',
+    description: 'Wanzai pixel world — browser-based Minecraft 1.8.8, classic and smooth. No download needed.',
+    keywords: 'wanzai,mini games,minecraft,pixel world,browser game',
+    h1: 'Pixel World',
+    noscript: 'Mini Games page — browser-based Minecraft 1.8.8. Please enable JavaScript for the best experience.'
   }
 ]
 

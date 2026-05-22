@@ -234,7 +234,7 @@ const clusters = computed(() => [
       { path: '', action: 'chat', icon: '🤖', label: t('nav.aiHuaNuo') },
       { path: '/firework', icon: '🎇', label: t('nav.digitalFirework') },
       { path: '/firework/leaderboard', icon: '🏆', label: t('nav.fireworkRankings') },
-      { path: '', action: 'none', icon: '🎪', label: t('nav.miniGames') },
+      { path: '/games', icon: '🎪', label: t('nav.miniGames') },
     ],
   },
   {
