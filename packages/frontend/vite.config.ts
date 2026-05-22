@@ -45,7 +45,7 @@ export default defineConfig({
     vue(),
     gameFilesCSPPlugin(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.svg', 'robots.txt', 'sitemap.xml', 'icons/*.svg'],
       manifest: {
         lang: 'zh-CN',

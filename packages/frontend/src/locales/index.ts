@@ -857,6 +857,10 @@ const messages = {
       moreComing: '更多游戏',
       moreComingDesc: '更多精彩小游戏即将上线，敬请期待。',
     },
+    pwa: {
+      updateAvailable: '发现新版本，点击更新',
+      update: '更新',
+    },
   },
   en: {
     siteName: 'WhizzZest',
@@ -1747,6 +1751,10 @@ const messages = {
       back: 'Back to Games',
       moreComing: 'More Games',
       moreComingDesc: 'More exciting mini games coming soon. Stay tuned!',
+    },
+    pwa: {
+      updateAvailable: 'New version available, click to update',
+      update: 'Update',
     },
   },
 }
