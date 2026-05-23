@@ -14,6 +14,13 @@
 
 **焰境·万载**是围绕江西省万载县打造的数字文旅平台，以"中国花炮之乡"的千年烟花文化为核心，融合非遗传承、美食特产、旅游导览，以 AI 动漫角色"**花傩**"为数字灵魂。
 
+![](./packages/frontend/src/assets/images/demo-home.png)
+
+![](./packages/frontend/src/assets/images/demo-games.png)
+
+**网站地址：** https://www.whizzzest-yanjingwanzai.top/
+**GitHub仓库地址：** https://github.com/nathanpenny520/WhizzZest
+
 | 功能        | 说明                                                                              |
 | ----------- | --------------------------------------------------------------------------------- |
 | 🎆 数字烟花 | Canvas 粒子引擎，12+ 类型，配方编排、保存、分享、排行榜                           |
@@ -312,8 +319,8 @@ chore: 升级依赖版本
 
 - **官方网站**：https://whizzzest-yanjingwanzai.top
 - **电子邮箱**：whizzzest@outlook.com
-- **官方抖音**：焰境·万载
-- **微信公众号**：云上万载-焰遇乡旅
+- **官方抖音**：[焰境·万载](https://www.douyin.com/user/MS4wLjABAAAA0fPcuNv5vy46rDu3W1laQUVvZQiyr9MbDl7E60WUnrOKVkG_JKKy68tZiWA_L3A8)
+- **微信公众号**：[云上万载-焰遇乡旅](https://mp.weixin.qq.com/s/2PjTjMdtbUlauy4V-L75QQ)
 - **微信视频号**：焰境万载
 - **小红书**：焰境万载
 
