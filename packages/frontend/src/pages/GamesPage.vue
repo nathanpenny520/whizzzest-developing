@@ -47,19 +47,34 @@
           </div>
         </div>
 
-        <!-- Future Game Placeholder -->
-        <div class="game-card placeholder-card">
+        <!-- PvZ Card -->
+        <div class="game-card group cursor-pointer" @click="openGame('pvz')">
           <div class="card-preview">
-            <div class="placeholder-icon">?</div>
+            <img :src="pvzImg" alt="Plants vs. Zombies" class="preview-img" />
           </div>
           <div class="card-info">
-            <h3 class="text-lg font-bold text-gray-400 mb-1">
-              {{ t('games.moreComing') }}
+            <h3 class="text-lg font-bold text-gray-800 mb-1">
+              {{ t('games.pvz') }}
             </h3>
-            <p class="text-gray-400 text-xs leading-relaxed mb-4">
-              {{ t('games.moreComingDesc') }}
+            <p class="text-gray-500 text-xs leading-relaxed mb-4">
+              {{ t('games.descPvz') }}
             </p>
-            <span class="text-gray-400 text-xs">{{ t('common.comingSoon') }}</span>
+            <span class="play-btn">
+              {{ t('games.play') }}
+              <svg
+                class="w-4 h-4 ml-1 inline"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </span>
           </div>
         </div>
       </div>
@@ -87,7 +102,7 @@
             {{ t('games.back') }}
           </button>
           <span class="text-gray-700 text-sm font-medium">
-            {{ t('games.minecraft188') }}
+            {{ activeGame === 'pvz' ? t('games.pvz') : t('games.minecraft188') }}
           </span>
           <div class="w-16" />
           <!-- spacer -->
@@ -98,7 +113,7 @@
           :src="`/games/${activeGame}.html`"
           class="flex-1 w-full border-0"
           allow="accelerometer; autoplay; clipboard-write; cross-origin-isolated"
-          title="Minecraft"
+          :title="activeGame === 'pvz' ? 'Plants vs. Zombies' : 'Minecraft'"
         />
       </div>
     </Transition>
@@ -110,6 +125,7 @@ defineOptions({ name: 'GamesPage' })
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import minecraftImg from '@/assets/images/Minecraft.jpg'
+import pvzImg from '@/assets/images/PvZ.jpg'
 
 const { t } = useI18n()
 const activeGame = ref<string | null>(null)
