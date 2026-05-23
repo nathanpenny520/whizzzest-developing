@@ -12,7 +12,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     try {
       await this.client.connect()
       this.logger.log(`Redis connected: ${url}`)
-    } catch (err) {
+    } catch {
       this.logger.warn(`Redis unavailable (${url}), running without cache`)
       this.client = null
     }
@@ -46,6 +46,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   async decr(key: string): Promise<number> {
     if (!this.client) return -1
     return await this.client.decr(key)
+  }
+
+  async ttl(key: string): Promise<number> {
+    if (!this.client) return -2
+    return await this.client.ttl(key)
   }
 
   getClient(): Redis | null {

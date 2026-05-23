@@ -5,6 +5,7 @@ import { AuthController } from './auth.controller.js'
 import { AuthService } from './auth.service.js'
 import { JwtStrategy } from './jwt.strategy.js'
 import { UserModule } from '../user/user.module.js'
+import { MailModule } from '../mail/mail.module.js'
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { UserModule } from '../user/user.module.js'
       signOptions: { expiresIn: '15m' },
     }),
     UserModule,
+    MailModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],

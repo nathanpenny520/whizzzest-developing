@@ -22,6 +22,43 @@ export class UserService {
     })
   }
 
+  async findByEmail(email: string) {
+    return this.prisma.user.findUnique({ where: { email } })
+  }
+
+  async findOrCreateByEmail(
+    email: string,
+    locale = 'zh',
+  ): Promise<{ id: string; email: string; nickname: string; role: string; isNew: boolean }> {
+    const existing = await this.findByEmail(email)
+    if (existing) {
+      return {
+        id: existing.id,
+        email: existing.email!,
+        nickname: existing.nickname,
+        role: existing.role,
+        isNew: false,
+      }
+    }
+    const adminEmails = (process.env.ADMIN_EMAILS || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+    const isAdmin = adminEmails.includes(email)
+    const isEn = locale === 'en'
+    const nickname = isAdmin ? (isEn ? 'Admin' : '管理员') : isEn ? 'Visitor' : '游客'
+    const created = await this.prisma.user.create({
+      data: { email, nickname, role: isAdmin ? 'ADMIN' : undefined },
+    })
+    return {
+      id: created.id,
+      email: created.email!,
+      nickname: created.nickname,
+      role: created.role,
+      isNew: true,
+    }
+  }
+
   async findOrCreateByPhone(
     phone: string,
     locale = 'zh',

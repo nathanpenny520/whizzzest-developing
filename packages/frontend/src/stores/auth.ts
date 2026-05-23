@@ -5,10 +5,19 @@ import { api } from '@/api/client'
 const USER_KEY = 'huanuo_user'
 
 function loadUser(): UserProfile | null {
-  try { const raw = sessionStorage.getItem(USER_KEY); return raw ? JSON.parse(raw) : null } catch { return null }
+  try {
+    const raw = sessionStorage.getItem(USER_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
 }
 function saveUser(u: UserProfile | null) {
-  if (u) sessionStorage.setItem(USER_KEY, JSON.stringify({ id: u.id, nickname: u.nickname, role: u.role }))
+  if (u)
+    sessionStorage.setItem(
+      USER_KEY,
+      JSON.stringify({ id: u.id, nickname: u.nickname, role: u.role, email: u.email }),
+    )
   else sessionStorage.removeItem(USER_KEY)
 }
 
@@ -16,6 +25,8 @@ interface UserProfile {
   id: string
   nickname: string
   avatarUrl?: string
+  email?: string
+  phone?: string
   role: string
   createdAt?: string
 }
@@ -37,34 +48,47 @@ export const useAuthStore = defineStore('auth', () => {
     if (isInitialized.value) return
     isInitialized.value = true
 
-    // 无 token 则跳过
     if (!accessToken.value && !refreshToken.value) return
 
-    // 有 refreshToken 尝试刷新
     if (refreshToken.value && !accessToken.value) {
       await tryRefreshToken()
     }
 
-    // 有 accessToken 则拉取用户资料
     if (accessToken.value && !user.value) {
       await fetchProfile()
     }
   }
 
-  async function login(phone: string, code: string) {
+  async function sendCode(email: string): Promise<{ success: boolean; message?: string }> {
+    try {
+      const res = await api.post('/auth/send-code', { email })
+      if (res.data.code === 0) return { success: true }
+      return { success: false, message: res.data.message }
+    } catch (e: unknown) {
+      const data = (e as { response?: { data?: { message?: string } } }).response?.data
+      return { success: false, message: data?.message || '发送失败，请稍后再试' }
+    }
+  }
+
+  async function login(email: string, code: string) {
     isLoggingIn.value = true
     try {
-      const locale = (typeof window !== 'undefined' && window.location.pathname.startsWith('/en')) ? 'en' : 'zh'
-      const res = await api.post('/auth/login', { phone, code, locale })
+      const locale =
+        typeof window !== 'undefined' && window.location.pathname.startsWith('/en') ? 'en' : 'zh'
+      const res = await api.post('/auth/login', { email, code, locale })
       const data = res.data.data
       accessToken.value = data.accessToken
       refreshToken.value = data.refreshToken
-      user.value = { id: data.user.id, nickname: data.user.nickname, role: data.user.role }
+      user.value = {
+        id: data.user.id,
+        nickname: data.user.nickname,
+        role: data.user.role,
+        email: data.user.email,
+      }
       saveUser(user.value)
       sessionStorage.setItem('accessToken', data.accessToken)
       localStorage.setItem('refreshToken', data.refreshToken)
 
-      // 重试挂起的操作
       if (pendingAction) {
         const action = pendingAction
         pendingAction = null
@@ -97,7 +121,6 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = res.data.data
       saveUser(user.value)
     } catch {
-      // token 可能已过期
       if (refreshToken.value) {
         await tryRefreshToken()
       }
@@ -131,6 +154,7 @@ export const useAuthStore = defineStore('auth', () => {
     isLoggedIn,
     isInitialized,
     init,
+    sendCode,
     login,
     logout,
     tryRefreshToken,

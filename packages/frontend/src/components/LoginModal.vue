@@ -8,21 +8,41 @@
           <p class="huanuo-message">{{ huaNuoMessage }}</p>
         </div>
 
+        <!-- Tab 切换 -->
+        <div class="tab-bar">
+          <button class="tab-btn active">{{ t('auth.emailLogin') }}</button>
+          <button class="tab-btn disabled" :title="t('auth.phoneComingSoon')">
+            {{ t('auth.phoneLogin') }}
+          </button>
+        </div>
+
         <!-- 表单 -->
         <form @submit.prevent="handleLogin" class="login-form">
           <label class="field">
-            <span class="field-label">手机号</span>
-            <input v-model="phone" type="tel" maxlength="11" placeholder="请输入手机号"
-              class="input" />
+            <span class="field-label">{{ t('auth.emailPlaceholder') }}</span>
+            <input v-model="email" type="email" placeholder="user@example.com" class="input" />
           </label>
           <label class="field">
-            <span class="field-label">验证码</span>
+            <span class="field-label">{{ t('auth.codePlaceholder') }}</span>
             <div class="code-row">
-              <input v-model="code" type="text" maxlength="6" placeholder="000000"
-                class="input code-input" />
-              <span class="code-hint">开发环境：万能码 000000</span>
+              <input
+                v-model="code"
+                type="text"
+                maxlength="6"
+                placeholder="000000"
+                class="input code-input"
+              />
+              <button
+                type="button"
+                class="send-code-btn"
+                :disabled="countdown > 0 || !emailValid"
+                @click="handleSendCode"
+              >
+                {{ countdown > 0 ? countdown + 's' : t('auth.sendCode') }}
+              </button>
             </div>
           </label>
+          <p v-if="isDev" class="code-hint">开发环境：万能码 000000</p>
           <p v-if="loginError" class="login-error">{{ loginError }}</p>
           <button type="submit" class="submit-btn" :disabled="loading">
             {{ loading ? '登录中...' : '登录 / 注册' }}
@@ -30,22 +50,32 @@
         </form>
 
         <!-- 取消 -->
-        <button class="cancel-btn" @click="cancel">稍后再说</button>
+        <button class="cancel-btn" @click="cancel">
+          {{ t('common.comingSoon') ? '稍后再说' : '稍后再说' }}
+        </button>
       </div>
     </div>
   </Transition>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import HuaNuoCharacter from '@/components/HuaNuoCharacter.vue'
 import { useAuthStore } from '@/stores/auth'
 
+const { t } = useI18n()
+
 const visible = ref(false)
-const phone = ref('')
+const email = ref('')
 const code = ref('')
 const loading = ref(false)
 const reason = ref('')
+const countdown = ref(0)
+let timer: ReturnType<typeof setInterval> | null = null
+
+const isDev = import.meta.env.DEV
+const emailValid = computed(() => /.+@.+\..+/.test(email.value))
 
 const huaNuoMessage = computed(() => {
   const messages: Record<string, string> = {
@@ -62,24 +92,41 @@ const authStore = useAuthStore()
 function show(reasonText: string) {
   reason.value = reasonText
   visible.value = true
-  phone.value = ''
+  email.value = ''
   code.value = ''
 }
 
 function cancel() {
   visible.value = false
-  // 清除挂起操作
   window.dispatchEvent(new CustomEvent('login-cancelled'))
 }
 
 const loginError = ref('')
 
+async function handleSendCode() {
+  if (!emailValid.value || countdown.value > 0) return
+  loginError.value = ''
+  const result = await authStore.sendCode(email.value)
+  if (result.success) {
+    countdown.value = 60
+    timer = setInterval(() => {
+      countdown.value--
+      if (countdown.value <= 0) {
+        if (timer) clearInterval(timer)
+        timer = null
+      }
+    }, 1000)
+  } else {
+    loginError.value = result.message || t('auth.sendCodeFailed')
+  }
+}
+
 async function handleLogin() {
-  if (!phone.value || !code.value) return
+  if (!email.value || !code.value) return
   loading.value = true
   loginError.value = ''
   try {
-    await authStore.login(phone.value, code.value)
+    await authStore.login(email.value, code.value)
     visible.value = false
   } catch (e: unknown) {
     const msg = (e as { response?: { data?: { message?: string } } }).response?.data?.message
@@ -95,6 +142,10 @@ if (typeof window !== 'undefined') {
     show(e.detail?.reason || 'default')
   }) as EventListener)
 }
+
+onUnmounted(() => {
+  if (timer) clearInterval(timer)
+})
 
 defineExpose({ show, cancel })
 </script>
@@ -115,7 +166,7 @@ defineExpose({ show, cancel })
   background: #fff;
   border-radius: 20px;
   padding: 32px 24px 24px;
-  width: 360px;
+  width: 380px;
   max-width: 90vw;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   text-align: center;
@@ -126,7 +177,7 @@ defineExpose({ show, cancel })
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .huanuo-message {
@@ -134,6 +185,37 @@ defineExpose({ show, cancel })
   color: #6b7280;
   line-height: 1.5;
   margin: 0;
+}
+
+.tab-bar {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 8px 0;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  background: #f9fafb;
+  color: #6b7280;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #dc2626, #d97706);
+  color: white;
+}
+
+.tab-btn.disabled {
+  color: #d1d5db;
+  cursor: not-allowed;
 }
 
 .login-form {
@@ -172,19 +254,47 @@ defineExpose({ show, cancel })
 
 .code-row {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  align-items: center;
 }
 
 .code-input {
+  flex: 1;
   letter-spacing: 4px;
   font-size: 18px;
   text-align: center;
 }
 
+.send-code-btn {
+  flex-shrink: 0;
+  padding: 10px 14px;
+  border: 1px solid #f59e0b;
+  border-radius: 10px;
+  background: #fff;
+  color: #f59e0b;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.send-code-btn:hover:not(:disabled) {
+  background: #f59e0b;
+  color: #fff;
+}
+
+.send-code-btn:disabled {
+  border-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
 .code-hint {
   font-size: 11px;
   color: #9ca3af;
+  margin: -8px 0 0;
+  text-align: left;
 }
 
 .submit-btn {
