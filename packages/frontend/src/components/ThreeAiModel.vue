@@ -61,6 +61,10 @@ let timer: THREE.Timer
 let animationFrameId = 0
 let currentAction: THREE.AnimationAction | null = null
 const clipMap = new Map<string, THREE.AnimationClip>()
+let modelGroup: THREE.Group | null = null
+let baseY = 0
+let targetRotY = 0
+let targetRotX = 0
 // Click vs drag detection
 let pointerDownPos = { x: 0, y: 0 }
 let pointerMoved = false
@@ -78,12 +82,12 @@ const hoveredOriginals = new Map<
 >()
 
 const ANIMATION_MAP: Record<HuaNuoState, string> = {
-  idle: 'idle',
-  listening: 'listening',
-  thinking: 'thinking',
-  speaking: 'speaking',
-  celebrating: 'celebrating',
-  night: 'night',
+  idle: 'Standby',
+  listening: 'Idleshow',
+  thinking: 'Idleshow',
+  speaking: 'Come',
+  celebrating: 'Come',
+  night: 'Standby',
 }
 
 function playAnimation(name: string) {
@@ -101,15 +105,7 @@ function playAnimation(name: string) {
 
 function playClickFeedback() {
   if (!mixer) return
-  // Try talk/nod/greeting, fall back to any available clip
-  const feedbackNames = ['talk', 'nod', 'greeting']
-  let clip: THREE.AnimationClip | undefined
-  for (const name of feedbackNames) {
-    clip = clipMap.get(name)
-    if (clip) break
-  }
-  // Last resort: use speaking if available
-  if (!clip) clip = clipMap.get('speaking')
+  const clip = clipMap.get('Come')
 
   if (clip) {
     // Stop current action
@@ -124,7 +120,7 @@ function playClickFeedback() {
     // Return to idle after feedback
     const onFinished = () => {
       mixer!.removeEventListener('finished', onFinished)
-      const idleClip = clipMap.get('idle')
+      const idleClip = clipMap.get('Standby')
       if (idleClip) {
         const idleAction = mixer!.clipAction(idleClip)
         idleAction.reset().play()
@@ -213,9 +209,14 @@ function onPointerMove(e: PointerEvent) {
   ) {
     pointerMoved = true
   }
-  // Hover detection (only when not dragging)
+  // Hover + sight tracking (only when not dragging)
   if (!pointerMoved) {
     checkHover(e)
+    const rect = renderer.domElement.getBoundingClientRect()
+    const mx = ((e.clientX - rect.left) / rect.width) * 2 - 1
+    const my = -((e.clientY - rect.top) / rect.height) * 2 + 1
+    targetRotY = mx * 0.3
+    targetRotX = my * 0.15
   }
 }
 
@@ -300,6 +301,8 @@ function loadModel() {
       controls.update()
 
       scene.add(model)
+      modelGroup = model
+      baseY = model.position.y
 
       if (gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(model)
@@ -312,7 +315,7 @@ function loadModel() {
           gltf.animations.map((a) => a.name),
         )
 
-        const idleClip = clipMap.get('idle') ?? gltf.animations[0]
+        const idleClip = clipMap.get('Standby') ?? gltf.animations[0]
         if (idleClip) {
           const action = mixer.clipAction(idleClip)
           action.play()
@@ -340,6 +343,16 @@ function animate() {
   const delta = timer.getDelta()
   if (mixer) mixer.update(delta)
   controls.update()
+
+  if (modelGroup) {
+    const t = timer.getElapsed()
+    // Breathing float
+    modelGroup.position.y = baseY + Math.sin(t * 2.5) * 0.015
+    // Sight following (lerp toward target)
+    modelGroup.rotation.y += (targetRotY - modelGroup.rotation.y) * 0.05
+    modelGroup.rotation.x += (targetRotX - modelGroup.rotation.x) * 0.05
+  }
+
   renderer.render(scene, camera)
 }
 

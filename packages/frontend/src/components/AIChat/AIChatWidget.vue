@@ -304,7 +304,7 @@ function _openAiChat() {
   openChat()
   isFullscreen.value = true
 }
-;(window as Record<string, unknown>).__huaNuoOpen = _openAiChat
+;(window as unknown as Record<string, unknown>).__huaNuoOpen = _openAiChat
 const windowPosition = ref({ x: 24, y: window.innerHeight - 580 - 24 }) // 左下角
 const windowSize = ref({ width: 420, height: 560 })
 
