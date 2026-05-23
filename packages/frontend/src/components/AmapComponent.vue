@@ -13,6 +13,7 @@
 </template>
 
 <script setup lang="ts">
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ref, onMounted, onUnmounted, watch, computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AMapLoader from '@amap/amap-jsapi-loader'
@@ -37,7 +38,7 @@ const props = withDefaults(defineProps<Props>(), {
   routes: () => [],
   showMarkers: true,
   showRoutes: false,
-  selectedRouteId: ''
+  selectedRouteId: '',
 })
 
 // Emits
@@ -56,11 +57,12 @@ const errorMsg = ref('')
 const debugMsg = ref('')
 
 // 地图实例
-let mapInstance: any = null
-let markers: any[] = []        // 景点标记
-let routeMarkers: any[] = []   // 路线起点终点标记
-let polylines: any[] = []      // 路线折线
-let AMap: any = null
+let mapInstance: AMapMap | null = null
+let markers: AMapMarker[] = [] // 景点标记
+let routeMarkers: AMapMarker[] = [] // 路线起点终点标记
+let polylines: AMapPolyline[] = [] // 路线折线
+
+let AMap: any
 
 // 初始化地图（使用官方推荐的 AMapLoader）
 const initMap = async () => {
@@ -76,16 +78,16 @@ const initMap = async () => {
     const securityJsCode = import.meta.env.VITE_AMAP_SECURITY_CODE || ''
 
     window._AMapSecurityConfig = {
-      securityJsCode: securityJsCode
+      securityJsCode: securityJsCode,
     }
 
     debugMsg.value = isZh.value ? '加载地图...' : 'Loading map...'
 
     // 使用官方 AMapLoader 加载（包含驾车路线规划插件）
     AMap = await AMapLoader.load({
-      key: import.meta.env.VITE_AMAP_KEY || 'f3ffabd511cffc5f19781d3f2df45d20',
+      key: import.meta.env.VITE_AMAP_KEY,
       version: '2.0',
-      plugins: ['AMap.Scale', 'AMap.ToolBar', 'AMap.Driving']
+      plugins: ['AMap.Scale', 'AMap.ToolBar', 'AMap.Driving'],
     })
 
     debugMsg.value = isZh.value ? '创建地图实例...' : 'Creating map instance...'
@@ -95,19 +97,21 @@ const initMap = async () => {
       viewMode: '2D',
       zoom: props.zoom,
       center: [props.center.longitude, props.center.latitude],
-      mapStyle: 'amap://styles/normal'
+      mapStyle: 'amap://styles/normal',
     })
 
     // 添加控件
-    mapInstance.addControl(new AMap.Scale())
-    mapInstance.addControl(new AMap.ToolBar({
-      position: 'RB'
-    }))
+    mapInstance!.addControl(new AMap.Scale())
+    mapInstance!.addControl(
+      new AMap.ToolBar({
+        position: 'RB',
+      }),
+    )
 
     debugMsg.value = isZh.value ? '等待地图就绪...' : 'Waiting for map ready...'
 
     // 地图加载完成
-    mapInstance.on('complete', () => {
+    mapInstance!.on('complete', () => {
       loading.value = false
       debugMsg.value = ''
       console.log('[Amap] 地图就绪')
@@ -125,13 +129,12 @@ const initMap = async () => {
     })
 
     // 监听地图错误
-    mapInstance.on('error', (e: any) => {
+    mapInstance!.on('error', (e: any) => {
       console.error('[Amap] 地图错误:', e)
       loading.value = false
       error.value = true
       errorMsg.value = isZh.value ? '地图加载失败' : 'Map load failed'
     })
-
   } catch (err: any) {
     console.error('[Amap] 初始化失败:', err)
     loading.value = false
@@ -151,7 +154,7 @@ const addMarkers = (locations: Location[]) => {
       food: '#f59e0b',
       culture: '#8b5cf6',
       viewing: '#10b981',
-      red: '#b91c1c'
+      red: '#b91c1c',
     }
     return colors[category] || '#dc2626'
   }
@@ -165,7 +168,7 @@ const addMarkers = (locations: Location[]) => {
           <div class="marker-dot"></div>
         </div>
       `,
-      offset: new AMap.Pixel(-10, -10)
+      offset: new AMap.Pixel(-10, -10),
     })
 
     marker.on('click', () => {
@@ -177,12 +180,12 @@ const addMarkers = (locations: Location[]) => {
             <p>${isZh.value ? location.description : location.descriptionEn}</p>
           </div>
         `,
-        offset: new AMap.Pixel(0, -30)
+        offset: new AMap.Pixel(0, -30),
       })
-      infoWindow.open(mapInstance, marker.getPosition())
+      infoWindow.open(mapInstance!, marker.getPosition())
     })
 
-    mapInstance.add(marker)
+    mapInstance!.add(marker)
     markers.push(marker)
   })
 
@@ -194,7 +197,7 @@ const addMarkers = (locations: Location[]) => {
 
 // 清除景点标记点
 const clearMarkers = () => {
-  markers.forEach(marker => {
+  markers.forEach((marker) => {
     if (mapInstance) mapInstance.remove(marker)
   })
   markers = []
@@ -205,15 +208,13 @@ const addRoutes = (routes: TravelRoute[], selectedId?: string) => {
   if (!AMap || !mapInstance) return
   clearAllRouteElements()
 
-  const selectedRoute = selectedId
-    ? routes.find(r => r.id === selectedId)
-    : routes[0]
+  const selectedRoute = selectedId ? routes.find((r) => r.id === selectedId) : routes[0]
 
   if (!selectedRoute || selectedRoute.locations.length < 2) return
 
   // 创建驾车路线规划实例
   const driving = new AMap.Driving({
-    policy: AMap.DrivingPolicy.LEAST_TIME
+    policy: AMap.DrivingPolicy.LEAST_TIME,
   })
 
   // 添加起点终点标记
@@ -223,7 +224,7 @@ const addRoutes = (routes: TravelRoute[], selectedId?: string) => {
   const startMarker = new AMap.Marker({
     position: [firstLoc.longitude, firstLoc.latitude],
     content: `<div class="route-marker start" style="background-color: ${selectedRoute.color}">起</div>`,
-    offset: new AMap.Pixel(-12, -12)
+    offset: new AMap.Pixel(-12, -12),
   })
   mapInstance.add(startMarker)
   routeMarkers.push(startMarker)
@@ -231,7 +232,7 @@ const addRoutes = (routes: TravelRoute[], selectedId?: string) => {
   const endMarker = new AMap.Marker({
     position: [lastLoc.longitude, lastLoc.latitude],
     content: `<div class="route-marker end" style="background-color: ${selectedRoute.color}">终</div>`,
-    offset: new AMap.Pixel(-12, -12)
+    offset: new AMap.Pixel(-12, -12),
   })
   mapInstance.add(endMarker)
   routeMarkers.push(endMarker)
@@ -241,16 +242,16 @@ const addRoutes = (routes: TravelRoute[], selectedId?: string) => {
     const waypointMarker = new AMap.Marker({
       position: [loc.longitude, loc.latitude],
       content: `<div class="waypoint-marker" style="background-color: ${selectedRoute.color}">${loc.order}</div>`,
-      offset: new AMap.Pixel(-12, -12)
+      offset: new AMap.Pixel(-12, -12),
     })
-    mapInstance.add(waypointMarker)
+    mapInstance!.add(waypointMarker)
     routeMarkers.push(waypointMarker)
   })
 
   // 计算整条路线的驾车路径
-  const waypoints = selectedRoute.locations.slice(1, -1).map(loc =>
-    new AMap.LngLat(loc.longitude, loc.latitude)
-  )
+  const waypoints = selectedRoute.locations
+    .slice(1, -1)
+    .map((loc) => new AMap.LngLat(loc.longitude, loc.latitude))
 
   driving.search(
     new AMap.LngLat(firstLoc.longitude, firstLoc.latitude),
@@ -285,7 +286,7 @@ const addRoutes = (routes: TravelRoute[], selectedId?: string) => {
               strokeOpacity: 0.8,
               lineJoin: 'round',
               lineCap: 'round',
-              showDir: true
+              showDir: true,
             })
             if (mapInstance) {
               mapInstance.add(polyline)
@@ -303,55 +304,66 @@ const addRoutes = (routes: TravelRoute[], selectedId?: string) => {
         console.warn('[Amap] 驾车路线规划失败，使用直线连接:', status)
         // 如果驾车路线规划失败，使用直线连接作为备用
         if (!mapInstance) return
-        const fallbackPath = selectedRoute.locations.map(loc => [loc.longitude, loc.latitude])
+        const fallbackPath = selectedRoute.locations.map((loc) => [loc.longitude, loc.latitude])
         const fallbackPolyline = new AMap.Polyline({
           path: fallbackPath,
           strokeColor: selectedRoute.color,
           strokeWeight: 4,
           strokeOpacity: 0.6,
-          lineJoin: 'round'
+          lineJoin: 'round',
         })
         mapInstance.add(fallbackPolyline)
         polylines.push(fallbackPolyline)
         mapInstance.setFitView([...polylines, ...routeMarkers], false, [50, 50, 50, 50])
       }
-    }
+    },
   )
 }
 
 // 清除所有路线相关元素
 const clearAllRouteElements = () => {
-  polylines.forEach(polyline => {
+  polylines.forEach((polyline) => {
     if (mapInstance) mapInstance.remove(polyline)
   })
   polylines = []
 
-  routeMarkers.forEach(marker => {
+  routeMarkers.forEach((marker) => {
     if (mapInstance) mapInstance.remove(marker)
   })
   routeMarkers = []
 }
 
 // 监听筛选变化
-watch(() => props.locations, (newLocations) => {
-  if (props.showMarkers && mapInstance && newLocations.length > 0) {
-    nextTick(() => addMarkers(newLocations))
-  }
-}, { deep: true })
+watch(
+  () => props.locations,
+  (newLocations) => {
+    if (props.showMarkers && mapInstance && newLocations.length > 0) {
+      nextTick(() => addMarkers(newLocations))
+    }
+  },
+  { deep: true },
+)
 
 // 监听路线选择变化
-watch(() => props.selectedRouteId, (newId) => {
-  if (props.showRoutes && mapInstance) {
-    nextTick(() => addRoutes(props.routes, newId))
-  }
-})
+watch(
+  () => props.selectedRouteId,
+  (newId) => {
+    if (props.showRoutes && mapInstance) {
+      nextTick(() => addRoutes(props.routes, newId))
+    }
+  },
+)
 
 // 监听路线数据变化
-watch(() => props.routes, (newRoutes) => {
-  if (props.showRoutes && mapInstance && newRoutes.length > 0) {
-    nextTick(() => addRoutes(newRoutes, props.selectedRouteId))
-  }
-}, { deep: true })
+watch(
+  () => props.routes,
+  (newRoutes) => {
+    if (props.showRoutes && mapInstance && newRoutes.length > 0) {
+      nextTick(() => addRoutes(newRoutes, props.selectedRouteId))
+    }
+  },
+  { deep: true },
+)
 
 // 生命周期
 onMounted(() => {
@@ -457,7 +469,9 @@ emitter.on('map:highlight', ({ merchantId }: { merchantId: string }) => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .map-loading span {
