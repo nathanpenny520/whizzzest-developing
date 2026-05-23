@@ -125,7 +125,7 @@ defineOptions({ name: 'GamesPage' })
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import minecraftImg from '@/assets/images/Minecraft.jpg'
-import pvzImg from '@/assets/images/PvZ.jpg'
+import pvzImg from '@/assets/images/PVZ.jpg'
 
 const { t } = useI18n()
 const activeGame = ref<string | null>(null)
