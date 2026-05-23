@@ -67,7 +67,7 @@ export default defineConfig({
       },
       workbox: {
         maximumFileSizeToCacheInBytes: 150 * 1024 * 1024,
-        globPatterns: ['**/*.{js,css,html,svg,png,jpg,jpeg,mp3,mp4,webp,ico,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,jpg,jpeg,mp3,mp4,webp,ico,woff2,glb}'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -163,7 +163,7 @@ export default defineConfig({
       'X-XSS-Protection': '1; mode=block',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       'Content-Security-Policy':
-        "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://webapi.amap.com https://cache.amap.com https://restapi.amap.com https://jsapi-service.amap.com https://*.amap.com; style-src 'self' 'unsafe-inline' https://cache.amap.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' data: blob: http://localhost:3001 http://localhost:3002 https://whizzzest-yanjingwanzai.top https://restapi.amap.com https://webapi.amap.com https://lbs.amap.com https://jsapi-service.amap.com https://*.amap.com; font-src 'self' data:; worker-src 'self' blob:; frame-src 'self' https://player.bilibili.com; frame-ancestors 'self';",
+        "default-src 'self' blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://webapi.amap.com https://cache.amap.com https://restapi.amap.com https://jsapi-service.amap.com https://*.amap.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://cache.amap.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' data: blob: http://localhost:3001 http://localhost:3002 https://whizzzest-yanjingwanzai.top https://restapi.amap.com https://webapi.amap.com https://lbs.amap.com https://jsapi-service.amap.com https://*.amap.com https://www.gstatic.com; font-src 'self' data:; worker-src 'self' blob:; frame-src 'self' https://player.bilibili.com; frame-ancestors 'self';",
     },
   },
   preview: {
@@ -172,7 +172,7 @@ export default defineConfig({
       'X-XSS-Protection': '1; mode=block',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       'Content-Security-Policy':
-        "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://webapi.amap.com https://cache.amap.com https://restapi.amap.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' data: blob: https://whizzzest-yanjingwanzai.top https://restapi.amap.com https://webapi.amap.com https://lbs.amap.com https://*.amap.com; font-src 'self' data:; worker-src 'self' blob:; frame-src 'self' https://player.bilibili.com; frame-ancestors 'self';",
+        "default-src 'self' blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://webapi.amap.com https://cache.amap.com https://restapi.amap.com https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' data: blob: https://whizzzest-yanjingwanzai.top https://restapi.amap.com https://webapi.amap.com https://lbs.amap.com https://*.amap.com https://www.gstatic.com; font-src 'self' data:; worker-src 'self' blob:; frame-src 'self' https://player.bilibili.com; frame-ancestors 'self';",
       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
       'Permissions-Policy': 'camera=(), microphone=(), geolocation=(self)',
     },
