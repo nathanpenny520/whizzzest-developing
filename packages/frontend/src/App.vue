@@ -13,15 +13,23 @@
     <Transition name="slide-down">
       <div
         v-if="needRefresh"
-        class="fixed top-0 left-0 right-0 z-[200] flex items-center justify-center gap-4 px-4 py-3 bg-amber-500 text-white text-sm shadow-lg"
+        class="fixed top-0 left-0 right-0 z-[200] flex items-center justify-between gap-4 px-4 py-3 bg-amber-500 text-white text-sm shadow-lg"
       >
-        <span>{{ t('pwa.updateAvailable') }}</span>
-        <button
-          class="px-3 py-1 bg-white text-amber-600 rounded-full text-xs font-medium hover:bg-amber-50 transition-colors"
-          @click="updateServiceWorker()"
-        >
-          {{ t('pwa.update') }}
-        </button>
+        <span class="flex-1">{{ t('pwa.updateAvailable') }}</span>
+        <div class="flex items-center gap-2 shrink-0">
+          <button
+            class="px-3 py-1 bg-white text-amber-600 rounded-full text-xs font-medium hover:bg-amber-50 transition-colors"
+            @click="updateServiceWorker()"
+          >
+            {{ t('pwa.update') }}
+          </button>
+          <button
+            class="text-white/70 hover:text-white text-lg leading-none"
+            @click="dismissUpdate"
+          >
+            &times;
+          </button>
+        </div>
       </div>
     </Transition>
     <main id="main-content" class="container mx-auto px-4 py-6 md:py-8 pt-16 md:pt-20">
@@ -39,6 +47,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 import Navbar from './components/Navbar.vue'
@@ -48,8 +57,37 @@ import SeoHead from './components/SeoHead.vue'
 import LoginModal from './components/LoginModal.vue'
 import AIChatWidget from './components/AIChat/AIChatWidget.vue'
 
+const DISMISS_KEY = 'pwa-update-dismissed-at'
+const DISMISS_COOLDOWN = 30 * 60 * 1000 // 30 minutes
+const CHECK_INTERVAL = 30 * 60 * 1000 // 30 minutes
+
+let updateCheckInterval: ReturnType<typeof setInterval> | null = null
+
 const { t } = useI18n()
-const { needRefresh, updateServiceWorker } = useRegisterSW()
+const { needRefresh, updateServiceWorker } = useRegisterSW({
+  onNeedRefresh() {
+    const dismissedAt = localStorage.getItem(DISMISS_KEY)
+    if (!dismissedAt || Date.now() - Number(dismissedAt) >= DISMISS_COOLDOWN) {
+      needRefresh.value = true
+    }
+  },
+})
+
+function dismissUpdate() {
+  needRefresh.value = false
+  localStorage.setItem(DISMISS_KEY, String(Date.now()))
+}
+
+onMounted(() => {
+  updateCheckInterval = setInterval(async () => {
+    const registration = await navigator.serviceWorker?.getRegistration()
+    if (registration) await registration.update()
+  }, CHECK_INTERVAL)
+})
+
+onUnmounted(() => {
+  if (updateCheckInterval) clearInterval(updateCheckInterval)
+})
 </script>
 
 <style scoped>

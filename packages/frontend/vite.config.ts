@@ -66,8 +66,9 @@ export default defineConfig({
         ],
       },
       workbox: {
+        clientsClaim: true,
         maximumFileSizeToCacheInBytes: 150 * 1024 * 1024,
-        globPatterns: ['**/*.{js,css,html,svg,png,jpg,jpeg,mp3,mp4,webp,ico,woff2,glb}'],
+        globPatterns: ['**/*.{js,css,svg,png,jpg,jpeg,mp3,mp4,webp,ico,woff2,glb}'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -123,6 +124,21 @@ export default defineConfig({
               },
               cacheableResponse: {
                 statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: ({ request }) => request.destination === 'document',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'html-cache',
+              networkTimeoutSeconds: 5,
+              expiration: {
+                maxEntries: 5,
+                maxAgeSeconds: 60 * 60,
+              },
+              cacheableResponse: {
+                statuses: [200],
               },
             },
           },
