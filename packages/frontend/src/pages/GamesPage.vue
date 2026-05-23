@@ -8,6 +8,9 @@
       <p class="text-gray-500 max-w-lg mx-auto text-sm leading-relaxed">
         {{ t('games.subtitle') }}
       </p>
+      <p class="text-amber-600 max-w-lg mx-auto text-xs mt-2">
+        {{ t('games.desktopOnly') }}
+      </p>
     </section>
 
     <!-- Game Cards -->

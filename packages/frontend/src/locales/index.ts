@@ -867,6 +867,7 @@ const messages = {
       descPvz: '经典塔防，植物大战僵尸。浏览器原生运行，无需下载，即点即玩。',
       moreComing: '更多游戏',
       moreComingDesc: '更多精彩小游戏即将上线，敬请期待。',
+      desktopOnly: '目前仅支持电脑端游玩',
     },
     pwa: {
       updateAvailable: '发现新版本，点击更新',
@@ -1773,6 +1774,7 @@ const messages = {
       descPvz: 'Classic tower defense. Runs natively in your browser — no download needed.',
       moreComing: 'More Games',
       moreComingDesc: 'More exciting mini games coming soon. Stay tuned!',
+      desktopOnly: 'Currently only supports desktop',
     },
     pwa: {
       updateAvailable: 'New version available, click to update',
