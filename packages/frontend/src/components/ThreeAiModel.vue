@@ -65,6 +65,12 @@ let modelGroup: THREE.Group | null = null
 let baseY = 0
 let targetRotY = 0
 let targetRotX = 0
+// Click bounce
+let clickBounceStart = 0
+let isClickBouncing = false
+const CLICK_BOUNCE_DURATION = 0.35
+// Come rotation restore (root motion fallback)
+let savedRotation: THREE.Euler | null = null
 // Click vs drag detection
 let pointerDownPos = { x: 0, y: 0 }
 let pointerMoved = false
@@ -101,34 +107,20 @@ function playAnimation(name: string) {
   }
   action.reset().play()
   currentAction = action
+
+  // Save rotation before Come plays (root motion fallback)
+  if (name === 'Come' && modelGroup) {
+    savedRotation = modelGroup.rotation.clone()
+  } else {
+    savedRotation = null
+  }
 }
 
 function playClickFeedback() {
-  if (!mixer) return
-  const clip = clipMap.get('Come')
-
-  if (clip) {
-    // Stop current action
-    if (currentAction) currentAction.stop()
-
-    const action = mixer.clipAction(clip)
-    action.setLoop(THREE.LoopOnce, 1)
-    action.clampWhenFinished = true
-    action.reset().play()
-    currentAction = action
-
-    // Return to idle after feedback
-    const onFinished = () => {
-      mixer!.removeEventListener('finished', onFinished)
-      const idleClip = clipMap.get('Standby')
-      if (idleClip) {
-        const idleAction = mixer!.clipAction(idleClip)
-        idleAction.reset().play()
-        currentAction = idleAction
-      }
-    }
-    mixer.addEventListener('finished', onFinished)
-  }
+  if (!modelGroup) return
+  isClickBouncing = true
+  clickBounceStart = timer.getElapsed()
+  console.log('[ThreeAiModel] click bounce triggered')
 }
 
 // ---- Hover helpers ----
@@ -306,14 +298,55 @@ function loadModel() {
 
       if (gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(model)
-        for (const clip of gltf.animations) {
-          clipMap.set(clip.name, clip)
-        }
 
         console.log(
           '[ThreeAiModel] Available animations:',
           gltf.animations.map((a) => a.name),
         )
+
+        // 找到骨架根骨骼，剥离 root motion（防止动画把模型整体旋转/位移）
+        let rootBoneName = ''
+        model.traverse((obj) => {
+          if (rootBoneName) return
+          if (obj instanceof THREE.Bone) {
+            let p = obj.parent
+            while (p) {
+              if (p instanceof THREE.Bone) return
+              p = p.parent
+            }
+            rootBoneName = obj.name
+          }
+        })
+        console.log('[ThreeAiModel] Root bone:', rootBoneName || '(none found)')
+
+        for (const clip of gltf.animations) {
+          // 打印所有轨道名，方便调试
+          console.log(
+            `[ThreeAiModel] "${clip.name}" tracks:`,
+            clip.tracks.map((t) => t.name),
+          )
+
+          if (rootBoneName) {
+            const before = clip.tracks.length
+            // 剥离根骨骼的 position + rotation/quaternion 轨道
+            clip.tracks = clip.tracks.filter((t) => {
+              if (t.name === `${rootBoneName}.position`) return false
+              if (t.name === `${rootBoneName}.rotation`) return false
+              if (t.name === `${rootBoneName}.quaternion`) return false
+              // 也处理带层级路径的格式（如 "Armature/Hips.position"）
+              if (t.name.endsWith(`/${rootBoneName}.position`)) return false
+              if (t.name.endsWith(`/${rootBoneName}.rotation`)) return false
+              if (t.name.endsWith(`/${rootBoneName}.quaternion`)) return false
+              return true
+            })
+            if (clip.tracks.length < before) {
+              console.log(
+                `[ThreeAiModel] Stripped ${before - clip.tracks.length} root-motion track(s) from "${clip.name}"`,
+              )
+            }
+          }
+          clipMap.set(clip.name, clip)
+        }
 
         const idleClip = clipMap.get('Standby') ?? gltf.animations[0]
         if (idleClip) {
@@ -346,11 +379,38 @@ function animate() {
 
   if (modelGroup) {
     const t = timer.getElapsed()
+
+    // Click bounce (takes priority over breathing float)
+    if (isClickBouncing) {
+      const elapsed = t - clickBounceStart
+      const progress = elapsed / CLICK_BOUNCE_DURATION
+      if (progress >= 1) {
+        isClickBouncing = false
+      } else {
+        // Sin arc bounce with exponential decay
+        const bounce = Math.sin(progress * Math.PI) * Math.exp(-progress * 3) * 0.5
+        modelGroup.position.y = baseY + bounce
+        // Skip breathing and sight tracking during bounce
+        renderer.render(scene, camera)
+        return
+      }
+    }
+
     // Breathing float
     modelGroup.position.y = baseY + Math.sin(t * 2.5) * 0.015
-    // Sight following (lerp toward target)
-    modelGroup.rotation.y += (targetRotY - modelGroup.rotation.y) * 0.05
-    modelGroup.rotation.x += (targetRotX - modelGroup.rotation.x) * 0.05
+
+    // Come rotation restore (counteract root motion)
+    if (savedRotation) {
+      modelGroup.rotation.x += (savedRotation.x - modelGroup.rotation.x) * 0.08
+      modelGroup.rotation.y += (savedRotation.y - modelGroup.rotation.y) * 0.08
+      modelGroup.rotation.z += (savedRotation.z - modelGroup.rotation.z) * 0.08
+    }
+
+    // Sight following (lerp toward target, skip during Come rotation restore to avoid conflict)
+    if (!savedRotation) {
+      modelGroup.rotation.y += (targetRotY - modelGroup.rotation.y) * 0.05
+      modelGroup.rotation.x += (targetRotX - modelGroup.rotation.x) * 0.05
+    }
   }
 
   renderer.render(scene, camera)

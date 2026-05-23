@@ -48,34 +48,13 @@
       </button>
     </div>
 
-    <!-- 3D 模型 / 降级按钮 -->
+    <!-- CSS 花傩角色按钮 -->
     <div
-      ref="containerEl"
       class="fixed bottom-4 left-4 z-40 group flex items-center justify-center transition-all duration-300"
       :class="{ 'scale-0 opacity-0': hidden }"
-      :style="containerStyle"
       aria-label="打开AI助手"
     >
-      <!-- 模块加载中：spinner -->
-      <div v-if="threeModuleLoading" class="loading-placeholder">
-        <div class="loading-spinner" />
-      </div>
-
-      <!-- 3D 模型 -->
-      <ThreeAiModel
-        v-else-if="show3D"
-        ref="aiModelRef"
-        :model-path="'/models/huanuo.glb'"
-        :width="180"
-        :height="220"
-        :current-state="huaNuoState"
-        @model-click="onModelClick"
-        @load-error="onLoadError"
-        @webgl-error="onWebglError"
-      />
-
-      <!-- 降级：CSS 花傩角色 -->
-      <div v-else class="fallback-button" @click="handleFallbackClick">
+      <div class="fallback-button" @click="handleFallbackClick">
         <HuaNuoCharacter :size="48" :state="huaNuoState" />
       </div>
     </div>
@@ -86,13 +65,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useHuaNuo } from '@/composables/useHuaNuo'
 import HuaNuoCharacter from '@/components/HuaNuoCharacter.vue'
 
-const ThreeAiModel = defineAsyncComponent(() => import('@/components/ThreeAiModel.vue'))
+// 3D 模型代码保留，需要时取消注释：
+// import { defineAsyncComponent } from 'vue'
+// const ThreeAiModel = defineAsyncComponent(() => import('@/components/ThreeAiModel.vue'))
 
 const { locale } = useI18n()
 const isZh = computed(() => (locale.value as string) === 'zh-CN')
@@ -109,46 +90,10 @@ const emit = defineEmits<{
 
 const { state: huaNuoState } = useHuaNuo()
 
-// Refs
-const containerEl = ref<HTMLElement | null>(null)
-const aiModelRef = ref<InstanceType<typeof ThreeAiModel> | null>(null)
-
-// WebGL detection
-const webglAvailable = ref(false)
-const modelError = ref(false)
-const threeModuleLoading = ref(true)
-
 // Quick menu
 const showQuickMenu = ref(false)
 
-function checkWebGL(): boolean {
-  try {
-    const canvas = document.createElement('canvas')
-    return !!(canvas.getContext('webgl2') || canvas.getContext('webgl'))
-  } catch {
-    return false
-  }
-}
-
-onMounted(() => {
-  webglAvailable.value = checkWebGL()
-})
-
-const show3D = computed(() => webglAvailable.value && !modelError.value)
-
-function onLoadError() {
-  modelError.value = true
-}
-
-function onWebglError() {
-  webglAvailable.value = false
-}
-
 // Click handlers
-
-function onModelClick() {
-  showQuickMenu.value = !showQuickMenu.value
-}
 
 function handleOpenChat() {
   showQuickMenu.value = false
@@ -166,7 +111,7 @@ function handleFirework() {
 }
 
 function handleFallbackClick() {
-  emit('open-chat')
+  showQuickMenu.value = !showQuickMenu.value
 }
 
 function handleEscape(e: KeyboardEvent) {
@@ -179,29 +124,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleEscape)
-})
-
-// 3D module loading
-import('@/components/ThreeAiModel.vue').then(() => {
-  threeModuleLoading.value = false
-})
-
-const containerStyle = computed(() => {
-  if (show3D.value && !threeModuleLoading.value) {
-    return {
-      width: '180px',
-      height: '220px',
-      borderRadius: '16px',
-      background: 'transparent',
-    }
-  }
-  return {
-    width: '56px',
-    height: '56px',
-    borderRadius: '50%',
-    background: 'linear-gradient(135deg, #dc2626 0%, #d97706 100%)',
-    boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)',
-  }
 })
 </script>
 
@@ -220,7 +142,7 @@ const containerStyle = computed(() => {
 
 .quick-menu {
   position: fixed;
-  bottom: 252px;
+  bottom: 88px;
   left: 20px;
   z-index: 42;
   display: flex;
@@ -317,8 +239,8 @@ const containerStyle = computed(() => {
 
 .greeting-bubble {
   position: fixed;
-  bottom: 212px;
-  left: 24px;
+  bottom: 84px;
+  left: 16px;
   background: rgba(26, 26, 46, 0.9);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(245, 158, 11, 0.3);
