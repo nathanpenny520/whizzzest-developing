@@ -6,6 +6,21 @@
 
 ---
 
+## [2.4.1] — 2026-05-23
+
+### 新增
+
+- **游戏集合页** (`GamesPage.vue`)：即点即玩，含 Minecraft 1.8.8（Eaglercraft X）和 Plants vs. Zombies（WASM 独立 HTML）
+- **PvZ 存档持久化**：IndexedDB 自动同步，支持导出 .pvzsav 文件备份
+- **Minecraft 点击启动遮罩**：解决 AudioContext 浏览器锁定问题，点击后自动解锁音频
+
+### 变更
+
+- **PWA 更新策略**：从 `autoUpdate` 改为 `prompt`，App.vue 顶部弹出更新提示条
+- **PvZ 游戏**：完整 64MB HTML 嵌入，WASM + PAK 资源内嵌，无需外部依赖
+
+---
+
 ## [2.4.0] — 2026-05-21
 
 ### 综合优化

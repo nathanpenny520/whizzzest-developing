@@ -455,6 +455,7 @@ psql -d wanzai -c "SELECT title, total_stock, used_stock FROM \"Coupon\" WHERE i
 | 商家展示 | `/merchant`             | `/en/merchant`             | 3 家种子商户展示、优惠券卡片、领券按钮                                      |
 | 数字烟花 | `/firework`             | `/en/firework`             | 点击发射烟花、播放/暂停/设置面板、**保存配方按钮**                          |
 | 关于我们 | `/about`                | `/en/about`                | 团队介绍、时间线、联系方式                                                  |
+| 像素世界 | `/games`                | `/en/games`                | Minecraft 1.8.8 + PvZ 即点即玩，点击遮罩启动，IndexedDB 存档                |
 | 烟花分享 | `/firework/share/:slug` | `/en/firework/share/:slug` | 加载配方回放                                                                |
 | 商户入驻 | `/merchant/apply`       | —                          | 表单提交                                                                    |
 | 商户后台 | `/merchant/dashboard`   | —                          | 需 MERCHANT 角色                                                            |

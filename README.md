@@ -14,38 +14,39 @@
 
 **焰境·万载**是围绕江西省万载县打造的数字文旅平台，以"中国花炮之乡"的千年烟花文化为核心，融合非遗传承、美食特产、旅游导览，以 AI 动漫角色"**花傩**"为数字灵魂。
 
-| 功能 | 说明 |
-|------|------|
-| 🎆 数字烟花 | Canvas 粒子引擎，12+ 类型，配方编排、保存、分享、排行榜 |
-| 🤖 AI 花傩 | RAG 增强智能导游，六状态动画，全屏对话+对话历史管理，AI 指令驱动页面跳转/地图飞行 |
-| 🗺️ 高德地图 | POI 标记、驾车路线、商户标记、AI 指令联动 |
-| 🏪 商户生态 | 入驻申请、ADMIN 审核、商户后台、优惠券发布/领券（Redis 防超发）/核销 |
-| 👤 用户体系 | 手机号注册登录（万能码），JWT 认证，RBAC 三角色（游客/商户/管理员），个人中心 |
-| 🧭 导航集群 | 万载风物 / 互动体验 / 商业服务 三大下拉集群 |
-| 🌍 中英双语 | vue-i18n，URL 路径前缀切换 |
-| 📱 PWA | 离线缓存、桌面安装、自动更新 |
-| 🔍 SEO | 三层 SEO 体系：静态 meta + 运行时注入 + 预渲染 |
-| 🔐 安全 | CSP、HTTPS、API Key 代理、RBAC 角色守卫 |
+| 功能        | 说明                                                                              |
+| ----------- | --------------------------------------------------------------------------------- |
+| 🎆 数字烟花 | Canvas 粒子引擎，12+ 类型，配方编排、保存、分享、排行榜                           |
+| 🤖 AI 花傩  | RAG 增强智能导游，六状态动画，全屏对话+对话历史管理，AI 指令驱动页面跳转/地图飞行 |
+| 🗺️ 高德地图 | POI 标记、驾车路线、商户标记、AI 指令联动                                         |
+| 🏪 商户生态 | 入驻申请、ADMIN 审核、商户后台、优惠券发布/领券（Redis 防超发）/核销              |
+| 👤 用户体系 | 手机号注册登录（万能码），JWT 认证，RBAC 三角色（游客/商户/管理员），个人中心     |
+| 🧭 导航集群 | 万载风物 / 互动体验 / 商业服务 三大下拉集群                                       |
+| 🎮 像素世界 | Minecraft 1.8.8 + Plants vs. Zombies，浏览器即点即玩，IndexedDB 存档              |
+| 🌍 中英双语 | vue-i18n，URL 路径前缀切换                                                        |
+| 📱 PWA      | 离线缓存、桌面安装、自动更新提示                                                  |
+| 🔍 SEO      | 三层 SEO 体系：静态 meta + 运行时注入 + 预渲染                                    |
+| 🔐 安全     | CSP、HTTPS、API Key 代理、RBAC 角色守卫                                           |
 
 ## 技术栈
 
-| 层级 | 技术 | 说明 |
-|------|------|------|
-| 前端框架 | Vue 3.5 + TypeScript 5.9 | Composition API |
-| 构建工具 | Vite 7 | 开发/构建 |
-| CSS | Tailwind CSS 3.4 | 实用优先 |
-| 状态管理 | Pinia 3 | 全局状态 |
-| 国际化 | vue-i18n 11 | 中英双语 |
-| 地图 | 高德地图 JS API 2.0 | POI + 路线 |
-| 烟花引擎 | Canvas 2D + Web Worker | 粒子模拟 |
-| 后端框架 | NestJS 11 | 模块化架构 |
-| 数据库 | PostgreSQL 16 + Prisma ORM | 主数据存储 |
-| 缓存 | Redis 7 + ioredis | 高频查询/限流 |
-| 认证 | Passport + JWT | 渐进式鉴权 |
-| 包管理 | pnpm workspace | Monorepo |
-| 测试 | Vitest + Supertest | 单元 + 集成 |
-| CI/CD | GitHub Actions | 自动构建部署到生产服务器 |
-| 共享类型 | @wanzai/contracts | 契约层 |
+| 层级     | 技术                       | 说明                     |
+| -------- | -------------------------- | ------------------------ |
+| 前端框架 | Vue 3.5 + TypeScript 5.9   | Composition API          |
+| 构建工具 | Vite 7                     | 开发/构建                |
+| CSS      | Tailwind CSS 3.4           | 实用优先                 |
+| 状态管理 | Pinia 3                    | 全局状态                 |
+| 国际化   | vue-i18n 11                | 中英双语                 |
+| 地图     | 高德地图 JS API 2.0        | POI + 路线               |
+| 烟花引擎 | Canvas 2D + Web Worker     | 粒子模拟                 |
+| 后端框架 | NestJS 11                  | 模块化架构               |
+| 数据库   | PostgreSQL 16 + Prisma ORM | 主数据存储               |
+| 缓存     | Redis 7 + ioredis          | 高频查询/限流            |
+| 认证     | Passport + JWT             | 渐进式鉴权               |
+| 包管理   | pnpm workspace             | Monorepo                 |
+| 测试     | Vitest + Supertest         | 单元 + 集成              |
+| CI/CD    | GitHub Actions             | 自动构建部署到生产服务器 |
+| 共享类型 | @wanzai/contracts          | 契约层                   |
 
 ## 项目结构
 
@@ -72,7 +73,7 @@ wanzai/
 │   │   │   ├── locales/       ← i18n 文本（1218+ 行）
 │   │   │   ├── assets/        ← 图片/音频（视频通过 B 站播放器嵌入）
 │   │   │   └── router/        ← 28 条双语路由 + role-based 守卫
-│   │   ├── public/            ← favicon、robots.txt、sitemap.xml、CNAME
+│   │   ├── public/            ← favicon、robots.txt、sitemap.xml、CNAME、games/
 │   │   ├── vite.config.ts
 │   │   └── tailwind.config.js
 │   │
@@ -189,29 +190,29 @@ pnpm build:backend # 构建后端 → packages/backend/dist/
 
 所有接口前缀 `https://whizzzest-yanjingwanzai.top/api/v1/`。
 
-| 模块 | 端点 | 方法 | 鉴权 | 说明 |
-|------|------|------|------|------|
-| AI | `/ai/chat` | POST | 公开 | 花傩 AI 对话（RAG 增强） |
-| 知识库 | `/knowledge` | GET/POST | ADMIN | 知识条目管理 |
-| 知识库 | `/knowledge/:id` | PUT/DELETE | ADMIN | 知识条目更新 |
-| 认证 | `/auth/login` | POST | 公开 | 手机号注册/登录（万能码 `000000`） |
-| 认证 | `/auth/refresh` | POST | 公开 | 刷新 Token |
-| 用户 | `/users/me` | GET/PUT | 登录 | 当前用户资料 |
-| 用户 | `/users/:id` | GET | 登录 | 用户信息 |
-| 烟花 | `/fireworks` | POST | 登录 | 保存配方 |
-| 烟花 | `/fireworks/mine` | GET | 登录 | 我的配方 |
-| 烟花 | `/fireworks/:slug` | GET | 公开 | 获取分享配方 |
-| 烟花 | `/fireworks/popular` | GET | 公开 | 热门排行榜 |
-| 烟花 | `/fireworks/:id` | DELETE | 登录 | 删除配方 |
-| 商户 | `/merchants/apply` | POST | 登录 | 入驻申请 |
-| 商户 | `/merchants/me` | GET/PUT | MERCHANT | 商户资料 |
-| 商户 | `/merchants` | GET | 公开 | 商户列表 |
-| 商户 | `/merchants/:id/verify` | PUT | ADMIN | 审核商户 |
-| 优惠券 | `/coupons` | POST | MERCHANT | 发布优惠券 |
-| 优惠券 | `/coupons/public` | GET | 公开 | 可领券列表 |
-| 优惠券 | `/coupons/:id/claim` | POST | 登录 | 领券（Redis 防超发） |
-| 优惠券 | `/coupons/my` | GET | 登录 | 我的券 |
-| 优惠券 | `/coupons/redeem` | POST | MERCHANT | 核销 |
+| 模块   | 端点                    | 方法       | 鉴权     | 说明                               |
+| ------ | ----------------------- | ---------- | -------- | ---------------------------------- |
+| AI     | `/ai/chat`              | POST       | 公开     | 花傩 AI 对话（RAG 增强）           |
+| 知识库 | `/knowledge`            | GET/POST   | ADMIN    | 知识条目管理                       |
+| 知识库 | `/knowledge/:id`        | PUT/DELETE | ADMIN    | 知识条目更新                       |
+| 认证   | `/auth/login`           | POST       | 公开     | 手机号注册/登录（万能码 `000000`） |
+| 认证   | `/auth/refresh`         | POST       | 公开     | 刷新 Token                         |
+| 用户   | `/users/me`             | GET/PUT    | 登录     | 当前用户资料                       |
+| 用户   | `/users/:id`            | GET        | 登录     | 用户信息                           |
+| 烟花   | `/fireworks`            | POST       | 登录     | 保存配方                           |
+| 烟花   | `/fireworks/mine`       | GET        | 登录     | 我的配方                           |
+| 烟花   | `/fireworks/:slug`      | GET        | 公开     | 获取分享配方                       |
+| 烟花   | `/fireworks/popular`    | GET        | 公开     | 热门排行榜                         |
+| 烟花   | `/fireworks/:id`        | DELETE     | 登录     | 删除配方                           |
+| 商户   | `/merchants/apply`      | POST       | 登录     | 入驻申请                           |
+| 商户   | `/merchants/me`         | GET/PUT    | MERCHANT | 商户资料                           |
+| 商户   | `/merchants`            | GET        | 公开     | 商户列表                           |
+| 商户   | `/merchants/:id/verify` | PUT        | ADMIN    | 审核商户                           |
+| 优惠券 | `/coupons`              | POST       | MERCHANT | 发布优惠券                         |
+| 优惠券 | `/coupons/public`       | GET        | 公开     | 可领券列表                         |
+| 优惠券 | `/coupons/:id/claim`    | POST       | 登录     | 领券（Redis 防超发）               |
+| 优惠券 | `/coupons/my`           | GET        | 登录     | 我的券                             |
+| 优惠券 | `/coupons/redeem`       | POST       | MERCHANT | 核销                               |
 
 ## 部署
 
@@ -267,14 +268,14 @@ chore: 升级依赖版本
 
 ### 命名规范
 
-| 类别 | 规范 | 示例 |
-|------|------|------|
-| Vue 组件 | PascalCase | `AIChatWidget.vue` |
-| Composable | useXxx | `useHuaNuo.ts` |
-| TS 接口 | IXxx | `IFireworkRecipe` |
-| NestJS 模块 | XxxModule | `CouponModule` |
-| API 路由 | 复数 REST | `/api/v1/fireworks/:id` |
-| Redis Key | 冒号分隔 | `coupon:stock:{id}` |
+| 类别        | 规范       | 示例                    |
+| ----------- | ---------- | ----------------------- |
+| Vue 组件    | PascalCase | `AIChatWidget.vue`      |
+| Composable  | useXxx     | `useHuaNuo.ts`          |
+| TS 接口     | IXxx       | `IFireworkRecipe`       |
+| NestJS 模块 | XxxModule  | `CouponModule`          |
+| API 路由    | 复数 REST  | `/api/v1/fireworks/:id` |
+| Redis Key   | 冒号分隔   | `coupon:stock:{id}`     |
 
 ### 代码风格
 
@@ -294,6 +295,7 @@ chore: 升级依赖版本
 1. 浏览器访问网站
 2. 地址栏右侧点击"安装"图标
 3. 支持离线访问、桌面图标、全屏体验
+4. 新版本发布时顶部弹出更新提示条
 
 ## 相关文档
 
@@ -317,13 +319,13 @@ chore: 升级依赖版本
 
 ## 团队
 
-| 成员 | 角色 | 职责 |
-|------|------|------|
-| 林雨晴 | 项目负责人 | 统筹全局战略 |
-| 陈浩然 | 技术架构师 | 全栈开发与系统架构 |
-| 周雅琪 | 品牌运营总监 | 新媒体矩阵与品牌策略 |
-| 苏婉婷 | 视频创意总监 | 视觉内容策划制作 |
-| 刘思颖 | 内容战略总监 | 内容规划与方案撰写 |
-| Claude AI | 智能赋能助手 | AI 技术赋能 |
+| 成员      | 角色         | 职责                 |
+| --------- | ------------ | -------------------- |
+| 林雨晴    | 项目负责人   | 统筹全局战略         |
+| 陈浩然    | 技术架构师   | 全栈开发与系统架构   |
+| 周雅琪    | 品牌运营总监 | 新媒体矩阵与品牌策略 |
+| 苏婉婷    | 视频创意总监 | 视觉内容策划制作     |
+| 刘思颖    | 内容战略总监 | 内容规划与方案撰写   |
+| Claude AI | 智能赋能助手 | AI 技术赋能          |
 
 > 一朝相逢，便是万载 🎆
