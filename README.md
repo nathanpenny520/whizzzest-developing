@@ -70,9 +70,9 @@ wanzai/
 │   │   │   ├── api/           ← axios 封装（client.ts）
 │   │   │   ├── stores/        ← Pinia auth store
 │   │   │   ├── types/         ← 前端类型
-│   │   │   ├── locales/       ← i18n 文本（1218+ 行）
+│   │   │   ├── locales/       ← i18n 文本（1773+ 行）
 │   │   │   ├── assets/        ← 图片/音频（视频通过 B 站播放器嵌入）
-│   │   │   └── router/        ← 28 条双语路由 + role-based 守卫
+│   │   │   └── router/        ← 34 条双语路由 + role-based 守卫
 │   │   ├── public/            ← favicon、robots.txt、sitemap.xml、CNAME、games/
 │   │   ├── vite.config.ts
 │   │   └── tailwind.config.js
