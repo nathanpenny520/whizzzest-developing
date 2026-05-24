@@ -30,6 +30,7 @@
 | 👤 用户体系 | 手机号注册登录（万能码），JWT 认证，RBAC 三角色（游客/商户/管理员），个人中心     |
 | 🧭 导航集群 | 万载风物 / 互动体验 / 商业服务 三大下拉集群                                       |
 | 🎮 像素世界 | Minecraft 1.8.8 + Plants vs. Zombies，浏览器即点即玩，IndexedDB 存档              |
+| 📖 万载文库 | Markdown 文档系统，分类筛选，封面图 + 代码高亮，后台导入 .md 文件                 |
 | 🌍 中英双语 | vue-i18n，URL 路径前缀切换                                                        |
 | 📱 PWA      | 离线缓存、桌面安装、自动更新提示                                                  |
 | 🔍 SEO      | 三层 SEO 体系：静态 meta + 运行时注入 + 预渲染                                    |
@@ -71,7 +72,7 @@ wanzai/
 │   │
 │   ├── frontend/              ← Vue 3 SPA
 │   │   ├── src/
-│   │   │   ├── pages/         ← 17 个页面（含商户后台、管理员页等）
+│   │   │   ├── pages/         ← 19 个页面（含商户后台、管理员页、文库等）
 │   │   │   ├── components/    ← 通用组件 + AIChat/ + 花傩角色
 │   │   │   ├── composables/   ← useAIChat、useHuaNuo 等
 │   │   │   ├── api/           ← axios 封装（client.ts）
@@ -79,7 +80,7 @@ wanzai/
 │   │   │   ├── types/         ← 前端类型
 │   │   │   ├── locales/       ← i18n 文本（1773+ 行）
 │   │   │   ├── assets/        ← 图片/音频（视频通过 B 站播放器嵌入）
-│   │   │   └── router/        ← 34 条双语路由 + role-based 守卫
+│   │   │   └── router/        ← 38 条双语路由 + role-based 守卫
 │   │   ├── public/            ← favicon、robots.txt、sitemap.xml、CNAME、games/
 │   │   ├── vite.config.ts
 │   │   └── tailwind.config.js
@@ -93,15 +94,16 @@ wanzai/
 │       │   │   ├── firework/  ← 烟花配方
 │       │   │   ├── knowledge/ ← 知识库管理（从 DB 读取 System Prompt）
 │       │   │   ├── merchant/  ← 商户入驻 + ADMIN 审核
-│       │   │   └── coupon/    ← 优惠券 + Redis 库存 + 核销
+│       │   │   ├── coupon/    ← 优惠券 + Redis 库存 + 核销
+│       │   │   └── docs/      ← 万载文库 CRUD + 图片上传
 │       │   ├── prisma/        ← PrismaService
 │       │   ├── redis/         ← RedisService（ioredis 封装）
 │       │   ├── common/        ← 守卫、装饰器
 │       │   └── main.ts
 │       └── prisma/
-│           ├── schema.prisma  ← 6 个数据模型
+│           ├── schema.prisma  ← 7 个数据模型
 │           ├── seed.ts        ← 68 条知识库 + 3 个演示商户
-│           └── migrations/    ← 4 个数据库迁移
+│           └── migrations/    ← 5 个数据库迁移
 │
 ├── scripts/                   ← 预渲染等构建脚本
 ├── .github/workflows/         ← CI（类型检查+Lint+测试）+ 自动部署
@@ -220,6 +222,13 @@ pnpm build:backend # 构建后端 → packages/backend/dist/
 | 优惠券 | `/coupons/:id/claim`    | POST       | 登录     | 领券（Redis 防超发）               |
 | 优惠券 | `/coupons/my`           | GET        | 登录     | 我的券                             |
 | 优惠券 | `/coupons/redeem`       | POST       | MERCHANT | 核销                               |
+| 优惠券 | `/coupons/:id`          | DELETE     | MERCHANT | 删除优惠券                         |
+| 文档   | `/docs`                 | GET        | 公开     | 文档列表                           |
+| 文档   | `/docs/:slug`           | GET        | 公开     | 文档详情                           |
+| 文档   | `/docs`                 | POST       | ADMIN    | 创建文档                           |
+| 文档   | `/docs/:slug`           | PUT        | ADMIN    | 更新文档                           |
+| 文档   | `/docs/:slug`           | DELETE     | ADMIN    | 删除文档                           |
+| 文档   | `/docs/upload`          | POST       | ADMIN    | 上传封面图片                       |
 
 ## 部署
 
@@ -229,6 +238,8 @@ pnpm build:backend # 构建后端 → packages/backend/dist/
 Nginx (端口 80/443)
 ├── 前端静态文件 /usr/share/nginx/html/dist/
 ├── /api/ → localhost:8080 (NestJS，pm2 管理)
+├── /uploads/ → localhost:8080 (后端静态资源代理)
+├── client_max_body_size 50m (支持封面上传)
 └── 后端依赖 PostgreSQL :5432 + Redis :6379
 ```
 

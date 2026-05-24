@@ -6,6 +6,42 @@
 
 ---
 
+## [2.5.0] — 2026-05-24
+
+### 新增
+
+- **万载文库** (`DocsPage.vue` + `DocDetailPage.vue`)：Markdown 文档系统，分类筛选（指南/故事/资讯/通用），封面图 + marked 渲染
+- **文档管理后台**：AdminPage 新增「文档管理」Tab，支持创建/编辑/删除文档，MD 文件导入，slug 自动生成
+- **封面上传**：`POST /docs/upload` 图片上传接口（Multer + diskStorage），`useStaticAssets` 静态文件服务
+- **Nginx `/uploads` 代理**：生产环境 `/uploads/` 路由代理到后端，`client_max_body_size 50m` 放宽上传限制
+
+### 变更
+
+- **Prisma schema**：新增 `Doc` 模型（slug, title, titleEn, content, contentEn, coverImage, category, order）
+- **NestJS 后端**：新增 `DocsModule`（CRUD + 文件上传），API 路由注册在 `/api/v1/docs`
+- **前端路由**：新增 `/docs`、`/docs/:slug` 及对应英文路由 `/en/docs`、`/en/docs/:slug`
+- **Navbar**：「万载文库」加入互动体验导航集群
+- **README/CLAUDE.md**：文档系统相关文件速查和架构说明
+
+### 修复
+
+- `findAll` select 遗漏 `content`/`contentEn`/`order` → 编辑文档内容为空
+- `saveDoc` 无错误处理 → API 失败时静默无反馈
+- 空 slug 文档允许创建 → 后端 `BadRequestException` + 前端自动生成 fallback
+
+### API 端点（新增 6 条）
+
+| 端点           | 方法   | 鉴权  | 说明         |
+| -------------- | ------ | ----- | ------------ |
+| `/docs`        | GET    | 公开  | 文档列表     |
+| `/docs/:slug`  | GET    | 公开  | 文档详情     |
+| `/docs`        | POST   | ADMIN | 创建文档     |
+| `/docs/:slug`  | PUT    | ADMIN | 更新文档     |
+| `/docs/:slug`  | DELETE | ADMIN | 删除文档     |
+| `/docs/upload` | POST   | ADMIN | 上传封面图片 |
+
+---
+
 ## [2.4.1] — 2026-05-23
 
 ### 新增

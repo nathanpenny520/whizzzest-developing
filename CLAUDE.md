@@ -52,42 +52,46 @@ pnpm --filter @wanzai/backend prisma:seed
 
 ## 关键文件速查
 
-| 文件                                                          | 用途                                                                         |
-| ------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `packages/contracts/src/*.ts`                                 | 所有共享接口定义，改动需同步影响前后端                                       |
-| `packages/frontend/src/router/index.ts`                       | 34 条双语路由，含 role-based 守卫 + beforeEach locale                        |
-| `packages/frontend/src/router/guards.ts`                      | 角色路由守卫（MERCHANT/ADMIN）                                               |
-| `packages/frontend/src/stores/auth.ts`                        | Pinia Auth Store — login/logout/requireLogin/refreshToken                    |
-| `packages/frontend/src/api/client.ts`                         | Axios 实例 — 自动 Bearer token + 401 刷新                                    |
-| `packages/frontend/src/components/LoginModal.vue`             | 花傩引导登录弹窗（渐进式鉴权）                                               |
-| `packages/frontend/src/pages/FireworkSharePage.vue`           | 烟花配方分享回放页                                                           |
-| `packages/frontend/src/pages/MerchantDashboard.vue`           | 商户后台（四 Tab：概览/店铺/优惠券/核销）                                    |
-| `packages/frontend/src/pages/MerchantApply.vue`               | 商户入驻申请页                                                               |
-| `packages/frontend/src/pages/AdminPage.vue`                   | 管理后台（三 Tab：商户审核/优惠券/知识库）                                   |
-| `packages/frontend/src/components/SeoHead.vue`                | 运行时 SEO 注入，每页独立 meta                                               |
-| `packages/frontend/src/pages/GamesPage.vue`                   | 游戏集合页（Minecraft 1.8.8 + Plants vs. Zombies）                           |
-| `packages/frontend/public/games/minecraft-1.8.8.html`         | Eaglercraft X 浏览器版 Minecraft（14MB）                                     |
-| `packages/frontend/public/games/pvz.html`                     | WASM 版 Plants vs. Zombies（64MB，IndexedDB 存档）                           |
-| `packages/frontend/src/pages/FireworkPage.vue`                | ~1200 行 Canvas 烟花引擎（FireworkEngine 类）                                |
-| `packages/frontend/src/composables/useAIChat.ts`              | AI 对话状态管理                                                              |
-| `packages/frontend/src/locales/index.ts`                      | ~1773 行中英双语文本                                                         |
-| `packages/backend/prisma/schema.prisma`                       | 数据模型：User, Merchant, FireworkRecipe, Coupon, UserCoupon, KnowledgeEntry |
-| `packages/backend/prisma/seed.ts`                             | 导入 68 条知识到 PostgreSQL                                                  |
-| `packages/backend/src/main.ts`                                | NestJS 入口，全局前缀 `/api/v1`，CORS 全开                                   |
-| `scripts/prerender.js`                                        | 构建后生成 22 个静态 HTML（SEO）                                             |
-| `packages/frontend/src/eventBus.ts`                           | mitt 事件总线：map:navigate、firework:trigger、huanuo:state                  |
-| `packages/frontend/src/composables/useHuaNuo.ts`              | 花傩六状态状态机 + AI action 分发 + 路由白名单                               |
-| `packages/frontend/src/composables/useConversations.ts`       | 对话历史管理（localStorage 持久化，pin/重命名/删除）                         |
-| `packages/frontend/src/components/HuaNuoCharacter.vue`        | 纯 CSS 花傩角色组件（6 状态动画）                                            |
-| `packages/frontend/src/components/CouponCard.vue`             | 可复用优惠券卡片（中英文/领取/库存管理）                                     |
-| `packages/frontend/src/components/HuaNuoPresence.vue`         | 花傩角标组件（可嵌入任何页面）                                               |
-| `packages/backend/src/modules/knowledge/knowledge.service.ts` | Prisma 知识库检索 + 系统提示词管理（DB 存储，在线编辑实时生效）              |
-| `packages/backend/src/modules/ai/ai.service.ts`               | LLM 调用 + JSON 解析 + code fence 剥离                                       |
-| `packages/backend/src/modules/merchant/merchant.service.ts`   | 商户入驻、审核、资料管理                                                     |
-| `packages/backend/src/modules/coupon/coupon.service.ts`       | 优惠券 CRUD + Redis DECR 防超发领券 + 核销                                   |
-| `packages/backend/src/redis/redis.service.ts`                 | ioredis 封装，全局模块                                                       |
-| `packages/backend/src/common/guards/roles.guard.ts`           | RBAC 角色守卫（TOURIST/MERCHANT/ADMIN）                                      |
-| `焰境万载重构方案.md`                                         | 完整重构蓝图，6 阶段路线图                                                   |
+| 文件                                                          | 用途                                                                              |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `packages/contracts/src/*.ts`                                 | 所有共享接口定义，改动需同步影响前后端                                            |
+| `packages/frontend/src/router/index.ts`                       | 38 条双语路由，含 role-based 守卫 + beforeEach locale                             |
+| `packages/frontend/src/router/guards.ts`                      | 角色路由守卫（MERCHANT/ADMIN）                                                    |
+| `packages/frontend/src/stores/auth.ts`                        | Pinia Auth Store — login/logout/requireLogin/refreshToken                         |
+| `packages/frontend/src/api/client.ts`                         | Axios 实例 — 自动 Bearer token + 401 刷新                                         |
+| `packages/frontend/src/components/LoginModal.vue`             | 花傩引导登录弹窗（渐进式鉴权）                                                    |
+| `packages/frontend/src/pages/FireworkSharePage.vue`           | 烟花配方分享回放页                                                                |
+| `packages/frontend/src/pages/MerchantDashboard.vue`           | 商户后台（四 Tab：概览/店铺/优惠券/核销）                                         |
+| `packages/frontend/src/pages/MerchantApply.vue`               | 商户入驻申请页                                                                    |
+| `packages/frontend/src/pages/AdminPage.vue`                   | 管理后台（五 Tab：商户审核/优惠券/知识库/文档管理/用户统计）                      |
+| `packages/frontend/src/components/SeoHead.vue`                | 运行时 SEO 注入，每页独立 meta                                                    |
+| `packages/frontend/src/pages/DocsPage.vue`                    | 万载文库列表页（分类筛选 + 卡片网格）                                             |
+| `packages/frontend/src/pages/DocDetailPage.vue`               | 万载文库详情页（marked 渲染 + 封面图）                                            |
+| `packages/frontend/src/pages/GamesPage.vue`                   | 游戏集合页（Minecraft 1.8.8 + Plants vs. Zombies）                                |
+| `packages/frontend/public/games/minecraft-1.8.8.html`         | Eaglercraft X 浏览器版 Minecraft（14MB）                                          |
+| `packages/frontend/public/games/pvz.html`                     | WASM 版 Plants vs. Zombies（64MB，IndexedDB 存档）                                |
+| `packages/frontend/src/pages/FireworkPage.vue`                | ~1200 行 Canvas 烟花引擎（FireworkEngine 类）                                     |
+| `packages/frontend/src/composables/useAIChat.ts`              | AI 对话状态管理                                                                   |
+| `packages/frontend/src/locales/index.ts`                      | ~1773 行中英双语文本                                                              |
+| `packages/backend/prisma/schema.prisma`                       | 数据模型：User, Merchant, FireworkRecipe, Coupon, UserCoupon, KnowledgeEntry, Doc |
+| `packages/backend/prisma/seed.ts`                             | 导入 68 条知识到 PostgreSQL                                                       |
+| `packages/backend/src/main.ts`                                | NestJS 入口，全局前缀 `/api/v1`，CORS 全开                                        |
+| `scripts/prerender.js`                                        | 构建后生成 22 个静态 HTML（SEO）                                                  |
+| `packages/frontend/src/eventBus.ts`                           | mitt 事件总线：map:navigate、firework:trigger、huanuo:state                       |
+| `packages/frontend/src/composables/useHuaNuo.ts`              | 花傩六状态状态机 + AI action 分发 + 路由白名单                                    |
+| `packages/frontend/src/composables/useConversations.ts`       | 对话历史管理（localStorage 持久化，pin/重命名/删除）                              |
+| `packages/frontend/src/components/HuaNuoCharacter.vue`        | 纯 CSS 花傩角色组件（6 状态动画）                                                 |
+| `packages/frontend/src/components/CouponCard.vue`             | 可复用优惠券卡片（中英文/领取/库存管理）                                          |
+| `packages/frontend/src/components/HuaNuoPresence.vue`         | 花傩角标组件（可嵌入任何页面）                                                    |
+| `packages/backend/src/modules/knowledge/knowledge.service.ts` | Prisma 知识库检索 + 系统提示词管理（DB 存储，在线编辑实时生效）                   |
+| `packages/backend/src/modules/ai/ai.service.ts`               | LLM 调用 + JSON 解析 + code fence 剥离                                            |
+| `packages/backend/src/modules/merchant/merchant.service.ts`   | 商户入驻、审核、资料管理                                                          |
+| `packages/backend/src/modules/coupon/coupon.service.ts`       | 优惠券 CRUD + Redis DECR 防超发领券 + 核销                                        |
+| `packages/backend/src/redis/redis.service.ts`                 | ioredis 封装，全局模块                                                            |
+| `packages/backend/src/modules/docs/docs.service.ts`           | 文档 CRUD + 按 order/createdAt 排序                                               |
+| `packages/backend/src/modules/docs/docs.controller.ts`        | 文档 REST 端点 + 封面图片上传（Multer + diskStorage）                             |
+| `packages/backend/src/common/guards/roles.guard.ts`           | RBAC 角色守卫（TOURIST/MERCHANT/ADMIN）                                           |
+| `焰境万载重构方案.md`                                         | 完整重构蓝图，6 阶段路线图                                                        |
 
 ## 编码约定
 
@@ -152,6 +156,7 @@ refactor(map): 地图逻辑迁移至 useAmap
 - ✅ 文字烟花
 - ✅ 游戏集合页（GamesPage）：Minecraft 1.8.8 + Plants vs. Zombies，IndexedDB 存档
 - ✅ PWA 更新提示条（registerType: 'prompt' + App.vue 横幅）
+- ✅ 万载文库（DocsPage + DocDetailPage + Admin 文档管理 Tab + MD 导入 + 封面上传）
 - ❌ DiscoveryPage 合并（MapPage + RoutesPage）
 - ❌ HomePage 日夜切换
 - ❌ CulturePage 傩面具博物馆

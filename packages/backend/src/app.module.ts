@@ -7,6 +7,7 @@ import { FireworkModule } from './modules/firework/firework.module.js'
 import { KnowledgeModule } from './modules/knowledge/knowledge.module.js'
 import { MerchantModule } from './modules/merchant/merchant.module.js'
 import { CouponModule } from './modules/coupon/coupon.module.js'
+import { DocsModule } from './modules/docs/docs.module.js'
 import { PrismaModule } from './prisma/prisma.module.js'
 import { RedisModule } from './redis/redis.module.js'
 
@@ -22,6 +23,7 @@ import { RedisModule } from './redis/redis.module.js'
     KnowledgeModule,
     MerchantModule,
     CouponModule,
+    DocsModule,
   ],
 })
 export class AppModule {}

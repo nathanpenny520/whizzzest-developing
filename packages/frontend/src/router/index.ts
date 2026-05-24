@@ -276,6 +276,31 @@ const routes = [
     component: () => import('../pages/GamesPage.vue'),
     meta: { title: 'Mini Games - Pixel World | WhizzZest', locale: 'en' },
   },
+  // 万载文库（中英双语）
+  {
+    path: '/docs',
+    name: 'Docs',
+    component: () => import('../pages/DocsPage.vue'),
+    meta: { title: '万载文库 | 焰境·万载', locale: 'zh-CN' },
+  },
+  {
+    path: '/en/docs',
+    name: 'DocsEn',
+    component: () => import('../pages/DocsPage.vue'),
+    meta: { title: 'Wanzai Library | WhizzZest', locale: 'en' },
+  },
+  {
+    path: '/docs/:slug',
+    name: 'DocDetail',
+    component: () => import('../pages/DocDetailPage.vue'),
+    meta: { title: '文档详情 | 焰境·万载', locale: 'zh-CN' },
+  },
+  {
+    path: '/en/docs/:slug',
+    name: 'DocDetailEn',
+    component: () => import('../pages/DocDetailPage.vue'),
+    meta: { title: 'Document | WhizzZest', locale: 'en' },
+  },
 ]
 
 const router = createRouter({

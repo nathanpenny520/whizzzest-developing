@@ -95,3 +95,17 @@ model KnowledgeEntry {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Doc {
+  id         String   @id @default(uuid())
+  slug       String   @unique
+  title      String
+  titleEn    String?
+  content    String
+  contentEn  String?
+  coverImage String?
+  category   String   @default("general")
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
