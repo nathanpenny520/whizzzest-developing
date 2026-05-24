@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && node ../../scripts/prerender.js",
+    "build": "tsc && node ../../scripts/generate-sitemap.js && vite build && node ../../scripts/prerender.js",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
     "lint": "echo 'frontend: no lint configured'",

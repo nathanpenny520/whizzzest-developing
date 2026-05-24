@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { APP_INTERCEPTOR } from '@nestjs/core'
 import { ConfigModule } from '@nestjs/config'
 import { AiModule } from './modules/ai/ai.module.js'
 import { AuthModule } from './modules/auth/auth.module.js'
@@ -10,6 +11,7 @@ import { CouponModule } from './modules/coupon/coupon.module.js'
 import { DocsModule } from './modules/docs/docs.module.js'
 import { PrismaModule } from './prisma/prisma.module.js'
 import { RedisModule } from './redis/redis.module.js'
+import { CacheControlInterceptor } from './common/interceptors/cache.interceptor.js'
 
 @Module({
   imports: [
@@ -25,5 +27,6 @@ import { RedisModule } from './redis/redis.module.js'
     CouponModule,
     DocsModule,
   ],
+  providers: [{ provide: APP_INTERCEPTOR, useClass: CacheControlInterceptor }],
 })
 export class AppModule {}
