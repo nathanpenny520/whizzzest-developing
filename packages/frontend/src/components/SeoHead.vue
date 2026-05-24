@@ -44,7 +44,15 @@ const getHreflangUrl = (lang: 'zh-CN' | 'en') => {
 const seoData = computed(() => {
   const path = route.path
 
-  const pageSeo: Record<string, Record<string, string>> = {
+  interface PageSeoData {
+    title: string
+    description: string
+    keywords: string
+    ogTitle: string
+    image: string
+  }
+
+  const pageSeo: Record<string, PageSeoData> = {
     // 中文页面
     '/': {
       title: '焰境·万载 - 花炮之乡 | 江西万载文旅宣传平台',
