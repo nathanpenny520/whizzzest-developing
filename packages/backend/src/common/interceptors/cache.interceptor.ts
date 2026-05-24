@@ -11,49 +11,49 @@ import { Response } from 'express'
 const cacheProfiles: Array<{ method: string; pattern: RegExp; cacheControl: string }> = [
   {
     method: 'GET',
-    pattern: /^\/api\/v1\/docs$/,
+    pattern: /^\/?(?:api\/v1\/)?docs$/,
     cacheControl: 'public, max-age=300, stale-while-revalidate=600',
   },
   {
     method: 'GET',
-    pattern: /^\/api\/v1\/docs\/[\w-]+$/,
+    pattern: /^\/?(?:api\/v1\/)?docs\/[\w-]+$/,
     cacheControl: 'public, max-age=60',
   },
   {
     method: 'GET',
-    pattern: /^\/api\/v1\/merchants$/,
+    pattern: /^\/?(?:api\/v1\/)?merchants$/,
     cacheControl: 'public, max-age=300, stale-while-revalidate=600',
   },
   {
     method: 'GET',
-    pattern: /^\/api\/v1\/knowledge/,
+    pattern: /^\/?(?:api\/v1\/)?knowledge/,
     cacheControl: 'public, max-age=300, stale-while-revalidate=600',
   },
   {
     method: 'GET',
-    pattern: /^\/api\/v1\/firework\/leaderboard/,
+    pattern: /^\/?(?:api\/v1\/)?firework\/leaderboard/,
     cacheControl: 'public, max-age=30',
   },
   {
     method: 'GET',
-    pattern: /^\/api\/v1\/coupons/,
+    pattern: /^\/?(?:api\/v1\/)?coupons/,
     cacheControl: 'public, max-age=60',
   },
   // 用户相关、认证相关默认不缓存
   {
     method: 'GET',
-    pattern: /^\/api\/v1\/user/,
+    pattern: /^\/?(?:api\/v1\/)?user/,
     cacheControl: 'private, no-cache',
   },
   {
     method: 'GET',
-    pattern: /^\/api\/v1\/auth/,
+    pattern: /^\/?(?:api\/v1\/)?auth/,
     cacheControl: 'private, no-cache',
   },
-  // 所有 GET 请求默认缓存 60 秒
+  // 所有 GET API 请求默认缓存 60 秒
   {
     method: 'GET',
-    pattern: /^\/api\/v1\//,
+    pattern: /.*/,
     cacheControl: 'public, max-age=60',
   },
   // 非 GET 请求不缓存
@@ -72,7 +72,7 @@ export class CacheControlInterceptor implements NestInterceptor {
     const response = http.getResponse<Response>()
 
     const method = request.method
-    const url = request.url
+    const url = request.path ?? request.url.split('?')[0]
 
     for (const profile of cacheProfiles) {
       if (profile.method !== '*' && profile.method !== method) continue
