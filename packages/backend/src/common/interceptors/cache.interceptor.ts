@@ -72,10 +72,12 @@ export class CacheControlInterceptor implements NestInterceptor {
     const response = http.getResponse<Response>()
 
     const method = request.method
+    // HEAD 请求与 GET 语义相同，统一处理
+    const effectiveMethod = method === 'HEAD' ? 'GET' : method
     const url = request.path ?? request.url.split('?')[0]
 
     for (const profile of cacheProfiles) {
-      if (profile.method !== '*' && profile.method !== method) continue
+      if (profile.method !== '*' && profile.method !== effectiveMethod) continue
       if (profile.pattern.test(url)) {
         response.setHeader('Cache-Control', profile.cacheControl)
         break
