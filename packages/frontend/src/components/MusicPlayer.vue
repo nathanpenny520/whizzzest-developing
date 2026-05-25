@@ -23,7 +23,11 @@
               <span>{{ formatTime(currentTime) }}</span>
               <span>{{ formatTime(duration) }}</span>
             </div>
-            <div class="w-full h-2 bg-gray-200 rounded-full cursor-pointer relative" @click="seek">
+            <div
+              ref="progressBar"
+              class="w-full h-2 bg-gray-200 rounded-full cursor-pointer relative"
+              @click="seek"
+            >
               <div
                 class="h-full bg-red-600 rounded-full"
                 :style="{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }"
@@ -31,7 +35,8 @@
               <div
                 class="w-4 h-4 bg-red-600 rounded-full top-1/2 -translate-y-1/2 -translate-x-1/2 absolute cursor-pointer"
                 :style="{ left: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }"
-                @mousedown="startDrag"
+                @mousedown.stop="startDrag"
+                @click.stop
               ></div>
             </div>
           </div>
@@ -122,6 +127,7 @@ const currentTime = ref(0)
 const duration = ref(264)
 const isDragging = ref(false)
 const audioElement = ref<HTMLAudioElement | null>(null)
+const progressBar = ref<HTMLElement | null>(null)
 
 const initAudio = () => {
   audioElement.value = new Audio()
@@ -219,11 +225,9 @@ const startDrag = (event: MouseEvent) => {
 
 const drag = (event: MouseEvent) => {
   if (!isDragging.value) return
+  if (!progressBar.value) return
 
-  const progressBar = document.querySelector('.w-full.h-2.bg-gray-200.rounded-full') as HTMLElement
-  if (!progressBar) return
-
-  const rect = progressBar.getBoundingClientRect()
+  const rect = progressBar.value.getBoundingClientRect()
   let dragX = event.clientX - rect.left
 
   dragX = Math.max(0, Math.min(dragX, rect.width))
