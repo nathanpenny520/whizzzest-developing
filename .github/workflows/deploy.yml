@@ -61,6 +61,19 @@ jobs:
             packages/frontend/dist/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/usr/share/nginx/html/dist/
 
+      - name: 部署 Nginx 缓存策略
+        run: |
+          rsync -avz \
+            packages/frontend/nginx/wanzai-cache.conf \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/usr/share/nginx/wanzai-cache.conf
+
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} '
+            sudo cp /usr/share/nginx/wanzai-cache.conf /etc/nginx/conf.d/wanzai-cache.conf && \
+            sudo nginx -t && \
+            sudo nginx -s reload && \
+            echo "Nginx 缓存策略已更新并重载成功"
+          '
+
       - name: 部署后端并重启
         run: |
           # 逐目录 rsync，避免 --delete 误删 .env 和 node_modules

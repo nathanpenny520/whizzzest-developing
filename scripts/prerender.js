@@ -10,6 +10,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
 import { resolve, dirname } from 'path'
+import { execSync } from 'child_process'
 
 const BASE_URL = 'https://www.whizzzest-yanjingwanzai.top'
 const distDir = resolve(import.meta.dirname, '../packages/frontend/dist')
@@ -545,6 +546,23 @@ routes.forEach(route => {
     writeFileSync(resolve(outDir, 'index.html'), html, 'utf-8')
   }
 })
+
+// 生成 version.json 用于客户端版本检测
+try {
+  const commit = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim()
+  const version = new Date().toISOString()
+  writeFileSync(
+    resolve(distDir, 'version.json'),
+    JSON.stringify({ version, commit }),
+    'utf-8',
+  )
+  console.log(`✅ version.json 已生成 (commit: ${commit})`)
+} catch {
+  // 如果不在 git 环境中，仅写时间戳
+  const version = new Date().toISOString()
+  writeFileSync(resolve(distDir, 'version.json'), JSON.stringify({ version }), 'utf-8')
+  console.log(`✅ version.json 已生成（无 git 信息）`)
+}
 
 console.log(`✅ 预渲染完成！共生成 ${routes.length} 个页面的静态 HTML`)
 console.log('路由列表：')
