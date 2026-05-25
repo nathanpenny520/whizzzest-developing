@@ -45,4 +45,9 @@ export function registerAuthGuard(router: Router) {
     }, 'save_firework')
     next(false)
   })
+
+  // 用户取消登录时重置守卫，允许下次再触发
+  window.addEventListener('login-cancelled', () => {
+    isGuarding = false
+  })
 }

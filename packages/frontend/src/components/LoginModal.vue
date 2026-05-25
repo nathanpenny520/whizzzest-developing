@@ -45,13 +45,13 @@
           <p v-if="isDev" class="code-hint">开发环境：万能码 000000</p>
           <p v-if="loginError" class="login-error">{{ loginError }}</p>
           <button type="submit" class="submit-btn" :disabled="loading">
-            {{ loading ? '登录中...' : '登录 / 注册' }}
+            {{ loading ? t('auth.loggingIn') : t('auth.loginOrRegister') }}
           </button>
         </form>
 
         <!-- 取消 -->
         <button class="cancel-btn" @click="cancel">
-          {{ t('common.comingSoon') ? '稍后再说' : '稍后再说' }}
+          {{ t('auth.later') }}
         </button>
       </div>
     </div>
@@ -78,13 +78,7 @@ const isDev = import.meta.env.DEV
 const emailValid = computed(() => /.+@.+\..+/.test(email.value))
 
 const huaNuoMessage = computed(() => {
-  const messages: Record<string, string> = {
-    save_firework: '我帮你把这场烟花永久留住～先跟我登记一下就好！',
-    collect_firework: '想收藏的话先跟我登记一下～傩愿你的喜欢永远被记得！',
-    get_coupon: '先跟我登记一下，券才好归你～',
-    default: '跟花傩登记一下，就能解锁更多玩法啦～',
-  }
-  return messages[reason.value] || messages.default
+  return t(`auth.huaNuoMessages.${reason.value}`)
 })
 
 const authStore = useAuthStore()
@@ -130,7 +124,7 @@ async function handleLogin() {
     visible.value = false
   } catch (e: unknown) {
     const msg = (e as { response?: { data?: { message?: string } } }).response?.data?.message
-    loginError.value = msg || '登录失败，请稍后再试'
+    loginError.value = msg || t('auth.loginFailed')
   } finally {
     loading.value = false
   }

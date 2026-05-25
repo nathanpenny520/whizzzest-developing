@@ -64,6 +64,17 @@ let polylines: AMapPolyline[] = [] // 路线折线
 
 let AMap: any
 
+// 修补 Canvas getContext，抑制 Amap 内部 getImageData 引发的 willReadFrequently 警告
+
+const _origGetContext = HTMLCanvasElement.prototype.getContext as (...args: any[]) => any
+HTMLCanvasElement.prototype.getContext = function (...args: Parameters<typeof _origGetContext>) {
+  const [type, opts] = args
+  if (type === '2d' && opts && typeof opts === 'object' && !('willReadFrequently' in opts)) {
+    return _origGetContext.call(this, type, { ...opts, willReadFrequently: true })
+  }
+  return _origGetContext.apply(this, args)
+}
+
 // 初始化地图（使用官方推荐的 AMapLoader）
 const initMap = async () => {
   if (!mapContainer.value) return
