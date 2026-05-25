@@ -49,16 +49,19 @@ const messages = {
         title: '非遗文化',
         desc: '万载拥有丰富的非物质文化遗产，包括万载花炮、得胜鼓、万载开口傩、夏布织造等。这些传统文化遗产承载着万载人民的智慧和创造力，是万载文化的重要组成部分。',
         learnMore: '了解更多',
+        learnMoreAria: '了解更多非遗文化',
       },
       food: {
         title: '美食特产',
         desc: '万载美食以其独特的风味和制作工艺闻名，万载六大碗、万载剁肉、罗城扎粉等传统菜肴，以及百合粉、南酸枣糕等特产，都是不可错过的舌尖美味。',
         learnMore: '了解更多',
+        learnMoreAria: '了解更多万载美食',
       },
       industry: {
         title: '烟花产业',
         desc: '万载作为中国四大花炮主产区之一，烟花产业历史悠久，技术先进。近年来，万载花炮产业不断转型升级，产品畅销全球，成为当地的支柱富民产业之一。',
         learnMore: '了解更多',
+        learnMoreAria: '了解更多烟花产业',
       },
       cta: {
         title: '开始您的万载之旅',
@@ -981,16 +984,19 @@ const messages = {
         title: 'Intangible Heritage',
         desc: 'Wanzai boasts rich intangible cultural heritage, including Wanzai Fireworks, Desheng Drum, Kai Kou Nuo, and Xia Bu weaving. These traditional cultural treasures carry the wisdom and creativity of Wanzai people.',
         learnMore: 'Learn More',
+        learnMoreAria: 'Learn more about intangible heritage',
       },
       food: {
         title: 'Food & Specialties',
         desc: 'Wanzai cuisine is famous for its unique flavors and crafting techniques. The Six Big Bowls, Wanzai Chopped Meat, Luocheng Rice Noodles, as well as lily powder and south wild jujube cake, are all must-try delicacies.',
         learnMore: 'Learn More',
+        learnMoreAria: 'Learn more about Wanzai cuisine',
       },
       industry: {
         title: 'Fireworks Industry',
         desc: "As one of the four major fireworks production areas in China, Wanzai has a long history and advanced technology in fireworks industry. In recent years, Wanzai's fireworks industry has continuously upgraded and transformed, with products selling globally.",
         learnMore: 'Learn More',
+        learnMoreAria: 'Learn more about fireworks industry',
       },
       cta: {
         title: 'Start Your Wanzai Journey',

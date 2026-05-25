@@ -11,6 +11,7 @@
           :alt="t('map.hero.title')"
           class="w-full h-full object-cover"
           loading="eager"
+          fetchpriority="high"
         />
         <div class="absolute inset-0 bg-black bg-opacity-50"></div>
       </div>

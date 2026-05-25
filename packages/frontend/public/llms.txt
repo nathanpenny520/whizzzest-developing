@@ -1,0 +1,25 @@
+# 焰境·万载 — AI 导游平台
+
+> 江西省万载县数字文旅平台，以"花傩"动漫 IP 为核心，提供烟花文化、
+> 非遗传承、美食特产、旅游线路等模块。
+
+## 核心页面
+
+- [首页](https://whizzzest-yanjingwanzai.top/): 万载文旅平台入口，烟花、非遗、美食、产业概览
+- [数字烟花](https://whizzzest-yanjingwanzai.top/firework): Canvas 烟花引擎，支持配方分享
+- [旅游线路](https://whizzzest-yanjingwanzai.top/routes): 高德地图导览 + AI 线路规划
+- [文化非遗](https://whizzzest-yanjingwanzai.top/culture): 傩面具、得胜鼓、开口傩、夏布织造
+- [美食特产](https://whizzzest-yanjingwanzai.top/food): 六大碗、百合、扎粉、南酸枣糕
+- [烟花产业](https://whizzzest-yanjingwanzai.top/industry): 花炮产业数据分析
+- [万载文库](https://whizzzest-yanjingwanzai.top/docs): 万载历史文献 Markdown 库
+- [商户入驻](https://whizzzest-yanjingwanzai.top/merchant/apply): 商户申请 + 后台管理
+- [游戏合集](https://whizzzest-yanjingwanzai.top/games): Minecraft 1.8.8 + Plants vs. Zombies
+- [用户中心](https://whizzzest-yanjingwanzai.top/profile): 个人资料、订单、优惠券
+
+## 技术说明
+
+- 前端: Vue 3 + Vite + Tailwind CSS + Pinia
+- 后端: NestJS + Prisma + PostgreSQL + Redis
+- AI: MiniMax-M2.5 驱动花傩导游对话
+- 地图: 高德地图 JS API 2.0
+- 烟花引擎: Canvas 2D 自研粒子系统

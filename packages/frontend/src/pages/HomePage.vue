@@ -30,6 +30,7 @@
                 :alt="item.alt"
                 class="w-full h-full object-cover"
                 loading="eager"
+                :fetchpriority="index === 0 ? 'high' : 'auto'"
               />
             </picture>
           </div>
@@ -177,6 +178,7 @@
             </p>
             <router-link
               :to="getLocalizedPath('/culture')"
+              :aria-label="t('home.culture.learnMoreAria')"
               class="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full transition-colors"
             >
               {{ t('home.culture.learnMore') }}
@@ -208,6 +210,7 @@
             </p>
             <router-link
               :to="getLocalizedPath('/food')"
+              :aria-label="t('home.food.learnMoreAria')"
               class="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full transition-colors"
             >
               {{ t('home.food.learnMore') }}
@@ -239,6 +242,7 @@
             </p>
             <router-link
               :to="getLocalizedPath('/industry')"
+              :aria-label="t('home.industry.learnMoreAria')"
               class="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full transition-colors"
             >
               {{ t('home.industry.learnMore') }}

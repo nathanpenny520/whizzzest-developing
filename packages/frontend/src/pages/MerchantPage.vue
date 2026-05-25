@@ -12,6 +12,7 @@
             :alt="t('merchant.hero.title')"
             class="w-full h-full object-cover"
             loading="eager"
+            fetchpriority="high"
           />
         </picture>
         <div class="absolute inset-0 bg-black bg-opacity-50"></div>
