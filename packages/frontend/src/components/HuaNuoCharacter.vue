@@ -53,6 +53,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = withDefaults(
   defineProps<{
@@ -66,15 +69,7 @@ const props = withDefaults(
 )
 
 const stateLabel = computed(() => {
-  const labels: Record<string, string> = {
-    idle: '空闲',
-    listening: '聆听中',
-    thinking: '思考中',
-    speaking: '回复中',
-    celebrating: '欢呼',
-    night: '休息中',
-  }
-  return labels[props.state] || props.state
+  return t(`huaNuo.states.${props.state}`)
 })
 
 const mouthState = computed(() => {
@@ -319,7 +314,9 @@ function sparkStyle(i: number) {
 
 /* idle — 呼吸 */
 .state-idle .character-body {
-  animation: breathe 3s ease-in-out infinite, float 4s ease-in-out infinite;
+  animation:
+    breathe 3s ease-in-out infinite,
+    float 4s ease-in-out infinite;
 }
 
 /* listening — 前倾 + 耳饰抖动 */
@@ -395,65 +392,137 @@ function sparkStyle(i: number) {
 
 /* === Keyframes === */
 @keyframes breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.04); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
 }
 
 @keyframes leanForward {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(2deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(2deg);
+  }
 }
 
 @keyframes earShake {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(8deg); }
-  75% { transform: rotate(-8deg); }
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(8deg);
+  }
+  75% {
+    transform: rotate(-8deg);
+  }
 }
 
 @keyframes tiltHead {
-  0%, 100% { transform: rotate(0deg); }
-  30% { transform: rotate(-5deg); }
-  60% { transform: rotate(3deg); }
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  30% {
+    transform: rotate(-5deg);
+  }
+  60% {
+    transform: rotate(3deg);
+  }
 }
 
 @keyframes microFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-2px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
 }
 
 @keyframes celebrateJump {
-  0%, 100% { transform: translateY(0) scale(1); }
-  30% { transform: translateY(-6px) scale(1.08); }
-  60% { transform: translateY(-2px) scale(0.95); }
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  30% {
+    transform: translateY(-6px) scale(1.08);
+  }
+  60% {
+    transform: translateY(-2px) scale(0.95);
+  }
 }
 
 @keyframes auraPulse {
-  0%, 100% { transform: scale(1); opacity: 0.3; }
-  50% { transform: scale(1.15); opacity: 0.7; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.7;
+  }
 }
 
 @keyframes auraBurst {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.25); opacity: 0.9; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 0.9;
+  }
 }
 
 @keyframes sparkBurst {
-  0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--x), var(--y)) scale(0);
+    opacity: 0;
+  }
 }
 
 @keyframes thoughtFloat {
-  0%, 100% { transform: translateY(0); opacity: 0.3; }
-  50% { transform: translateY(-8px); opacity: 1; }
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
 }
 
 @keyframes sleepFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-1px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1px);
+  }
 }
 </style>

@@ -1,5 +1,6 @@
 import { ref, watch } from 'vue'
 import type { ChatMessage } from '@/types/aiChat'
+import { STORAGE_KEYS, HUANUO_CONFIG } from '@/constants/huaNuo'
 
 export interface Conversation {
   id: string
@@ -10,16 +11,16 @@ export interface Conversation {
   updatedAt: number
 }
 
-const STORAGE_KEY = 'huanuo_conversations'
-
 function load(): Conversation[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(STORAGE_KEYS.conversations)
     return raw ? JSON.parse(raw) : []
-  } catch { return [] }
+  } catch {
+    return []
+  }
 }
 function save(convs: Conversation[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(convs))
+  localStorage.setItem(STORAGE_KEYS.conversations, JSON.stringify(convs))
 }
 
 export function useConversations() {
@@ -31,8 +32,12 @@ export function useConversations() {
   function create(): string {
     const id = 'conv_' + Date.now().toString(36)
     const conv: Conversation = {
-      id, title: '', messages: [], pinned: false,
-      createdAt: Date.now(), updatedAt: Date.now(),
+      id,
+      title: '',
+      messages: [],
+      pinned: false,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
     }
     conversations.value.unshift(conv)
     activeId.value = id
@@ -40,43 +45,51 @@ export function useConversations() {
   }
 
   function active() {
-    return conversations.value.find(c => c.id === activeId.value) || null
+    return conversations.value.find((c) => c.id === activeId.value) || null
   }
 
-  function switchTo(id: string) { activeId.value = id }
+  function switchTo(id: string) {
+    activeId.value = id
+  }
 
   function rename(id: string, title: string) {
-    const c = conversations.value.find(c => c.id === id)
-    if (c) { c.title = title; c.updatedAt = Date.now() }
+    const c = conversations.value.find((c) => c.id === id)
+    if (c) {
+      c.title = title
+      c.updatedAt = Date.now()
+    }
   }
 
   function remove(id: string) {
-    conversations.value = conversations.value.filter(c => c.id !== id)
+    conversations.value = conversations.value.filter((c) => c.id !== id)
     if (activeId.value === id) {
       activeId.value = conversations.value[0]?.id || ''
     }
   }
 
   function togglePin(id: string) {
-    const c = conversations.value.find(c => c.id === id)
-    if (c) { c.pinned = !c.pinned; c.updatedAt = Date.now() }
+    const c = conversations.value.find((c) => c.id === id)
+    if (c) {
+      c.pinned = !c.pinned
+      c.updatedAt = Date.now()
+    }
   }
 
   function updateMessages(id: string, msgs: ChatMessage[], bumpTime = true) {
-    const c = conversations.value.find(c => c.id === id)
+    const c = conversations.value.find((c) => c.id === id)
     if (c) {
       c.messages = msgs
       if (bumpTime) c.updatedAt = Date.now()
       if (!c.title && msgs.length > 0) {
-        const first = msgs.find(m => m.role === 'user')
-        if (first) c.title = first.content.slice(0, 30)
+        const first = msgs.find((m) => m.role === 'user')
+        if (first) c.title = first.content.slice(0, HUANUO_CONFIG.conversationTitleMax)
       }
     }
   }
 
   /** 确保至少有一个对话 */
   function ensureActive() {
-    if (!activeId.value || !conversations.value.find(c => c.id === activeId.value)) {
+    if (!activeId.value || !conversations.value.find((c) => c.id === activeId.value)) {
       if (conversations.value.length === 0) create()
       else activeId.value = conversations.value[0].id
     }
@@ -90,5 +103,17 @@ export function useConversations() {
     })
   }
 
-  return { conversations, activeId, create, active, switchTo, rename, remove, togglePin, updateMessages, ensureActive, sorted }
+  return {
+    conversations,
+    activeId,
+    create,
+    active,
+    switchTo,
+    rename,
+    remove,
+    togglePin,
+    updateMessages,
+    ensureActive,
+    sorted,
+  }
 }

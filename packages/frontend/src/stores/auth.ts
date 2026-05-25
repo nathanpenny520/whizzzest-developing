@@ -1,12 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api } from '@/api/client'
-
-const USER_KEY = 'huanuo_user'
+import { STORAGE_KEYS } from '@/constants/huaNuo'
 
 function loadUser(): UserProfile | null {
   try {
-    const raw = sessionStorage.getItem(USER_KEY)
+    const raw = sessionStorage.getItem(STORAGE_KEYS.user)
     return raw ? JSON.parse(raw) : null
   } catch {
     return null
@@ -15,10 +14,10 @@ function loadUser(): UserProfile | null {
 function saveUser(u: UserProfile | null) {
   if (u)
     sessionStorage.setItem(
-      USER_KEY,
+      STORAGE_KEYS.user,
       JSON.stringify({ id: u.id, nickname: u.nickname, role: u.role, email: u.email }),
     )
-  else sessionStorage.removeItem(USER_KEY)
+  else sessionStorage.removeItem(STORAGE_KEYS.user)
 }
 
 interface UserProfile {

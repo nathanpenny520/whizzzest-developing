@@ -722,6 +722,23 @@
     "confirmDelete": "确认删除此对话？",
     "renamePrompt": "输入新名称"
   },
+  "huaNuo": {
+    "states": {
+      "idle": "空闲",
+      "listening": "聆听中",
+      "thinking": "思考中",
+      "speaking": "回复中",
+      "celebrating": "欢呼",
+      "night": "休息中"
+    },
+    "button": {
+      "greeting": "需要傩帮忙吗？",
+      "chatWithNuo": "和傩对话",
+      "playGames": "玩玩游戏",
+      "launchFirework": "放个烟花"
+    },
+    "generationError": "抱歉，回答生成失败，请稍后再试。"
+  },
   "about": {
     "hero": {
       "title": "关于我们",

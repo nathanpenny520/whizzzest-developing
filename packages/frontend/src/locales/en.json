@@ -737,6 +737,23 @@
     "confirmDelete": "Delete this conversation?",
     "renamePrompt": "Enter new name"
   },
+  "huaNuo": {
+    "states": {
+      "idle": "Idle",
+      "listening": "Listening",
+      "thinking": "Thinking",
+      "speaking": "Speaking",
+      "celebrating": "Celebrating",
+      "night": "Resting"
+    },
+    "button": {
+      "greeting": "Need Hua Nuo's help?",
+      "chatWithNuo": "Chat with Nuo",
+      "playGames": "Play games",
+      "launchFirework": "Launch firework"
+    },
+    "generationError": "Sorry, failed to generate a response. Please try again later."
+  },
   "about": {
     "hero": {
       "title": "About Us",

@@ -3,7 +3,7 @@
   <div class="ai-button-wrapper">
     <!-- 主动招呼气泡 -->
     <div v-if="showGreeting && !showQuickMenu" class="greeting-bubble">
-      {{ isZh ? '需要傩帮忙吗？' : "Need Hua Nuo's help?" }}
+      {{ t('huaNuo.button.greeting') }}
     </div>
 
     <!-- 快捷操作菜单 -->
@@ -18,7 +18,7 @@
         >
           <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
         </svg>
-        <span>{{ isZh ? '和傩对话' : 'Chat with Nuo' }}</span>
+        <span>{{ t('huaNuo.button.chatWithNuo') }}</span>
       </button>
       <button class="quick-menu-item" @click="handleGames">
         <svg
@@ -31,7 +31,7 @@
           <rect x="2" y="6" width="20" height="12" rx="2" />
           <path d="M8 12h.01M12 10v4M16 12h.01" />
         </svg>
-        <span>{{ isZh ? '玩玩游戏' : 'Play games' }}</span>
+        <span>{{ t('huaNuo.button.playGames') }}</span>
       </button>
       <button class="quick-menu-item" @click="handleFirework">
         <svg
@@ -44,7 +44,7 @@
           <circle cx="12" cy="12" r="10" />
           <path d="M12 2l1.5 5.5L19 6l-4.5 4L16 16l-4-2.5L8 16l1.5-6L5 6l5.5.5z" />
         </svg>
-        <span>{{ isZh ? '放个烟花' : 'Launch firework' }}</span>
+        <span>{{ t('huaNuo.button.launchFirework') }}</span>
       </button>
     </div>
 
@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useHuaNuo } from '@/composables/useHuaNuo'
@@ -75,8 +75,7 @@ import HuaNuoCharacter from '@/components/HuaNuoCharacter.vue'
 // import { defineAsyncComponent } from 'vue'
 // const ThreeAiModel = defineAsyncComponent(() => import('@/components/ThreeAiModel.vue'))
 
-const { locale } = useI18n()
-const isZh = computed(() => (locale.value as string) === 'zh-CN')
+const { t } = useI18n()
 const router = useRouter()
 
 defineProps<{

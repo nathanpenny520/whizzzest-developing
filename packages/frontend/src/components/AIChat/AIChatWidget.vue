@@ -168,6 +168,7 @@ import { useI18n } from 'vue-i18n'
 import { useAIChat } from '@/composables/useAIChat'
 import { useConversations } from '@/composables/useConversations'
 import type { ChatMessage } from '@/types/aiChat'
+import { HUANUO_CONFIG } from '@/constants/huaNuo'
 import ChatHeader from './ChatHeader.vue'
 import ChatBubble from './ChatBubble.vue'
 import ChatInput from './ChatInput.vue'
@@ -454,7 +455,7 @@ onMounted(() => {
   if (!hasMessages.value && !isOpen.value) {
     greetingTimer = setTimeout(() => {
       showGreeting.value = true
-    }, 15000)
+    }, HUANUO_CONFIG.greetingDelay)
   }
   document.addEventListener('mousemove', handleMouseMove)
   document.addEventListener('mouseup', handleMouseUp)

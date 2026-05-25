@@ -4,14 +4,13 @@ import { useI18n } from 'vue-i18n'
 import { sendChatMessage } from '@/api/aiChat'
 import { useHuaNuo } from '@/composables/useHuaNuo'
 import type { ChatMessage } from '@/types/aiChat'
-
-const STORAGE_KEY = 'huanuo_chat_history'
+import { STORAGE_KEYS, HUANUO_CONFIG } from '@/constants/huaNuo'
 
 export function useAIChat() {
-  const { locale } = useI18n()
+  const { t, locale } = useI18n()
   const { transition, handleAIResponse } = useHuaNuo()
 
-  // 从 localStorage 恢复最近 20 条消息
+  // 从 localStorage 恢复最近消息
   const saved = loadHistory()
   const messages = ref<ChatMessage[]>(saved)
   const isLoading = ref(false)
@@ -26,7 +25,11 @@ export function useAIChat() {
 
   const generateId = () => `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
-  const addMessage = (role: 'user' | 'assistant', content: string, isTyping = false): ChatMessage => {
+  const addMessage = (
+    role: 'user' | 'assistant',
+    content: string,
+    isTyping = false,
+  ): ChatMessage => {
     const message: ChatMessage = {
       id: generateId(),
       role,
@@ -76,8 +79,8 @@ export function useAIChat() {
       const reply = response.message
 
       // 打字机效果
-      if (reply.length > 40) {
-        typewriteMessage(typingMessageId, reply, 25)
+      if (reply.length > HUANUO_CONFIG.typewriterThreshold) {
+        typewriteMessage(typingMessageId, reply, HUANUO_CONFIG.typewriterSpeed)
       } else {
         updateMessage(typingMessageId, reply, false)
       }
@@ -87,11 +90,7 @@ export function useAIChat() {
       }
     } catch (error) {
       console.error('Send message error:', error)
-      const errorMsg =
-        locale.value === 'en'
-          ? 'Sorry, failed to generate a response. Please try again later.'
-          : '抱歉，回答生成失败，请稍后再试。'
-      updateMessage(typingMessageId, errorMsg, false)
+      updateMessage(typingMessageId, t('huaNuo.generationError'), false)
     } finally {
       isLoading.value = false
     }
@@ -99,7 +98,7 @@ export function useAIChat() {
 
   const clearMessages = () => {
     messages.value = []
-    localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem(STORAGE_KEYS.chatHistory)
   }
 
   const openChat = () => {
@@ -122,15 +121,24 @@ export function useAIChat() {
   }
 
   return {
-    messages, isLoading, isOpen, isMinimized,
-    lastMessage, hasMessages,
-    sendMessage, clearMessages, openChat, closeChat, toggleChat, minimizeChat,
+    messages,
+    isLoading,
+    isOpen,
+    isMinimized,
+    lastMessage,
+    hasMessages,
+    sendMessage,
+    clearMessages,
+    openChat,
+    closeChat,
+    toggleChat,
+    minimizeChat,
   }
 }
 
 function loadHistory(): ChatMessage[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(STORAGE_KEYS.chatHistory)
     if (!raw) return []
     return JSON.parse(raw).slice(-20)
   } catch {
@@ -141,9 +149,12 @@ function loadHistory(): ChatMessage[] {
 function saveHistory(msgs: ChatMessage[]) {
   try {
     const slim = msgs.slice(-20).map((m) => ({
-      id: m.id, role: m.role, content: m.content, timestamp: m.timestamp,
+      id: m.id,
+      role: m.role,
+      content: m.content,
+      timestamp: m.timestamp,
     }))
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(slim))
+    localStorage.setItem(STORAGE_KEYS.chatHistory, JSON.stringify(slim))
   } catch {
     /* quota exceeded, ignore */
   }

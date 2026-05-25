@@ -1,6 +1,7 @@
 // AI聊天API调用 — 接入 NestJS /api/v1
 import axios from 'axios'
 import type { AIResponse, ChatRequest } from '@/types/aiChat'
+import { getHuaNuoError } from '@/constants/huaNuo'
 
 const API_BASE = '/api/v1'
 
@@ -40,32 +41,15 @@ export async function sendChatMessage(question: string, locale: string): Promise
   } catch (error) {
     console.error('AI Chat error:', error)
 
-    const isEn = locale === 'en'
-
     if (axios.isAxiosError(error)) {
       if (error.code === 'ECONNABORTED') {
-        return {
-          success: false,
-          message: isEn
-            ? 'Hua Nuo is thinking a bit slowly... Please try again~ ⏳'
-            : '花傩想得有点久……稍后再问一次吧～⏳',
-        }
+        return { success: false, message: getHuaNuoError('timeout', locale) }
       }
       if (error.response?.status === 500) {
-        return {
-          success: false,
-          message: isEn
-            ? 'Hua Nuo went to watch the fireworks~ Please try again later! 🎆'
-            : '花傩跑去看烟花了，暂时不在～请稍后再试！🎆',
-        }
+        return { success: false, message: getHuaNuoError('serverError', locale) }
       }
     }
 
-    return {
-      success: false,
-      message: isEn
-        ? 'Hua Nuo is temporarily away~ Please try again later!'
-        : '花傩暂时离开了～请稍后再试！',
-    }
+    return { success: false, message: getHuaNuoError('generic', locale) }
   }
 }

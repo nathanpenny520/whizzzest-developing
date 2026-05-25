@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import type { IAIResponse } from '@wanzai/contracts'
 import { KnowledgeService } from '../knowledge/knowledge.service.js'
+import { getHuaNuoMessage } from './messages.js'
+import { LLM_CONFIG as LLM, USER_PROMPT_TEMPLATE } from '../knowledge/prompts.js'
 
 @Injectable()
 export class AiService {
@@ -17,11 +19,7 @@ export class AiService {
 
     // 未配置 API Key 时返回占位响应
     if (!apiKey) {
-      return {
-        text: locale === 'en'
-          ? "Hua Nuo is charging up~ Configure the API key to wake me! 🔋"
-          : '花傩正在充电中～配置 API 密钥后我就能醒过来啦！🔋',
-      }
+      return { text: getHuaNuoMessage('noApiKey', locale) }
     }
 
     // 检索知识库
@@ -33,7 +31,7 @@ export class AiService {
 
     // 构建用户消息
     const userPrompt = contextBlock
-      ? `参考以下信息回答问题：\n\n${contextBlock}\n\n用户问题：${question}`
+      ? USER_PROMPT_TEMPLATE.replace('{context}', contextBlock).replace('{question}', question)
       : question
 
     const modelName = this.config.get<string>('MODEL_NAME', 'gpt-4o')
@@ -55,8 +53,8 @@ export class AiService {
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },
           ],
-          max_tokens: 1000,
-          temperature: 0.7,
+          max_tokens: LLM.maxTokens,
+          temperature: LLM.temperature,
         }),
         signal: controller.signal,
       })
@@ -98,18 +96,10 @@ export class AiService {
       this.logger.error(`AI chat failed: ${msg}`)
 
       if (msg.includes('abort') || msg.includes('timeout')) {
-        return {
-          text: locale === 'en'
-            ? 'Hua Nuo is thinking a bit slowly... Please try again later~ ⏳'
-            : '花傩想得有点久……稍后再问一次吧～⏳',
-        }
+        return { text: getHuaNuoMessage('timeout', locale) }
       }
 
-      return {
-        text: locale === 'en'
-          ? 'Hua Nuo went to watch the fireworks and is temporarily away~ Please try again later! 🎆'
-          : '花傩跑去看烟花了，暂时不在～请稍后再试！🎆',
-      }
+      return { text: getHuaNuoMessage('genericError', locale) }
     }
   }
 }
