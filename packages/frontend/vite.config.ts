@@ -128,21 +128,7 @@ export default defineConfig({
               },
             },
           },
-          {
-            urlPattern: ({ request }) => request.destination === 'document',
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'html-cache',
-              networkTimeoutSeconds: 5,
-              expiration: {
-                maxEntries: 5,
-                maxAgeSeconds: 60 * 60,
-              },
-              cacheableResponse: {
-                statuses: [200],
-              },
-            },
-          },
+          // HTML 文档不缓存 — 由 Nginx no-cache 控制，避免 SW 缓存导致部署后需强制刷新
         ],
       },
     }),
