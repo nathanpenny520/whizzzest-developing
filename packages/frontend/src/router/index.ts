@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import i18n from '../locales'
+import i18n, { loadLocale } from '../locales'
 import { registerAuthGuard } from './guards'
 
 const routes = [
@@ -337,16 +337,13 @@ const router = createRouter({
 })
 
 // Set document title and language based on route meta
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
   document.title = (to.meta.title as string) || '焰境·万载'
 
-  // 根据路由 meta 设置语言，URL 决定语言
-  const routeLocale = to.meta.locale as string
-  if (routeLocale) {
-    i18n.global.locale.value = routeLocale as 'zh-CN' | 'en'
-    // 同步保存到 localStorage，供下次访问使用
-    localStorage.setItem('locale', routeLocale)
-  }
+  const routeLocale = (to.meta.locale as string) || 'zh-CN'
+  await loadLocale(routeLocale as 'zh-CN' | 'en')
+  i18n.global.locale.value = routeLocale as 'zh-CN' | 'en'
+  localStorage.setItem('locale', routeLocale)
 
   next()
 })

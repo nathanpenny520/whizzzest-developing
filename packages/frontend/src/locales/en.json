@@ -1,0 +1,885 @@
+{
+  "siteName": "WhizzZest",
+  "nav": {
+    "home": "Home",
+    "culture": "Culture",
+    "food": "Food & Specialties",
+    "industry": "Fireworks Industry",
+    "routes": "Travel Routes",
+    "viewingSpots": "Viewing Spots",
+    "map": "Map",
+    "merchant": "Merchants",
+    "about": "About Us",
+    "clusterCulture": "Wanzai Culture",
+    "clusterInteractive": "Interactive",
+    "clusterBusiness": "Business",
+    "aiHuaNuo": "AI Hua Nuo",
+    "digitalFirework": "Digital Fireworks",
+    "fireworkRankings": "Firework Rankings",
+    "miniGames": "Mini Games",
+    "docs": "Wanzai Library",
+    "merchantApply": "Merchant Apply"
+  },
+  "home": {
+    "hero": {
+      "title": "Once We Meet, It's Wanzai Forever",
+      "subtitle": "Explore the thousand-year fireworks culture, experience intangible heritage charm, taste local delicacies, and enjoy Wanzai scenery",
+      "cta": "View Travel Routes"
+    },
+    "features": {
+      "title": "Core Features",
+      "fireworks": {
+        "title": "Millennium Fireworks Culture",
+        "desc": "Wanzai has over 1400 years of fireworks production history, known as the \"Hometown of Chinese Fireworks\"."
+      },
+      "food": {
+        "title": "Special Local Delicacies",
+        "desc": "Taste Wanzai's Six Big Bowls, Lily, Luocheng Rice Noodles and more, experiencing the unique culinary culture of western Jiangxi."
+      },
+      "tourism": {
+        "title": "Rich Tourism Resources",
+        "desc": "Wanzai Ancient City, Zhushan Cave, Jiulong Primitive Forest and many more attractions, catering to different tourist needs."
+      }
+    },
+    "culture": {
+      "title": "Intangible Heritage",
+      "desc": "Wanzai boasts rich intangible cultural heritage, including Wanzai Fireworks, Desheng Drum, Kai Kou Nuo, and Xia Bu weaving. These traditional cultural treasures carry the wisdom and creativity of Wanzai people.",
+      "learnMore": "Learn More",
+      "learnMoreAria": "Learn more about intangible heritage"
+    },
+    "food": {
+      "title": "Food & Specialties",
+      "desc": "Wanzai cuisine is famous for its unique flavors and crafting techniques. The Six Big Bowls, Wanzai Chopped Meat, Luocheng Rice Noodles, as well as lily powder and south wild jujube cake, are all must-try delicacies.",
+      "learnMore": "Learn More",
+      "learnMoreAria": "Learn more about Wanzai cuisine"
+    },
+    "industry": {
+      "title": "Fireworks Industry",
+      "desc": "As one of the four major fireworks production areas in China, Wanzai has a long history and advanced technology in fireworks industry. In recent years, Wanzai's fireworks industry has continuously upgraded and transformed, with products selling globally.",
+      "learnMore": "Learn More",
+      "learnMoreAria": "Learn more about fireworks industry"
+    },
+    "cta": {
+      "title": "Start Your Wanzai Journey",
+      "desc": "Whether you want to experience the millennium fireworks culture, taste local delicacies, or enjoy natural scenery, Wanzai has something for everyone.",
+      "viewRoutes": "View Travel Routes"
+    },
+    "firework": {
+      "title": "Digital Firework Experience",
+      "desc": "Experience the brilliance and romance of Wanzai fireworks right on your screen. Click to enter and unleash your fireworks!",
+      "feature1": "Multiple firework types",
+      "feature2": "Realistic effects",
+      "feature3": "Sound and fullscreen support",
+      "cta": "Enter Digital Fireworks",
+      "types": "Types",
+      "effects": "Effects",
+      "sound": "Sound",
+      "interactive": "Interactive"
+    }
+  },
+  "breadcrumb": {
+    "home": "Home",
+    "culture": "Culture",
+    "food": "Food & Specialties",
+    "industry": "Fireworks Industry",
+    "routes": "Travel Routes",
+    "viewingSpots": "Viewing Spots",
+    "map": "Map",
+    "merchant": "Merchants"
+  },
+  "culture": {
+    "hero": {
+      "title": "Intangible Heritage",
+      "subtitle": "Explore Wanzai's Millennium Cultural Heritage"
+    },
+    "cta": {
+      "title": "Experience Intangible Heritage",
+      "desc": "Come to Wanzai and experience the charm of these intangible cultural heritages, feeling the inheritance and innovation of millennium culture."
+    },
+    "sections": {
+      "fireworks": {
+        "title": "Wanzai Fireworks",
+        "desc1": "Wanzai fireworks making technique was selected into the first batch of National Intangible Cultural Heritage extended project list in June 2008. Wanzai fireworks are famous worldwide for their good sound, high success rate, and pleasant fragrance. From the initial single sound effects, they have developed to comprehensive modeling applications including sound, color, smoke, fragrance, and flowers.",
+        "desc2": "The history of Wanzai fireworks can be traced back to the Tang Dynasty, flourishing in the Song Dynasty, and developing over a thousand years. During the Daoguang period of the Qing Dynasty, Wanzai fireworks had already \"circulated throughout the north and south, with merchants constantly coming and going\"; during the Guangxu period, local \"men and women of all ages relied on this for work\", with high-quality and affordable products sold to Guangdong, Fujian and other provinces.",
+        "desc3": "Today, Wanzai fireworks have over 4000 specifications and varieties, covering 9 major categories including firecrackers, toy fireworks, and assembled fireworks. Products sell well throughout China and are exported to more than 40 countries and regions in Europe, America, and Southeast Asia."
+      },
+      "deshenggu": {
+        "title": "Desheng Drum",
+        "desc1": "Desheng Drum is a traditional folk drum music in Wanzai County, originating from the Northern Song Dynasty, mainly based on historical events of the Tang Dynasty's pacification of the \"An Lushan Rebellion\". Desheng Drum is famous for its vigorous and passionate atmosphere, uniform rhythm, and colorful performance forms.",
+        "desc2": "Desheng Drum performances usually consist of dozens of performers, using instruments such as big drums, small drums, suona, gongs, and cymbals. The performance features diverse formations and crisp drum rhythms, fully showcasing the heroic spirit and unity of Wanzai people.",
+        "desc3": "Today, Desheng Drum has become an important cultural brand in Wanzai County, often performed at various cultural activities and festival celebrations, deeply loved by the public."
+      },
+      "kaiKouNuo": {
+        "title": "Wanzai Kai Kou Nuo",
+        "desc1": "Wanzai Kai Kou Nuo, also known as \"Tiao Xiao\", is a distinctive folk cultural activity for exorcising ghosts, seeking blessings and safety, and entertaining gods and people. It originated in the late Yuan and early Ming Dynasty, with a history of over 600 years.",
+        "desc2": "Different from other Nuo dance forms, Kai Kou Nuo requires singing for every character, including singing, acting, reciting, and fighting, but mainly singing. The music runs through with percussion, preserving a simple rural flavor.",
+        "desc3": "In June 2008, \"Wanzai Kai Kou Nuo\" was selected into the second batch of National Intangible Cultural Heritage list."
+      },
+      "xiaBu": {
+        "title": "Xia Bu Weaving",
+        "desc1": "Xia Bu weaving technique is a traditional handicraft in Wanzai County, with production tracing back to the late Eastern Jin Dynasty, having a history of over 1600 years. In 2009, Wanzai Xia Bu weaving technique was listed in the third batch of National Intangible Cultural Heritage.",
+        "desc2": "Wanzai Xia Bu uses ramie as raw material, going through four processes: warp sizing, mounting, and weaving. Xia Bu is light, breathable, and highly absorbent, making it an ideal summer clothing fabric.",
+        "desc3": "Today, Wanzai Xia Bu has become a specialty product of Jiangxi Province, sold domestically and overseas, deeply loved by consumers."
+      },
+      "zhiPeng": {
+        "title": "Zhipeng Folk Songs",
+        "desc1": "Zhipeng Folk Songs are traditional folk music in Wanzai County, originating from the Ming Dynasty, with a history of over 500 years. They are songs created by paper-making workers during labor, with rich content and diverse forms.",
+        "desc2": "The songs revolve around paper-making processes such as bamboo collecting, retting, and drying, blending themes of labor hardships, romantic love, and harvest expectations. The melodies are beautiful, with lively rhythms, and have a rich local flavor.",
+        "desc3": "In March 2007, Zhipeng Folk Songs were listed in the Jiangxi Province Intangible Cultural Heritage list, becoming one of the important cultural heritages of Wanzai County."
+      }
+    }
+  },
+  "food": {
+    "hero": {
+      "title": "Food & Specialties",
+      "subtitle": "Taste Wanzai Local Delicacies"
+    },
+    "cta": {
+      "title": "Taste Delicacies & Buy Specialties",
+      "desc": "When you come to Wanzai, you can taste authentic Wanzai specialty food, buy traditional Wanzai specialties, and take away wonderful memories.",
+      "cta": "View Food Travel Routes"
+    },
+    "sections": {
+      "liuDaWan": {
+        "title": "Wanzai Six Big Bowls",
+        "titleEn": "Wanzai Six Big Bowls",
+        "desc": "Wanzai \"Six Big Bowls\" are the essence of traditional Wanzai banquets, carrying the traditional culture of hospitality."
+      },
+      "otherFood": {
+        "title": "Other Delicacies",
+        "titleEn": "Other Delicacies"
+      },
+      "special": {
+        "title": "Special Dishes",
+        "desc": "Traditional dishes like Wanzai Chopped Meat, Luocheng Rice Noodles, as well as lily powder and south wild jujube cake, are all must-try delicacies."
+      },
+      "traditionalSpecialties": {
+        "title": "Traditional Specialties",
+        "titleEn": "Traditional Specialties"
+      },
+      "fuGuiYouJuan": {
+        "title": "Fu Gui You Juan",
+        "desc1": "The first dish of Wanzai Six Big Bowls, also known as \"Eight Treasure Oil Roll\", is the highest courtesy for treating guests in Wanzai. Made with pork, pork caul fat, dried bamboo shoots, water chestnuts and other eight ingredients, wrapped in pork caul fat and steamed. The outer skin is soft and slightly crispy, the filling is fragrant and rich, with rich layers of texture. Carrying the beautiful meaning of wealth and prosperity, it is an indispensable opening dish in Wanzai banquets, holding the locals' enthusiasm and expectations."
+      },
+      "wanzaiZhaRou": {
+        "title": "Wanzai Zha Rou",
+        "desc1": "A traditional dish originating from the late Ming and early Qing dynasties, similar to Yichun braised pork but with unique Wanzai characteristics. Made with quality pork belly through multiple processes including marinating, deep frying, and steaming, with a shiny red color and oily luster. The meat is fatty but not greasy, lean but not tough, mellow and soft, melting in your mouth. Each bite is filled with rich sauce aroma and fat fragrance. Symbolizing a prosperous life and vibrant festivities, it is an essential dish for celebrating in Wanzai banquets."
+      },
+      "wanzaiZhaRou2": {
+        "title": "Wanzai Zha Rou (Rice)",
+        "desc1": "A distinctive Wanzai dish that \"uses rice instead of meat\", breaking the boundary between staple food and main courses. Made with local rice flour and fresh pork through traditional techniques like mixing and steaming. Although not containing large amounts of fresh meat, it is full of meat flavor. The texture is soft and chewy, salty and flavorful, absorbing the essence of meat juice and seasonings, not oily or greasy, suitable for all ages. Symbolizing abundant harvests and prosperity, it is a specialty delicacy etched with Wanzai's farming culture."
+      },
+      "wanzaiKuaiYu": {
+        "title": "Wanzai Fish Cubes",
+        "desc1": "Fresh grass carp from Wanzai is cut into evenly sized cubes, marinated with fermented rice wine and salt, then deep-fried until golden and steamed. The outer skin is slightly crispy while the inside is tender and smooth, fragrant and flavorful, with soft fish bones that can be eaten. The golden color is appealing, with rich layers of taste. The mellow fragrance of fermented rice wine neutralizes the fishy taste, adding more flavor. Symbolizing smooth sailing and abundance, it is a classic fish dish with beautiful meanings in banquets."
+      },
+      "kangLeSanHuangJi": {
+        "title": "Kangle Sanhuang Chicken",
+        "desc1": "Locally raised Kangle Sanhuang chickens in Wanzai, known for their distinctive yellow feathers, yellow claws, and yellow beaks. Using traditional clear stewing method without excessive seasonings to preserve the original chicken flavor. The soup is clear and bright, the meat is tender and firm, the skin is smooth but not greasy, fragrant and delicious, with rich nutrition. Symbolizing good luck and everything as you wish, it is not only a main dish in banquets but also a nourishing delicacy, showcasing Wanzai's local flavors."
+      },
+      "qingDunHeiShanYang": {
+        "title": "Stewed Black Goat",
+        "desc1": "A nourishing dish among Wanzai Six Big Bowls, made with local quality black goat meat, slowly clear-stewed. The soup is clear and transparent, without any gamey taste, the meat is tender and not tough, fragrant and mellow, melting in your mouth. Rich in protein and various minerals, it is a traditional tonic for Wanzai people during the winter solstice. Carrying the auspicious meaning of three-yang prosperity and continuous good luck, every bite is a gift from nature, warming both body and heart."
+      },
+      "luoChenZhaFen": {
+        "title": "Luochen Rice Noodles",
+        "desc1": "Luochen Zha Fen is a provincial intangible cultural heritage food in Wanzai, originating from the banks of Taixi River during the Ming Dynasty. Made with local early rice through traditional processes including soaking, grinding, tying, and sun-drying. The noodles are about 2-3mm thick, white as silver, flexible and smooth, not easily broken after long cooking. After quick frying over high heat, each strand is distinct, wrapped in sauce fragrance and fresh spiciness, with a unique fermented aroma. It is a classic staple in Wanzai banquets and home cooking."
+      },
+      "wanzaiDuoRou": {
+        "title": "Wanzai Chopped Meat",
+        "desc1": "A classic Wanzai home-style stir-fry, inheriting a hundred years of flavor. Using freshly slaughtered local black pig's front lean meat, hand-chopped and marinated with just the right fat-to-lean ratio. Stir-fried in hot oil with local fresh peppers and garlic sprouts, the dish has an attractive red color. Tender and juicy with a perfect blend of spiciness, the fragrance of garlic and meat lingers, perfect with rice. Carrying the nostalgia of Wanzai people, it is a popular street food, showcasing the spicy characteristics of the Jiangxi-Hunan fusion."
+      },
+      "wanzaiFanYa": {
+        "title": "Wanzai Muscovy Duck",
+        "desc1": "A local specialty poultry dish in Wanzai, using locally free-range black Muscovy ducks with high lean meat rate and firm texture. Can be prepared in various ways such as braising, clear stewing, or ginger stewing. Best when simmered to absorb flavors, the finished product has rich aroma, tender meat without being tough, no gamey taste, and long-lasting rich broth. Cooked with local fresh ginger and garlic sprouts, absorbing the sauce becomes very fragrant. It is an essential dish for hosting guests and festivals, holding the most authentic local fire and smoke flavor."
+      },
+      "wanzaiBaiHe": {
+        "title": "Wanzai Lily",
+        "desc1": "A specialty food-medicine homologous delicacy in Wanzai, using local Longya lilies that have been cultivated for a thousand years, with thick and residue-free bulbs as ingredients. Can be stir-fried, steamed, or made into soup. The finished product is white in color, with a sweet and crisp taste, carrying the unique freshness of lily, not bitter or astringent, rich in starch and nutritious. Carrying the meaning of auspiciousness and happiness, it is not only a refreshing dish on family tables but also a natural tonic for health, showcasing Wanzai's farming flavor."
+      },
+      "biaoXinZhi": {
+        "title": "Biaoxin Paper",
+        "desc1": "One of Wanzai's three specialty papers, with core production dating back to the Song Dynasty and reaching its peak in the Qing Dynasty. Made from local bamboo through pure handcrafting, the finished product has a light yellow color, long and fine fibers, tender yet tough and evenly thick, with strong water absorption, tensile strength, and flammability. It was the foundation of Wanzai's wealth in ancient times and is still exported to Hunan, Hubei, and Southeast Asia. It is a traditional paper widely used for sacrifices and folk customs."
+      },
+      "nanSuanZaoGao": {
+        "title": "South Wild Jujube Cake",
+        "desc1": "A geographical indication product of Wanzai, made from wild south wild jujube from local deep mountains, without added pigments or food gelatin, through traditional boiling and modern low-temperature processes. The cake is amber-colored, chewy but not sticky, sweet with sour and rich fruit fragrance, rich in plant flavonoids and natural pectin. The texture is smooth, making it a natural and healthy gift suitable for all ages."
+      }
+    }
+  },
+  "industry": {
+    "hero": {
+      "title": "Fireworks Industry",
+      "subtitle": "Development of China's Hometown of Fireworks"
+    },
+    "cta": {
+      "title": "Experience Fireworks Culture",
+      "desc": "When you come to Wanzai, you can visit fireworks production companies, learn about fireworks making techniques, enjoy spectacular fireworks displays, and feel the charm of millennium fireworks culture.",
+      "cta": "View Viewing Spots"
+    },
+    "sections": {
+      "history": {
+        "title": "Historical Heritage",
+        "desc1": "The history of Wanzai fireworks can be traced back to the Tang Dynasty, flourishing in the Song Dynasty, and developing over a thousand years. According to \"Wanzai County Annals\", during the Daoguang period of the Qing Dynasty, Wanzai fireworks had already \"circulated throughout the north and south, with merchants constantly coming and going\"; during the Guangxu period, local \"men and women of all ages relied on this for work\", with products sold to Guangdong, Fujian and other provinces; by the late Qing and early Republic period, Wanzai had over 400 fireworks production workshops with more than 3,000 employees, forming an integrated industry system of production, supply, and marketing.",
+        "desc2": "In modern times, Wanzai fireworks have also left a glorious mark: In April 1936, Jiangxi Province held the Hangzhou Transportation Exhibition, where Wanzai's \"Tongxinmao\" and \"Zhenshengwan\" firecrackers both received awards from the Zhejiang-Jiangxi Special Products Association; major events such as the Beijing Olympics, Shanghai World Expo, and National Day celebrations have all featured the brilliant light of Wanzai fireworks."
+      },
+      "currentStatus": {
+        "title": "Industry Status",
+        "scale": "Industry Scale",
+        "scaleDesc1": "As of 2024, Wanzai County has 170 fireworks production enterprises, 86 trading enterprises, and over 200 upstream and downstream enterprises. The total fireworks output value reaches 23.3 billion yuan, maintaining a growth rate of over 20% for three consecutive years from 2021 to 2023.",
+        "scaleDesc2": "More than 150,000 people are employed in related industries, accounting for about a quarter of the county's total population. It creates about 4 billion yuan in wage income annually and contributes over 30% of the county's fiscal revenue, making it a truly prosperous pillar industry.",
+        "market": "Market Distribution",
+        "marketDesc1": "Wanzai fireworks have over 4,000 specifications and varieties, covering 9 major categories including firecrackers, toy fireworks, and assembled fireworks (by traditional use classification). Products sell well throughout China and are exported to more than 40 major countries and regions.",
+        "marketDesc2": "Since the 1960s, Wanzai fireworks have opened the overseas market. Today, export products include nearly 1,000 varieties in 11 major categories, sold to America, Europe, Southeast Asia and other regions. In 2024, the county's fireworks export reached 264 million USD, a year-on-year increase of 6.5%.",
+        "chartTitle": "Wanzai Fireworks Enterprise Type Distribution",
+        "chartProduction": "Production",
+        "chartTrade": "Trading",
+        "chartSupply": "Supply Chain",
+        "chartUnit": " enterprises",
+        "exportTitle": "Wanzai Fireworks Export Trend",
+        "exportLabel": "Export",
+        "exportUnit": " hundred million USD",
+        "yearLabel": "Year"
+      },
+      "techUpgrade": {
+        "title": "Technology Upgrade & Innovation",
+        "desc1": "In recent years, the Wanzai County Committee and Government have firmly established the concept that \"safety is the foundation, development is the goal, and brand is the direction\", adhering to the fireworks industry work philosophy of \"one unwavering commitment, three improvements\", and deeply promoting the transformation and upgrading of the fireworks industry.",
+        "desc2": "After multiple rounds of national standard improvements, Wanzai's fireworks industry production automation and intelligent level have significantly improved, and product safety performance is more guaranteed. Local enterprises continue to explore innovation. For example, Wanzai Huixinyuan Fireworks Manufacturing Co., Ltd., as a national high-tech specialized enterprise, has developed industry-leading safe and environmentally friendly potassium-free and sulfur-free fireworks technology, becoming the main supplier for Disney Parks and Universal Studios worldwide, with exports reaching over 60 million yuan in 2024.",
+        "desc3": "In 2024, Wanzai's fireworks industry cluster was selected into Jiangxi Province's SME characteristic industry cluster, forming a relatively complete industrial chain from raw material production to semi-finished product processing, finished product production, transportation and packaging, exhibition and training, testing and evaluation, and R&D and fireworks display."
+      },
+      "cultureTourism": {
+        "title": "Cultural Tourism Integration",
+        "desc1": "Wanzai, using millennium fireworks technology as the key, pioneered the \"fireworks + ancient city\" model, deeply integrating fireworks culture with cultural tourism industry, creating a unique cultural tourism brand \"Kiss of Fire\".",
+        "desc2": "Wanzai Ancient City, as a national AAAA-level tourist attraction, is based on the largest cluster of Gan-style ancient clan halls in China, embedding local characteristic cultures such as fireworks performances, forming cultural tourism brand IPs like \"Come to Wanzai to watch fireworks every Saturday\".",
+        "desc3": "Wanzai Ancient City was successfully selected into the first batch of \"National Night Cultural Tourism Consumption Aggregation Areas\", and its \"fireworks and cultural tourism industry integrated night economy development\" was selected into the Top 100 Cultural Heritage Tourism Cases in China. In the first half of 2024, Wanzai received 10.118 million tourists, achieving a comprehensive tourism revenue of 7.497 billion yuan, a year-on-year increase of 24.9% and 24% respectively."
+      },
+      "future": {
+        "title": "Future Outlook",
+        "desc1": "Looking forward, Wanzai will continue to focus on high-quality development of the fireworks industry. On one hand, it will strengthen trade cooperation with countries along the \"Belt and Road\" policy, expand overseas markets, and accelerate the transformation and upgrading of the fireworks industry's foreign trade; on the other hand, it will continue to promote technological innovation and industry upgrading, create more high-end fireworks products, while deepening cultural tourism integration, allowing the millennium fireworks to bloom even more brilliantly in the new era.",
+        "desc2": "Wanzai is striving to build a true \"Hometown of Chinese Fireworks\". Through industry upgrade, cultural inheritance, and cultural tourism integration, it achieves sustainable development of the fireworks industry, injecting new momentum into local economic and social development."
+      }
+    }
+  },
+  "routes": {
+    "hero": {
+      "title": "Travel Routes",
+      "subtitle": "Curated Wanzai Travel Itineraries"
+    },
+    "cta": {
+      "title": "Start Your Wanzai Journey",
+      "desc": "Choose a travel route that suits you and experience Wanzai's millennium culture, natural scenery and red heritage.",
+      "cta": "View Viewing Spots"
+    },
+    "routes": {
+      "ancient": "Ancient City Cultural Tour",
+      "ancientMorning": "Morning: Arrive in Wanzai, visit Wanzai Ancient City, explore the ancient clan halls, history museum, clan culture museum, and Chinese classics museum",
+      "ancientNoon": "Noon: Taste Wanzai specialty cuisine at Wanzai Kitchen (Ancient City Branch)",
+      "ancientAfternoon": "Afternoon: Experience Xia Bu weaving craftsmanship, watch Desheng Drum performance",
+      "ancientEvening": "Evening: Watch \"Kiss of Fire\" fireworks show, enjoy Wanzai night market delicacies",
+      "mountain": "Mountain & Water Cultural Tour",
+      "mountainMorning": "Morning: Visit Zhushan Cave scenic area, Wanzai Henghui Art Agriculture Scenic Area",
+      "mountainNoon": "Noon: Taste authentic farmhouse cuisine, experience Wanzai flavors",
+      "mountainAfternoon": "Afternoon: Explore Jiulong Primitive Forest, experience nature through rafting",
+      "mountainEvening": "Evening: Watch fireworks culture festival at Longhu Park, enjoy the \"meteors\" falling in the night",
+      "red": "Red Culture Tour",
+      "redMorning": "Morning: Visit Hunan-Hubei-Jiangxi Revolutionary Memorial Hall, Wanzai Revolutionary Martyrs Memorial Hall",
+      "redNoon": "Noon: Experience Red Army meal, feel the spirit of predecessors",
+      "redAfternoon": "Afternoon: Visit Xianyuan Hunan-Hubei-Jiangxi Revolutionary Base Site Group, retrace the Red Army trail",
+      "redEvening": "Evening: Enjoy intangible heritage performances, watch fireworks show, taste Wanzai specialty cuisine"
+    }
+  },
+  "viewingSpots": {
+    "hero": {
+      "title": "Viewing Spots",
+      "subtitle": "Best Fireworks Viewing Locations"
+    },
+    "cta": {
+      "title": "Find the Best Viewing Spots",
+      "desc": "Check the Wanzai map to discover more fireworks viewing spots and beautiful scenery.",
+      "cta": "View Map Guide"
+    },
+    "spots": {
+      "ancientCity": "Wanzai Ancient City",
+      "ancientCityDesc1": "Wanzai Ancient City is one of the best fireworks viewing locations. Every Saturday at 8:00 PM, the \"Kiss of Fire\" free fireworks show starts promptly, lasting 30 minutes. The ancient city's bluestone paths, horse-head walls, and brilliant fireworks create a beautiful picture.",
+      "ancientCityViewing": "Green Shade Square, Riverside Corridor, Ancient City Viewing Platform",
+      "ancientCityTransport": "Located in the center of Wanzai city, accessible by bus or taxi",
+      "longhuPark": "Longhu Park",
+      "longhuParkDesc1": "Longhu Park is an urban park in Wanzai county with a wide lake surface and open view, making it an ideal place to view fireworks. The reflections of fireworks on the lake surface are even more beautiful, providing a double visual experience.",
+      "longhuParkViewing": "Lake-side boardwalk, Lake Center Pavilion, Lakeside Park",
+      "longhuParkTransport": "Located in the southwest of Wanzai city, accessible by bus or taxi",
+      "bestViewing": "Best Viewing Locations",
+      "transportation": "Transportation"
+    },
+    "tips": {
+      "title": "Viewing Tips",
+      "bestTime": "Best Viewing Times",
+      "time1": "Every Saturday 8:00-8:30 PM (Wanzai Ancient City Fireworks Show)",
+      "time2": "Major holidays (such as Spring Festival, Lantern Festival, National Day) or Fireworks Culture Festival",
+      "time3": "Summer nights (cool weather, suitable for outdoor activities)",
+      "time4": "Spring and autumn seasons (pleasant climate, beautiful scenery)",
+      "time5": "Winter with snow, watch fireworks and dancing snowflakes",
+      "notice": "Notes",
+      "notice1": "Arrive early at the viewing spot to secure a good position",
+      "notice2": "Pay attention to safety, stay away from fireworks launch points, choose open areas",
+      "notice3": "Protect the environment, do not litter",
+      "notice4": "Follow venue order, obey staff instructions",
+      "notice5": "Bring your camera or phone to capture beautiful moments"
+    }
+  },
+  "merchant": {
+    "hero": {
+      "title": "Merchants",
+      "subtitle": "Discover Quality Merchants in Wanzai"
+    },
+    "sections": {
+      "featured": {
+        "title": "Featured Merchants",
+        "products": "Products/Services",
+        "advantages": "Advantages",
+        "contact": "Contact"
+      },
+      "reviews": {
+        "title": "User Reviews"
+      }
+    },
+    "cta": {
+      "title": "Start Your Wanzai Journey",
+      "desc": "Choose your favorite merchants and experience the charm of Wanzai fireworks culture."
+    },
+    "merchants": {
+      "caiTian": {
+        "name": "Caitian Art Fireworks",
+        "category": "Art Fireworks Display",
+        "description": "Wanzai Caitian Fireworks Art Performance Co., Ltd. is a benchmark enterprise in the domestic fireworks industry with top-level manufacturing capabilities and professional art display expertise, aiming to be a \"creative pioneer in fireworks cultural tourism performances.\"",
+        "products": [
+          "Art Fireworks Display",
+          "Cultural Tourism Performance Planning",
+          "Fireworks Cultural Products"
+        ],
+        "advantages": [
+          "National Class A Fireworks Display Qualification",
+          "Disney/Universal Studios Supplier",
+          "Professional Display Team 30+ Years"
+        ],
+        "address": "Industrial Park, Sanxing Town, Wanzai County, Yichun City, Jiangxi Province",
+        "phone": "159 0947 0166"
+      },
+      "qianNian": {
+        "name": "Jiangxi Wanzai QianNian Food Co., Ltd.",
+        "category": "Food Processing",
+        "description": "Jiangxi Wanzai QianNian Food Co., Ltd. is a leading enterprise in Wanzai food processing industry, founded in 2001, specializing in Jiangxi traditional specialty food R&D and production with over 1400 years of historical heritage.",
+        "products": ["South Wild Jujube Cake", "Kudzu Products", "Lily Products"],
+        "advantages": [
+          "China Famous Trademark",
+          "Provincial-Level Agricultural Industrialization Leading Enterprise",
+          "Jiangxi Province Famous Brand"
+        ],
+        "address": "No.1, Area B, Industrial Park, Wanzai County, Yichun City, Jiangxi Province",
+        "phone": "400-6789-228"
+      },
+      "tailin": {
+        "name": "Tailin Fireworks",
+        "category": "Firecrackers Manufacturing",
+        "description": "Tailin Fireworks is located in Shuangqiao Town, Wanzai County, the core of the world fireworks golden triangle. With the commitment to \"quality small firecrackers\", the company has been dedicated to fireworks manufacturing for over 20 years. Covering 428 mu of land with five coordinated production areas, the company offers over 100 specifications to precisely meet different market demands.",
+        "products": ["5.5 Small Firecrackers", "6.0 Small Firecrackers", "7.0 Small Firecrackers"],
+        "advantages": [
+          "China Top 100 Fireworks Enterprise",
+          "Wanzai Ten-Star Fireworks Enterprise",
+          "Intelligent Machinery + Traditional Craft"
+        ],
+        "address": "Baishu Village, Shuangqiao Town, Wanzai County, Yichun City, Jiangxi Province (Beside WanShang Highway 31km)",
+        "phone": "0795-8411566"
+      }
+    },
+    "reviews": {
+      "zhang": {
+        "author": "Mr. Zhang",
+        "content": "The fireworks display by Caitian Art Fireworks was absolutely stunning and full of creativity! As a partner, I was impressed by their professional standards and potassium-free, sulfur-free environmental protection technology. Highly recommended!",
+        "date": "2026-2-26"
+      },
+      "wang": {
+        "author": "Mr. Wang",
+        "content": "QianNian company's South Wild Jujube Cake has a very good taste, natural sweet and sour with unique flavor. The kudzu powder and lily powder are also of great quality, highly recommended!",
+        "date": "2025-12-08"
+      },
+      "li": {
+        "author": "Mr. Li",
+        "content": "Tailin Fireworks' firecrackers have crisp and loud sounds with excellent quality! Moreover, the company has large scale and complete qualifications, making it a trustworthy partner.",
+        "date": "2026-02-20"
+      }
+    },
+    "apply": {
+      "title": "Merchant Application",
+      "subtitle": "Fill in the details below. Once verified, you can manage your store and publish coupons.",
+      "storeName": "Store Name",
+      "category": "Category",
+      "dining": "Dining",
+      "lodging": "Lodging",
+      "firework": "Firework",
+      "specialty": "Specialty",
+      "longitude": "Longitude",
+      "latitude": "Latitude",
+      "phone": "Phone",
+      "businessHours": "Business Hours",
+      "description": "Description",
+      "coverImage": "Cover Image URL",
+      "submitting": "Submitting...",
+      "submit": "Submit Application",
+      "success": "Application submitted. Awaiting review!",
+      "failed": "Submission failed"
+    }
+  },
+  "map": {
+    "hero": {
+      "title": "Map Guide",
+      "subtitle": "Explore Wanzai, Discover Beauty"
+    }
+  },
+  "footer": {
+    "about": "About Wanzai",
+    "aboutDesc": "Wanzai is a modern cultural tourism website showcasing the fireworks culture, intangible heritage, local delicacies and tourism scenery of Wanzai County, Jiangxi Province.",
+    "quickLinks": "Quick Links",
+    "friendLinks": "Friend Links",
+    "contact": "Contact Us",
+    "wechatAccounts": "WeChat QR Codes",
+    "customerGroup": "WhizzZest Customer Group",
+    "copyright": "Copyright © ",
+    "wanzaiGov": "Wanzai County Government",
+    "wanzaiGovLink": "http://www.wanzai.gov.cn/",
+    "wanzaiDouyin": "Wanzai Release Douyin",
+    "chinaFireworks": "China Fireworks Association",
+    "wechatGov": "Wanzai Government WeChat",
+    "wechatWenlv": "Wanzai Culture & Tourism WeChat",
+    "github": "Wanzai Fireworks GitHub Repository",
+    "gitee": "Wanzai Fireworks Gitee Repository",
+    "officialDouyin": "WhizzZest Official Douyin",
+    "officialWechat": "WhizzZest Official WeChat",
+    "allRightsReserved": "All rights reserved.",
+    "icp": "赣ICP备2026003337号-1",
+    "police": "京公网安备11010802047642号"
+  },
+  "musicPlayer": {
+    "title": "There Is A Place Called Wanzai",
+    "artist": "Zuo Hu Hai Music Studio - There Is A Place Called Wanzai",
+    "theme": "Wanzai Tourism Theme Song",
+    "play": "Play",
+    "pause": "Pause",
+    "playPause": "Play/Pause"
+  },
+  "common": {
+    "login": "Login",
+    "user": "User",
+    "learnMore": "Learn More",
+    "viewRoutes": "View Travel Routes",
+    "startJourney": "Start Your Wanzai Journey",
+    "loading": "Loading...",
+    "error": "Failed to load",
+    "retry": "Retry",
+    "videoNotSupported": "Your browser does not support video playback.",
+    "videoLoadFailed": "Video failed to load",
+    "videoHint": "Video playback may consume a lot of data. Please play in WiFi environment as much as possible.",
+    "saveFailed": "Save failed, please try again",
+    "welcomeBack": "Welcome back, {name}!",
+    "comingSoon": "Coming Soon"
+  },
+  "auth": {
+    "admin": "Admin",
+    "merchant": "Merchant",
+    "user": "User",
+    "logout": "Logout",
+    "merchantDashboard": "Merchant Dashboard",
+    "adminPanel": "Admin Panel",
+    "merchantApply": "Merchant Apply",
+    "sendCode": "Send Code",
+    "sendCodeFailed": "Failed to send code, please try again",
+    "invalidEmail": "Invalid email address",
+    "codeSent": "Verification code sent, check your inbox",
+    "emailPlaceholder": "Enter email address",
+    "emailLogin": "Email Login",
+    "phoneLogin": "Phone Login",
+    "phoneComingSoon": "Coming soon",
+    "codePlaceholder": "Enter verification code",
+    "loggingIn": "Logging in...",
+    "loginOrRegister": "Login / Register",
+    "later": "Later",
+    "loginFailed": "Login failed, please try again",
+    "huaNuoMessages": {
+      "save_firework": "I'll save this firework forever for you~ Just sign up with me!",
+      "collect_firework": "Sign up with me to collect~ May your love be forever remembered!",
+      "get_coupon": "Sign up with me first, so the coupon is yours~",
+      "default": "Sign up with HuaNuo to unlock more features~"
+    }
+  },
+  "admin": {
+    "pageTitle": "Admin Panel",
+    "loading": "Loading...",
+    "tabs": {
+      "merchants": "Merchants",
+      "coupons": "Coupons",
+      "knowledge": "Knowledge",
+      "docs": "Docs",
+      "stats": "Statistics"
+    },
+    "verified": "Verified",
+    "pending": "Pending",
+    "approve": "Approve",
+    "revoke": "Revoke",
+    "discount": "Discount",
+    "stock": "Stock",
+    "delete": "Delete",
+    "addKnowledge": "Add Entry",
+    "category": "Category",
+    "content": "Content",
+    "contentEn": "Content (EN)",
+    "keywords": "Keywords (comma-separated)",
+    "add": "Add",
+    "totalUsers": "Total Users",
+    "newToday": "New Today",
+    "loadError": "Failed to load. Make sure you are logged in as admin.",
+    "addDoc": "New Doc",
+    "editDoc": "Edit Doc",
+    "slug": "Slug",
+    "docTitle": "Title",
+    "docTitleEn": "Title (EN)",
+    "coverImage": "Cover Image",
+    "order": "Order",
+    "update": "Update",
+    "cancel": "Cancel",
+    "fileSelected": "Selected: ",
+    "mdImport": "Import MD",
+    "slugHint": "Leave empty to generate from title"
+  },
+  "profile": {
+    "pageTitle": "Profile",
+    "personalCenter": "Profile",
+    "nickname": "Nickname",
+    "nicknamePlaceholder": "Enter new nickname",
+    "phone": "Phone",
+    "role": "Role",
+    "avatarUrl": "Avatar URL",
+    "createdAt": "Registered",
+    "save": "Save",
+    "saved": "Saved",
+    "loadError": "Failed to load. Make sure you are logged in."
+  },
+  "merchantDashboard": {
+    "pageTitle": "Merchant Dashboard",
+    "overview": "Overview",
+    "storeInfo": "Store Info",
+    "couponMgmt": "Coupons",
+    "redeemTool": "Redeem",
+    "totalCoupons": "Total Coupons",
+    "redeemed": "Redeemed",
+    "name": "Name",
+    "phone": "Phone",
+    "hours": "Hours",
+    "description": "Description",
+    "publishNew": "New Coupon",
+    "title": "Title",
+    "discount": "Discount (%)",
+    "stock": "Stock",
+    "expires": "Expires",
+    "publish": "Publish",
+    "used": "Used",
+    "redeemCode": "Redeem Code",
+    "redeem": "Redeem",
+    "redeemSuccess": "Redeemed!",
+    "savedMsg": "Saved",
+    "save": "Save"
+  },
+  "coupon": {
+    "title": "Limited Coupons",
+    "discount": "Discount",
+    "remaining": "Left",
+    "claim": "Claim",
+    "claimed": "Claimed",
+    "expired": "Expired"
+  },
+  "firework": {
+    "title": "Digital Fireworks Experience",
+    "loading": "Loading",
+    "loadingStatus": "Preparing fireworks",
+    "initializing": "Initializing",
+    "settings": "Settings",
+    "settingsHint": "Click any tab for more information",
+    "shellType": "Shell Type",
+    "shellSize": "Shell Size",
+    "quality": "Quality",
+    "qualityLow": "Low",
+    "qualityMedium": "Medium",
+    "qualityHigh": "High",
+    "skyLighting": "Sky Lighting",
+    "skyLightingNone": "None",
+    "skyLightingDim": "Dim",
+    "skyLightingNormal": "Normal",
+    "autoLaunch": "Auto Launch",
+    "finaleMode": "Launch More Fireworks",
+    "fullscreen": "Fullscreen",
+    "back": "Back",
+    "background": "Background Image",
+    "bgDefault": "Wanzai Ancient City Fireworks",
+    "bgShootingStars": "Shooting Stars",
+    "bgMoonUniverse": "Moon Universe",
+    "bgMountains": "Mountains",
+    "bgNone": "No Background",
+    "backgroundImage": "Background Image",
+    "removeBackground": "Remove Background",
+    "types": {
+      "random": "Random",
+      "crackle": "Crackle",
+      "crossette": "Crossette",
+      "crysanthemum": "Crysanthemum",
+      "fallingLeaves": "Falling Leaves",
+      "floral": "Floral",
+      "ghost": "Ghost",
+      "horseTail": "Horse Tail",
+      "palm": "Palm",
+      "ring": "Ring",
+      "strobe": "Strobe",
+      "willow": "Willow",
+      "text": "Text"
+    },
+    "share": {
+      "loading": "Loading firework recipe...",
+      "notFound": "Recipe Not Found",
+      "createOwn": "Create your own",
+      "by": "By: ",
+      "views": " views",
+      "copyLink": "Copy Link",
+      "createOwn2": "Create Your Own",
+      "openInWorkshop": "Open in Firework Workshop",
+      "configTitle": "Recipe Config",
+      "visitor": "Visitor",
+      "watchReplay": "Watch Replay",
+      "replaying": "Replaying...",
+      "liked": "Liked",
+      "like": "Like",
+      "timeline": "Timeline",
+      "events": "events",
+      "cancel": "Cancel",
+      "editTitle": "Edit Title",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "save": "Save",
+      "saving": "Saving...",
+      "updateFailed": "Update failed",
+      "deleteFailed": "Delete failed",
+      "replayBy": "by"
+    },
+    "saveDialog": {
+      "title": "Save Firework Recipe",
+      "description": "Saves all engine settings and recorded timeline, generates a share link for others to watch the replay",
+      "placeholder": "Name your firework...",
+      "saving": "Saving...",
+      "save": "Save",
+      "cancel": "Cancel",
+      "success": "Saved! 🎆",
+      "shareGenerated": "Share link generated",
+      "copyLink": "Copy Link",
+      "close": "Close"
+    },
+    "textFirework": {
+      "label": "Text Firework",
+      "placeholder": "Text (≤4 chars)",
+      "launch": "Launch"
+    },
+    "hint": "💥 Click canvas to launch | ⚙ Settings | 💾 Save recipe",
+    "error": {
+      "timeout": "Engine init timeout, please refresh"
+    },
+    "simSpeed": "Sim Speed",
+    "longExposure": "Long Exposure",
+    "longExposureHint": "Particle trails persist longer, ideal for screenshots. Best with background image",
+    "launchSequence": "Launch Sequence",
+    "seqRandom": "Random",
+    "seqTwoRandom": "Two Random",
+    "seqTriple": "Triple",
+    "seqPyramid": "Pyramid",
+    "seqSmallBarrage": "Barrage",
+    "textPresets": {
+      "label": "Text Presets",
+      "placeholder": "New preset...",
+      "add": "Add"
+    },
+    "customColor": "Custom Color",
+    "recordMode": "Record Mode",
+    "recording": "Recording: {count} shots / {time}",
+    "clearRecording": "Clear",
+    "advancedParams": "Advanced Params",
+    "advancedHint": "Advanced params may affect performance",
+    "gravity": "Gravity",
+    "particleDensity": "Particle Density",
+    "sparkAmount": "Spark Amount"
+  },
+  "leaderboard": {
+    "title": "Firework Leaderboard",
+    "subtitle": "Top firework recipes from the community",
+    "back": "Back to Firework"
+  },
+  "aiChat": {
+    "title": "Hua Nuo",
+    "subtitle": "Guardian Spirit of Nuo",
+    "welcome": "Nuo blessings upon you! I'm Hua Nuo, Wanzai's AI guardian spirit~ I can show you fireworks culture, heritage, food, travel routes... Ask me anything!",
+    "placeholder": "Type your question...",
+    "quickQ1": "🔥 What makes Wanzai fireworks special?",
+    "quickQ2": "🏛️ Show me the cultural heritage~",
+    "quickQ3": "🗺️ Plan a travel route for me",
+    "quickQ4": "🍜 What's delicious in Wanzai?",
+    "thinking": "Thinking...",
+    "error": "Sorry, service unavailable",
+    "networkError": "Network connection failed, please try again",
+    "newChat": "New Chat",
+    "newConversation": "New Chat",
+    "rename": "Rename",
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "delete": "Delete",
+    "confirmDelete": "Delete this conversation?",
+    "renamePrompt": "Enter new name"
+  },
+  "about": {
+    "hero": {
+      "title": "About Us",
+      "subtitle": "WhizzZest Team Introduction"
+    },
+    "sections": {
+      "team": {
+        "title": "Our Team",
+        "members": {
+          "member1": {
+            "name": "Long Ziqin",
+            "role": "Project Director",
+            "description": "Leads overall strategic planning and team coordination, orchestrates resource integration, and ensures efficient project execution with precise achievement of core objectives."
+          },
+          "member2": {
+            "name": "Nie Pan",
+            "role": "Technical Architect",
+            "description": "Directs full-stack development and system architecture design, leveraging cutting-edge technology stacks to build high-performance platforms with seamless user interaction experience."
+          },
+          "member3": {
+            "name": "Huang Jingyao",
+            "role": "Brand Operations Director",
+            "description": "Oversees new media matrix operations and brand communication strategies, plans creative content marketing, and continuously enhances platform influence and user reach."
+          },
+          "member4": {
+            "name": "Long Zixuan",
+            "role": "Video Creative Director",
+            "description": "Leads visual content planning and production, using cinematic art language to vividly showcase the unique charm and profound heritage of Wanzai fireworks culture."
+          },
+          "member5": {
+            "name": "Wen Kejia",
+            "role": "Content Strategy Director",
+            "description": "Formulates platform content planning and project documentation, deeply explores cultural value insights, and delivers professional copywriting and brand narrative systems."
+          },
+          "member6": {
+            "name": "Claude AI",
+            "role": "AI Empowerment Assistant",
+            "description": "Based on cutting-edge artificial intelligence technology, provides intelligent creative support and efficiency empowerment for the team, assists in content generation, technical optimization and creative planning, driving project digital transformation and intelligent upgrade."
+          }
+        }
+      },
+      "background": {
+        "title": "Project Background",
+        "originTitle": "Origin",
+        "originDesc": "WhizzZest was initiated by a group of students from Beijing universities who love their hometown culture. We hope to use modern technology to help more people learn about Wanzai, a small city with millennium fireworks culture.",
+        "goalTitle": "Promotion Goals",
+        "goalDesc": "Our goal is to empower Wanzai tourism with AI technology, spreading Wanzai's unique charm through the internet, attracting more tourists to experience the brilliant fireworks culture, while helping the local tourism industry develop with high quality."
+      },
+      "mission": {
+        "title": "Mission & Vision",
+        "missionTitle": "Our Mission",
+        "missionDesc": "Preserve and promote Wanzai's millennium fireworks culture, let every visitor feel the passion and charm of this city. We are dedicated to creating the most comprehensive Wanzai tourism information platform, helping tourists easily plan their trips and deeply experience local culture.",
+        "visionTitle": "Our Vision",
+        "visionDesc": "Become a benchmark for Wanzai's digital tourism transformation and new media matrix construction, working closely with local enterprises and government departments to make \"WhizzZest\" an important entry point for domestic and international tourists to learn about Wanzai. In the future, we plan to expand this development path from Wanzai, creating a key solution for county-level economies to achieve breakthrough development."
+      },
+      "timeline": {
+        "title": "Development Timeline",
+        "events": {
+          "event1": {
+            "date": "December 2025",
+            "title": "Project Launch",
+            "description": "Team officially formed, completed project feasibility analysis and market research, established platform positioning and development strategy, initiated technical R&D preparation."
+          },
+          "event2": {
+            "date": "January-February 2026",
+            "title": "Product Development",
+            "description": "Completed platform prototype design and core feature development, adopted Vue 3 + Tailwind CSS cutting-edge tech stack, built high-performance user experience framework, launched core modules including intangible heritage and local delicacies."
+          },
+          "event3": {
+            "date": "Late February 2026",
+            "title": "Official Release",
+            "description": "Platform officially launched for operation, opened to public access, completed first-round user testing and feature optimization, established brand image and market positioning."
+          },
+          "event4": {
+            "date": "April 2026",
+            "title": "Brand Operations",
+            "description": "Initiated new media matrix operation strategy, built diversified promotional channels including WeChat public account and Douyin, continuously expanded user reach pathways, enhanced platform brand influence."
+          }
+        }
+      },
+      "partners": {
+        "title": "Partners",
+        "list": {
+          "partner1": {
+            "name": "Wanzai Tourism Bureau"
+          },
+          "partner2": {
+            "name": "Wanzai Ancient City"
+          },
+          "partner3": {
+            "name": "Caitian Art Fireworks"
+          },
+          "partner4": {
+            "name": "Tailin Fireworks"
+          }
+        }
+      },
+      "contact": {
+        "title": "Contact Us",
+        "emailLabel": "Email",
+        "email": "{'whizzzest@outlook.com'}",
+        "douyinLabel": "Official Douyin",
+        "douyin": "WhizzzestOfficial",
+        "wechatLabel": "WeChat",
+        "wechat": "YunshangWanzai-YanyuXianglv",
+        "videoLabel": "WeChat Video",
+        "video": "WhizzzestOfficial",
+        "xiaohongshuLabel": "Xiaohongshu",
+        "xiaohongshu": "WhizzzestOfficial",
+        "serviceLabel": "Online Support",
+        "service": "Customer Service"
+      }
+    }
+  },
+  "games": {
+    "title": "Mini Games",
+    "subtitle": "Casual entertainment awaits in WhizzZest! Experience the charm of Wanzai in a fun way.",
+    "minecraft188": "Minecraft 1.8.8",
+    "desc188": "Classic version, smooth and stable. Runs natively in your browser — no download needed.",
+    "play": "Play",
+    "back": "Back to Games",
+    "pvz": "Plants vs. Zombies",
+    "descPvz": "Classic tower defense. Runs natively in your browser — no download needed.",
+    "moreComing": "More Games",
+    "moreComingDesc": "More exciting mini games coming soon. Stay tuned!",
+    "desktopOnly": "Currently only supports desktop"
+  },
+  "docs": {
+    "library": "Wanzai Library",
+    "subtitle": "Guides, stories, and useful info — everything about Wanzai",
+    "back": "Back to Library",
+    "empty": "No documents yet",
+    "notFound": "Document not found",
+    "all": "All",
+    "categories": {
+      "guide": "Guide",
+      "story": "Story",
+      "info": "Info",
+      "general": "General"
+    }
+  },
+  "pwa": {
+    "updateAvailable": "New version available, click to update",
+    "update": "Update"
+  }
+}
