@@ -68,10 +68,7 @@ jobs:
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/usr/share/nginx/wanzai-cache.conf
 
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} '
-            sudo cp /usr/share/nginx/wanzai-cache.conf /etc/nginx/conf.d/wanzai-cache.conf && \
-            sudo nginx -t && \
-            sudo nginx -s reload && \
-            echo "Nginx 缓存策略已更新并重载成功"
+            sudo nginx -t && sudo nginx -s reload && echo "Nginx 缓存策略已重载"
           '
 
       - name: 部署后端并重启
