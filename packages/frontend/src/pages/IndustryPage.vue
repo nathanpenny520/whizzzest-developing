@@ -1,14 +1,20 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Hero Section -->
-    <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden -mt-20 -mx-4 w-[calc(100%+2rem)]">
+    <section
+      id="hero"
+      class="relative h-screen flex items-center justify-center overflow-hidden -mt-20 -mx-4 w-[calc(100%+2rem)]"
+    >
       <div class="absolute inset-0 z-0">
-        <img
-          src="../assets/images/longhu_yanhuowanhui.jpeg"
-          :alt="t('industry.hero.title')"
-          class="w-full h-full object-cover"
-          loading="eager"
-        />
+        <picture>
+          <source srcset="/optimized/longhu_yanhuowanhui.webp" type="image/webp" />
+          <img
+            src="../assets/images/longhu_yanhuowanhui.jpeg"
+            :alt="t('industry.hero.title')"
+            class="w-full h-full object-cover"
+            loading="eager"
+          />
+        </picture>
         <div class="absolute inset-0 bg-black bg-opacity-50"></div>
       </div>
       <div class="relative z-10 text-center text-white px-4">
@@ -20,13 +26,23 @@
     <!-- History Section -->
     <section class="py-16 bg-white">
       <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-12">{{ t('industry.sections.history.title') }}</h2>
+        <h2 class="text-3xl font-bold text-center mb-12">
+          {{ t('industry.sections.history.title') }}
+        </h2>
         <div class="flex flex-col md:flex-row items-center gap-8">
           <div class="md:w-1/2">
-            <div class="video-container relative w-full rounded-lg shadow-lg overflow-hidden bg-gray-900 aspect-video">
-              <iframe src="https://player.bilibili.com/player.html?bvid=BV147L86TEvP&page=1"
-                scrolling="no" border="0" frameborder="no" framespacing="0"
-                allowfullscreen="true" class="w-full h-full">
+            <div
+              class="video-container relative w-full rounded-lg shadow-lg overflow-hidden bg-gray-900 aspect-video"
+            >
+              <iframe
+                src="https://player.bilibili.com/player.html?bvid=BV147L86TEvP&page=1"
+                scrolling="no"
+                border="0"
+                frameborder="no"
+                framespacing="0"
+                allowfullscreen="true"
+                class="w-full h-full"
+              >
               </iframe>
             </div>
             <p class="text-sm text-gray-600 mt-3">{{ t('common.videoHint') }}</p>
@@ -46,11 +62,15 @@
     <!-- Current Status Section -->
     <section class="py-16 bg-gray-50">
       <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-12">{{ t('industry.sections.currentStatus.title') }}</h2>
+        <h2 class="text-3xl font-bold text-center mb-12">
+          {{ t('industry.sections.currentStatus.title') }}
+        </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           <!-- Industry Scale -->
           <div class="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
-            <h3 class="text-xl font-bold mb-4 text-red-600">{{ t('industry.sections.currentStatus.scale') }}</h3>
+            <h3 class="text-xl font-bold mb-4 text-red-600">
+              {{ t('industry.sections.currentStatus.scale') }}
+            </h3>
             <div class="mb-6">
               <canvas ref="industryChart" width="400" height="300"></canvas>
             </div>
@@ -64,7 +84,9 @@
 
           <!-- Market Distribution -->
           <div class="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
-            <h3 class="text-xl font-bold mb-4 text-red-600">{{ t('industry.sections.currentStatus.market') }}</h3>
+            <h3 class="text-xl font-bold mb-4 text-red-600">
+              {{ t('industry.sections.currentStatus.market') }}
+            </h3>
             <div class="mb-6">
               <canvas ref="marketChart" width="400" height="300"></canvas>
             </div>
@@ -79,7 +101,9 @@
 
         <!-- Technology Upgrade -->
         <div class="bg-white rounded-lg p-8 shadow-md">
-          <h3 class="text-xl font-bold mb-4 text-red-600">{{ t('industry.sections.techUpgrade.title') }}</h3>
+          <h3 class="text-xl font-bold mb-4 text-red-600">
+            {{ t('industry.sections.techUpgrade.title') }}
+          </h3>
           <p class="text-gray-600 mb-4">
             {{ t('industry.sections.techUpgrade.desc1') }}
           </p>
@@ -96,15 +120,20 @@
     <!-- Cultural Integration Section -->
     <section class="py-16 bg-white">
       <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-12">{{ t('industry.sections.cultureTourism.title') }}</h2>
+        <h2 class="text-3xl font-bold text-center mb-12">
+          {{ t('industry.sections.cultureTourism.title') }}
+        </h2>
         <div class="flex flex-col md:flex-row items-center gap-8">
           <div class="md:w-1/2">
-            <img
-              src="../assets/images/guchen_yanhua.jpeg"
-              :alt="t('industry.sections.cultureTourism.title')"
-              class="w-full h-auto rounded-lg shadow-lg"
-              loading="lazy"
-            />
+            <picture>
+              <source srcset="/optimized/guchen_yanhua.webp" type="image/webp" />
+              <img
+                src="../assets/images/guchen_yanhua.jpeg"
+                :alt="t('industry.sections.cultureTourism.title')"
+                class="w-full h-auto rounded-lg shadow-lg"
+                loading="lazy"
+              />
+            </picture>
           </div>
           <div class="md:w-1/2">
             <p class="text-gray-600 mb-4">
@@ -124,17 +153,22 @@
     <!-- Future Section -->
     <section class="py-16 bg-gray-50">
       <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-12">{{ t('industry.sections.future.title') }}</h2>
+        <h2 class="text-3xl font-bold text-center mb-12">
+          {{ t('industry.sections.future.title') }}
+        </h2>
         <div class="bg-white rounded-lg p-8 shadow-md">
           <!-- 图片插入区域 -->
           <div class="mb-6">
-            <img 
-              src="../assets/images/huapao_future.jpeg" 
-              :alt="t('industry.sections.future.title')" 
-              class="w-full h-auto rounded-lg shadow-lg"
-              loading="lazy"
-              :title="t('industry.sections.future.title')"
-            />
+            <picture>
+              <source srcset="/optimized/huapao_future.webp" type="image/webp" />
+              <img
+                src="../assets/images/huapao_future.jpeg"
+                :alt="t('industry.sections.future.title')"
+                class="w-full h-auto rounded-lg shadow-lg"
+                loading="lazy"
+                :title="t('industry.sections.future.title')"
+              />
+            </picture>
           </div>
           <p class="text-gray-600 mb-4">
             {{ t('industry.sections.future.desc1') }}
@@ -165,48 +199,47 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useLocalizedPath } from '../composables/useLocalizedPath';
-import Chart from 'chart.js/auto';
+import { ref, onMounted, nextTick, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useLocalizedPath } from '../composables/useLocalizedPath'
+import Chart from 'chart.js/auto'
 
-const { t, locale } = useI18n();
-const { getLocalizedPath } = useLocalizedPath();
+const { t, locale } = useI18n()
+const { getLocalizedPath } = useLocalizedPath()
 
 // 视频通过 B 站播放器嵌入，无需本地视频文件
 
-const industryChart = ref<HTMLCanvasElement | null>(null);
-const marketChart = ref<HTMLCanvasElement | null>(null);
-let industryChartInstance: Chart | null = null;
-let marketChartInstance: Chart | null = null;
+const industryChart = ref<HTMLCanvasElement | null>(null)
+const marketChart = ref<HTMLCanvasElement | null>(null)
+let industryChartInstance: Chart | null = null
+let marketChartInstance: Chart | null = null
 
 onMounted(() => {
-  
   // 初始化图表
   nextTick(() => {
-    initIndustryChart();
-    initMarketChart();
-  });
-});
+    initIndustryChart()
+    initMarketChart()
+  })
+})
 
 // 监听语言变化，重新渲染图表
 watch(locale, () => {
   nextTick(() => {
-    initIndustryChart();
-    initMarketChart();
-  });
-});
+    initIndustryChart()
+    initMarketChart()
+  })
+})
 
 // 初始化产业规模图表
 const initIndustryChart = () => {
   if (industryChart.value) {
-    const ctx = industryChart.value.getContext('2d');
+    const ctx = industryChart.value.getContext('2d')
     if (ctx) {
       // 销毁现有图表实例
       if (industryChartInstance) {
-        industryChartInstance.destroy();
+        industryChartInstance.destroy()
       }
-      
+
       // 创建新图表
       industryChartInstance = new Chart(ctx, {
         type: 'pie',
@@ -214,18 +247,16 @@ const initIndustryChart = () => {
           labels: [
             t('industry.sections.currentStatus.chartProduction'),
             t('industry.sections.currentStatus.chartTrade'),
-            t('industry.sections.currentStatus.chartSupply')
+            t('industry.sections.currentStatus.chartSupply'),
           ],
-          datasets: [{
-            data: [170, 86, 200],
-            backgroundColor: [
-              '#ef4444',
-              '#3b82f6',
-              '#10b981'
-            ],
-            borderColor: '#ffffff',
-            borderWidth: 2
-          }]
+          datasets: [
+            {
+              data: [170, 86, 200],
+              backgroundColor: ['#ef4444', '#3b82f6', '#10b981'],
+              borderColor: '#ffffff',
+              borderWidth: 2,
+            },
+          ],
         },
         options: {
           responsive: true,
@@ -236,51 +267,60 @@ const initIndustryChart = () => {
               text: t('industry.sections.currentStatus.chartTitle'),
               font: {
                 size: 16,
-                weight: 'bold'
-              }
+                weight: 'bold',
+              },
             },
             legend: {
-              position: 'bottom'
+              position: 'bottom',
             },
             tooltip: {
               callbacks: {
-                label: function(context) {
-                  const label = context.label || '';
-                  const value = context.parsed || 0;
-                  const total = context.dataset.data.reduce((a, b) => (a as number) + (b as number), 0);
-                  const percentage = Math.round(((value as number) / total) * 100);
-                  return `${label}: ${value}${t('industry.sections.currentStatus.chartUnit')} (${percentage}%)`;
-                }
-              }
-            }
-          }
-        }
-      });
+                label: function (context) {
+                  const label = context.label || ''
+                  const value = context.parsed || 0
+                  const total = context.dataset.data.reduce(
+                    (a, b) => (a as number) + (b as number),
+                    0,
+                  )
+                  const percentage = Math.round(((value as number) / total) * 100)
+                  return `${label}: ${value}${t('industry.sections.currentStatus.chartUnit')} (${percentage}%)`
+                },
+              },
+            },
+          },
+        },
+      })
     }
   }
-};
+}
 
 // 初始化市场布局图表
 const initMarketChart = () => {
   if (marketChart.value) {
-    const ctx = marketChart.value.getContext('2d');
+    const ctx = marketChart.value.getContext('2d')
     if (ctx) {
       // 销毁现有图表实例
       if (marketChartInstance) {
-        marketChartInstance.destroy();
+        marketChartInstance.destroy()
       }
-      
+
       // 创建新图表
       marketChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
           labels: ['2020', '2021', '2022', '2023', '2024'],
-          datasets: [{
-            label: t('industry.sections.currentStatus.exportLabel') + ' (' + t('industry.sections.currentStatus.exportUnit') + ')',
-            data: [0.75, 1.30, 1.10, 2.50, 2.64],
-            backgroundColor: '#ef4444',
-            borderRadius: 4
-          }]
+          datasets: [
+            {
+              label:
+                t('industry.sections.currentStatus.exportLabel') +
+                ' (' +
+                t('industry.sections.currentStatus.exportUnit') +
+                ')',
+              data: [0.75, 1.3, 1.1, 2.5, 2.64],
+              backgroundColor: '#ef4444',
+              borderRadius: 4,
+            },
+          ],
         },
         options: {
           responsive: true,
@@ -291,41 +331,45 @@ const initMarketChart = () => {
               text: t('industry.sections.currentStatus.exportTitle'),
               font: {
                 size: 16,
-                weight: 'bold'
-              }
+                weight: 'bold',
+              },
             },
             legend: {
-              display: false
+              display: false,
             },
             tooltip: {
               callbacks: {
-                label: function(context) {
-                  const value = context.parsed.y || 0;
-                  return `${t('industry.sections.currentStatus.exportLabel')}: ${value}${t('industry.sections.currentStatus.exportUnit')}`;
-                }
-              }
-            }
+                label: function (context) {
+                  const value = context.parsed.y || 0
+                  return `${t('industry.sections.currentStatus.exportLabel')}: ${value}${t('industry.sections.currentStatus.exportUnit')}`
+                },
+              },
+            },
           },
           scales: {
             y: {
               beginAtZero: true,
               title: {
                 display: true,
-                text: t('industry.sections.currentStatus.exportLabel') + ' (' + t('industry.sections.currentStatus.exportUnit') + ')'
-              }
+                text:
+                  t('industry.sections.currentStatus.exportLabel') +
+                  ' (' +
+                  t('industry.sections.currentStatus.exportUnit') +
+                  ')',
+              },
             },
             x: {
               title: {
                 display: true,
-                text: t('industry.sections.currentStatus.yearLabel')
-              }
-            }
-          }
-        }
-      });
+                text: t('industry.sections.currentStatus.yearLabel'),
+              },
+            },
+          },
+        },
+      })
     }
   }
-};
+}
 </script>
 
 <style scoped>
@@ -334,7 +378,9 @@ const initMarketChart = () => {
   width: 100%;
   overflow: hidden;
   border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 @media (max-width: 768px) {

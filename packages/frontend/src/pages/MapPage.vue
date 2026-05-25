@@ -1,7 +1,10 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Hero Section -->
-    <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden -mt-20 -mx-4 w-[calc(100%+2rem)]">
+    <section
+      id="hero"
+      class="relative h-screen flex items-center justify-center overflow-hidden -mt-20 -mx-4 w-[calc(100%+2rem)]"
+    >
       <div class="absolute inset-0 z-0">
         <img
           src="../assets/images/shouhui_map.jpg"
@@ -24,7 +27,11 @@
           {{ isZh ? '互动地图' : 'Interactive Map' }}
         </h2>
         <p class="text-gray-600 mb-4">
-          {{ isZh ? '点击标记点查看景点详情，使用鼠标拖拽和滚轮调整地图视角。' : 'Click markers to view attraction details. Drag and scroll to adjust the map view.' }}
+          {{
+            isZh
+              ? '点击标记点查看景点详情，使用鼠标拖拽和滚轮调整地图视角。'
+              : 'Click markers to view attraction details. Drag and scroll to adjust the map view.'
+          }}
         </p>
 
         <!-- 筛选分类 -->
@@ -37,7 +44,7 @@
               'px-4 py-2 rounded-full transition-colors',
               filterCategory === cat.id
                 ? 'bg-red-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
             ]"
           >
             {{ isZh ? cat.name : cat.nameEn }}
@@ -93,16 +100,23 @@
     <!-- Static Map Section (Hand-drawn) -->
     <section class="py-12 bg-gray-50">
       <div class="container mx-auto px-4">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">{{ isZh ? '手绘地图' : 'Hand-drawn Map' }}</h2>
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">
+          {{ isZh ? '手绘地图' : 'Hand-drawn Map' }}
+        </h2>
         <div class="bg-gray-100 rounded-lg overflow-hidden shadow-md">
           <div class="w-full aspect-[4/3] relative">
-            <img
-              src="../assets/images/tra_map.jpg"
-              :alt="isZh ? '万载旅游手绘地图' : 'Wanzai Travel Hand-drawn Map'"
-              class="w-full h-full object-contain"
-              loading="lazy"
-            />
-            <div class="absolute bottom-4 right-4 bg-white bg-opacity-80 px-4 py-2 rounded-full text-sm">
+            <picture>
+              <source srcset="/optimized/tra_map.webp" type="image/webp" />
+              <img
+                src="../assets/images/tra_map.jpg"
+                :alt="isZh ? '万载旅游手绘地图' : 'Wanzai Travel Hand-drawn Map'"
+                class="w-full h-full object-contain"
+                loading="lazy"
+              />
+            </picture>
+            <div
+              class="absolute bottom-4 right-4 bg-white bg-opacity-80 px-4 py-2 rounded-full text-sm"
+            >
               {{ isZh ? '万载旅游手绘地图' : 'Wanzai Travel Hand-drawn Map' }}
             </div>
           </div>
@@ -113,18 +127,24 @@
               class="w-full h-auto object-contain"
               loading="lazy"
             />
-            <img
-              src="../assets/images/site_intro_2.jpg"
-              :alt="isZh ? '万载景点介绍2' : 'Wanzai Attractions 2'"
-              class="w-full h-auto object-contain"
-              loading="lazy"
-            />
-            <img
-              src="../assets/images/site_intro_3.jpg"
-              :alt="isZh ? '万载景点介绍3' : 'Wanzai Attractions 3'"
-              class="w-full h-auto object-contain"
-              loading="lazy"
-            />
+            <picture>
+              <source srcset="/optimized/site_intro_2.webp" type="image/webp" />
+              <img
+                src="../assets/images/site_intro_2.jpg"
+                :alt="isZh ? '万载景点介绍2' : 'Wanzai Attractions 2'"
+                class="w-full h-auto object-contain"
+                loading="lazy"
+              />
+            </picture>
+            <picture>
+              <source srcset="/optimized/site_intro_3.webp" type="image/webp" />
+              <img
+                src="../assets/images/site_intro_3.jpg"
+                :alt="isZh ? '万载景点介绍3' : 'Wanzai Attractions 3'"
+                class="w-full h-auto object-contain"
+                loading="lazy"
+              />
+            </picture>
           </div>
         </div>
       </div>
@@ -135,7 +155,11 @@
       <div class="container mx-auto px-4">
         <div class="bg-yellow-100 rounded-lg p-4 text-yellow-800">
           <p class="text-sm">
-            {{ isZh ? '温馨提示：地图标记点坐标为估算值，可能与实际位置略有偏差。如有准确的景点坐标数据，请联系我们更新。' : 'Note: Map marker coordinates are estimated values and may differ slightly from actual locations. If you have accurate coordinate data, please contact us to update.' }}
+            {{
+              isZh
+                ? '温馨提示：地图标记点坐标为估算值，可能与实际位置略有偏差。如有准确的景点坐标数据，请联系我们更新。'
+                : 'Note: Map marker coordinates are estimated values and may differ slightly from actual locations. If you have accurate coordinate data, please contact us to update.'
+            }}
           </p>
         </div>
       </div>
@@ -163,7 +187,7 @@ const categories = [
   { id: 'culture', name: '文化', nameEn: 'Culture' },
   { id: 'food', name: '美食', nameEn: 'Food' },
   { id: 'viewing', name: '观赏点', nameEn: 'Viewing Spots' },
-  { id: 'red', name: '红色景点', nameEn: 'Red Tourism' }
+  { id: 'red', name: '红色景点', nameEn: 'Red Tourism' },
 ]
 
 // 筛选后的位置点
@@ -174,7 +198,7 @@ const filteredLocations = computed(() => {
     return allLocations
   }
 
-  return allLocations.filter(loc => loc.category === filterCategory.value)
+  return allLocations.filter((loc) => loc.category === filterCategory.value)
 })
 
 // 选中的位置
@@ -197,7 +221,7 @@ const getCategoryColor = (category: string) => {
     food: '#f59e0b',
     culture: '#8b5cf6',
     viewing: '#10b981',
-    red: '#b91c1c'
+    red: '#b91c1c',
   }
   return colors[category] || '#dc2626'
 }
@@ -209,7 +233,7 @@ const getCategoryIcon = (category: string) => {
     food: '食',
     culture: '文',
     viewing: '观',
-    red: '红'
+    red: '红',
   }
   return icons[category] || '•'
 }

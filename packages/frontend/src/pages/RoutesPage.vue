@@ -1,14 +1,20 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Hero Section -->
-    <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden -mt-20 -mx-4 w-[calc(100%+2rem)]">
+    <section
+      id="hero"
+      class="relative h-screen flex items-center justify-center overflow-hidden -mt-20 -mx-4 w-[calc(100%+2rem)]"
+    >
       <div class="absolute inset-0 z-0">
-        <img
-          src="../assets/images/wanzai_travelling.jpeg"
-          :alt="t('routes.hero.title')"
-          class="w-full h-full object-cover"
-          loading="eager"
-        />
+        <picture>
+          <source srcset="/optimized/wanzai_travelling.webp" type="image/webp" />
+          <img
+            src="../assets/images/wanzai_travelling.jpeg"
+            :alt="t('routes.hero.title')"
+            class="w-full h-full object-cover"
+            loading="eager"
+          />
+        </picture>
         <div class="absolute inset-0 bg-black bg-opacity-50"></div>
       </div>
       <div class="relative z-10 text-center text-white px-4">
@@ -24,7 +30,11 @@
           {{ isZh ? '路线地图' : 'Route Map' }}
         </h2>
         <p class="text-gray-600 mb-4">
-          {{ isZh ? '点击下方按钮选择旅游路线，在地图上查看行程轨迹。' : 'Click buttons below to select a travel route and view the itinerary on the map.' }}
+          {{
+            isZh
+              ? '点击下方按钮选择旅游路线，在地图上查看行程轨迹。'
+              : 'Click buttons below to select a travel route and view the itinerary on the map.'
+          }}
         </p>
 
         <!-- 路线选择 -->
@@ -37,7 +47,7 @@
               'px-6 py-3 rounded-lg font-medium transition-all cursor-pointer',
               selectedRouteId === route.id
                 ? 'text-white shadow-lg'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
             ]"
             :style="selectedRouteId === route.id ? { backgroundColor: route.color } : {}"
           >
@@ -90,11 +100,7 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- 左侧：路线节点 -->
                 <div class="space-y-4">
-                  <div
-                    v-for="loc in route.locations"
-                    :key="loc.id"
-                    class="flex items-start gap-4"
-                  >
+                  <div v-for="loc in route.locations" :key="loc.id" class="flex items-start gap-4">
                     <div
                       class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
                       :style="{ backgroundColor: route.color }"
@@ -114,12 +120,19 @@
 
                 <!-- 右侧：路线图片 -->
                 <div class="flex items-center justify-center">
-                  <img
-                    :src="routeImages[route.id]"
-                    :alt="isZh ? route.name : route.nameEn"
-                    class="w-full h-auto max-h-80 object-contain rounded-lg bg-gray-100"
-                    loading="lazy"
-                  />
+                  <picture>
+                    <source
+                      v-if="routeWebpMap[routeImages[route.id]]"
+                      :srcset="`/optimized/${routeWebpMap[routeImages[route.id]]}.webp`"
+                      type="image/webp"
+                    />
+                    <img
+                      :src="routeImages[route.id]"
+                      :alt="isZh ? route.name : route.nameEn"
+                      class="w-full h-auto max-h-80 object-contain rounded-lg bg-gray-100"
+                      loading="lazy"
+                    />
+                  </picture>
                 </div>
               </div>
             </div>
@@ -172,7 +185,12 @@ const selectedRouteId = ref('ancient-culture-tour')
 const routeImages: Record<string, string> = {
   'ancient-culture-tour': gucWenhuaTra,
   'mountain-water-tour': shansWenhuaTra,
-  'red-culture-tour': hongsWenhuaTra
+  'red-culture-tour': hongsWenhuaTra,
+}
+const routeWebpMap: Record<string, string> = {
+  [shansWenhuaTra]: 'shans_wenhua_tra',
+  [hongsWenhuaTra]: 'hongs_wenhua_tra',
+  // gucWenhuaTra skipped (WebP larger)
 }
 
 // 地图就绪

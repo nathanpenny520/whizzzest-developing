@@ -19,6 +19,7 @@
 ![](./packages/frontend/src/assets/images/demo-games.png)
 
 **网站地址：** https://www.whizzzest-yanjingwanzai.top/
+
 **GitHub仓库地址：** https://github.com/nathanpenny520/WhizzZest
 
 | 功能        | 说明                                                                              |

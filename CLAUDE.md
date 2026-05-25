@@ -1,5 +1,13 @@
 # 焰境·万载 — Claude Code 项目文档
 
+## 当前工作重点
+
+**性能优化与无障碍修复**，详见 [docs/网站性能优化方案.md](docs/网站性能优化方案.md)。审计基线：无障碍 95.7、最佳实践 98.9、SEO 98.9、AI Browsing 45。目标各项 > 95。
+
+已完成：图片 WebP 转换（41% 体积节省）、48 处 `<picture>` 标签包装、sharp 构建集成。待办：i18n 按需加载、CSS 瘦身、字体 swap、安全头补全。
+
+**调试工具**：已安装 `chrome-devtools-mcp`，重启 Claude Code 后可用自然语言驱动浏览器审计。
+
 ## 项目定位
 
 数字文旅平台，面向江西省万载县。核心差异化是以"花傩"动漫 IP 为灵魂的 AI 智能导游，配合数字烟花 Canvas 引擎、高德地图导览、商户优惠券生态形成完整文旅体验闭环。
@@ -91,7 +99,9 @@ pnpm --filter @wanzai/backend prisma:seed
 | `packages/backend/src/modules/docs/docs.service.ts`           | 文档 CRUD + 按 order/createdAt 排序                                               |
 | `packages/backend/src/modules/docs/docs.controller.ts`        | 文档 REST 端点 + 封面图片上传（Multer + diskStorage）                             |
 | `packages/backend/src/common/guards/roles.guard.ts`           | RBAC 角色守卫（TOURIST/MERCHANT/ADMIN）                                           |
-| `焰境万载重构方案.md`                                         | 完整重构蓝图，6 阶段路线图                                                        |
+| `packages/frontend/scripts/optimize-images.mjs`               | 构建前 sharp 批量转 WebP（PNG q85 / JPEG q80，变大跳过）                          |
+| `packages/frontend/public/optimized/`                         | WebP 输出目录（构建时生成，Git 忽略）                                             |
+| `docs/网站性能优化方案.md`                                    | 当前工作主线：性能/无障碍/SEO/AI Browsing 四维度优化方案                          |
 
 ## 编码约定
 
@@ -136,39 +146,23 @@ refactor(map): 地图逻辑迁移至 useAmap
 
 ## 重构路线图
 
-按 [焰境万载重构方案.md](焰境万载重构方案.md) 执行：
+Phase 1-4 已完成。当前围绕 [docs/网站性能优化方案.md](docs/网站性能优化方案.md) 推进 Phase 5 剩余项。
 
-| Phase | 主题                                       | 状态        |
-| ----- | ------------------------------------------ | ----------- |
-| 1     | 统一底座（Monorepo + NestJS + PostgreSQL） | ✅ 完成     |
-| 2     | "花傩" AI IP 全站化                        | ✅ 完成     |
-| 3     | 用户体系 + 数字烟花工坊                    | ✅ 完成     |
-| 4     | 商户生态 + 商业闭环                        | ✅ 完成     |
-| 5     | 页面架构 + SEO/PWA 增强                    | ⚠️ 部分完成 |
-| 6     | 中长期扩展（按需触发）                     | 📋 远期     |
-
-### Phase 5 完成度
-
-- ✅ Navbar 毛玻璃效果 + 导航集群（万载风物/互动体验/商业服务）
-- ✅ AI Chat Widget 全站化（App.vue）+ 全屏对话 + 对话历史管理
-- ✅ useAmap 可外部操控（defineExpose + mitt）
-- ✅ 用户个人中心（ProfilePage）
-- ✅ 文字烟花
-- ✅ 游戏集合页（GamesPage）：Minecraft 1.8.8 + Plants vs. Zombies，IndexedDB 存档
-- ✅ PWA 更新提示条（registerType: 'prompt' + App.vue 横幅）
-- ✅ 万载文库（DocsPage + DocDetailPage + Admin 文档管理 Tab + MD 导入 + 封面上传）
-- ❌ DiscoveryPage 合并（MapPage + RoutesPage）
-- ❌ HomePage 日夜切换
-- ❌ CulturePage 傩面具博物馆
-- ❌ 动态 sitemap、离线降级
+| Phase | 主题                                  | 状态      |
+| ----- | ------------------------------------- | --------- |
+| 1-4   | 底座 + 花傩 + 用户 + 商户             | ✅ 完成   |
+| 5     | 性能优化 + 无障碍 + SEO + AI Browsing | 🔄 进行中 |
+| 6     | 中长期扩展                            | 📋 远期   |
 
 ## 注意事项
 
 - **路径含括号**：项目路径为 `whizzzest(website-version)`，shell 命令注意转义
-- **高德地图**：通过 Vite proxy 代理，前端环境变量 `VITE_AMAP_KEY` 和 `VITE_AMAP_SECURITY_CODE`
-- **LLM API**：使用 MiniMax-M2.5 模型，通过 `llmapi.paratera.com` 代理，密钥在 `packages/backend/.env`
+- **构建流程**：`tsc → sitemap → optimize-images(WebP) → vite build → prerender`
+- **图片**：原图在 `src/assets/images/`（不动），WebP 构建时生成到 `public/optimized/`（Git 忽略）。代码中通过 `<picture>` 标签优先加载 WebP
+- **高德地图**：通过 Vite proxy 代理，环境变量 `VITE_AMAP_KEY` 和 `VITE_AMAP_SECURITY_CODE`
+- **LLM API**：MiniMax-M2.5 模型，通过 `llmapi.paratera.com` 代理，密钥在 `packages/backend/.env`
 - **Redis**：`brew services start redis`，端口 6379，优惠券库存原子操作依赖
-- **万能验证码**：开发环境登录使用 `000000`（6 位），生产环境需接入短信服务
-- **测试账户**：ADMIN ``，MERCHANT `merchant_001`/`merchant_002`/`merchant_003`（种子数据）
-- **大文件**：视频文件未纳入 Git（> 100MB），部署时手动上传
-- **CSP**：vite.config.ts 中配置了严格的内容安全策略，修改外部资源时需同步更新
+- **万能验证码**：开发环境 `000000`，生产需接入短信
+- **测试账户**：ADMIN ``，MERCHANT `merchant_001`/`merchant_002`/`merchant_003`
+- **CSP**：vite.config.ts 严格 CSP，修改外部资源时需同步更新
+- **调试**：已安装 chrome-devtools-mcp，重启 Claude Code 后可用浏览器 DevTools 驱动审计

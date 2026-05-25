@@ -20,7 +20,10 @@
         <div class="game-card group cursor-pointer" @click="openGame('minecraft-1.8.8')">
           <!-- Card Preview Image -->
           <div class="card-preview">
-            <img :src="minecraftImg" alt="Minecraft 1.8.8" class="preview-img" />
+            <picture>
+              <source srcset="/optimized/Minecraft.webp" type="image/webp" />
+              <img :src="minecraftImg" alt="Minecraft 1.8.8" class="preview-img" />
+            </picture>
           </div>
 
           <!-- Card Info -->
@@ -53,7 +56,10 @@
         <!-- PvZ Card -->
         <div class="game-card group cursor-pointer" @click="openGame('pvz')">
           <div class="card-preview">
-            <img :src="pvzImg" alt="Plants vs. Zombies" class="preview-img" />
+            <picture>
+              <source srcset="/optimized/PVZ.webp" type="image/webp" />
+              <img :src="pvzImg" alt="Plants vs. Zombies" class="preview-img" />
+            </picture>
           </div>
           <div class="card-info">
             <h3 class="text-lg font-bold text-gray-800 mb-1">
