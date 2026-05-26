@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 import { useRouter } from 'vue-router'
@@ -59,28 +59,13 @@ import SeoHead from './components/SeoHead.vue'
 import LoginModal from './components/LoginModal.vue'
 import AIChatWidget from './components/AIChat/AIChatWidget.vue'
 
-const DISMISS_KEY = 'pwa-update-dismissed-at'
-const DISMISS_COOLDOWN = 30 * 60 * 1000 // 30 minutes
-const CHECK_INTERVAL = 30 * 60 * 1000 // 30 minutes
-
-let updateCheckInterval: ReturnType<typeof setInterval> | null = null
-
 const { t } = useI18n()
 const router = useRouter()
 
-// Service Worker update detection
-const sw = useRegisterSW({
-  onNeedRefresh() {
-    const dismissedAt = localStorage.getItem(DISMISS_KEY)
-    if (!dismissedAt || Date.now() - Number(dismissedAt) >= DISMISS_COOLDOWN) {
-      swNeedRefresh.value = true
-    }
-  },
-})
-const swNeedRefresh = ref(false)
-const { needRefresh: _nr, updateServiceWorker } = sw
+// SW 注册（仅负责缓存和离线，不参与 Banner 逻辑）
+useRegisterSW({})
 
-// version.json polling detection
+// version.json 轮询 — 唯一的更新检测来源
 const {
   versionChanged,
   checkNow,
@@ -88,41 +73,20 @@ const {
   dismissUpdate: dismissVersionUpdate,
 } = useVersionCheck()
 
-// Unified banner — show when either SW or version.json detects an update
-const showUpdate = computed(() => _nr.value || swNeedRefresh.value || versionChanged.value)
+const showUpdate = computed(() => versionChanged.value)
 
 function dismissUpdate() {
-  swNeedRefresh.value = false
-  _nr.value = false
   dismissVersionUpdate()
-  localStorage.setItem(DISMISS_KEY, String(Date.now()))
 }
 
-function applyUpdate() {
-  // If SW has an update waiting, activate it (causes reload via skipWaiting)
-  if (swNeedRefresh.value || _nr.value) {
-    updateServiceWorker()
-  } else {
-    // Version-only update: store new version and reload
-    applyVersionUpdate()
-  }
+async function applyUpdate() {
+  await applyVersionUpdate()
 }
 
 onMounted(() => {
-  // Periodic SW update check
-  updateCheckInterval = setInterval(async () => {
-    const registration = await navigator.serviceWorker?.getRegistration()
-    if (registration) await registration.update()
-  }, CHECK_INTERVAL)
-
-  // Check version.json on each route navigation
   router.afterEach(() => {
     checkNow()
   })
-})
-
-onUnmounted(() => {
-  if (updateCheckInterval) clearInterval(updateCheckInterval)
 })
 </script>
 

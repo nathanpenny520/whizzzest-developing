@@ -23,7 +23,6 @@
     "mitt": "^3.0.1",
     "pinia": "^3.0.2",
     "tailwindcss": "^3.4.3",
-    "three": "^0.184.0",
     "vue": "^3.5.27",
     "vue-i18n": "^11.2.8",
     "vue-router": "^4.3.0",
@@ -31,7 +30,6 @@
   },
   "devDependencies": {
     "@types/node": "^25.2.3",
-    "@types/three": "^0.184.1",
     "rollup-plugin-visualizer": "^7.0.0",
     "sharp": "^0.34.5",
     "terser": "^5.46.0",

@@ -51,6 +51,9 @@
 
       <!-- Markdown content -->
       <div class="doc-content prose max-w-none" v-html="renderedContent" />
+
+      <!-- Comments -->
+      <CommentSection :page="route.path" />
     </article>
   </div>
 </template>
@@ -62,6 +65,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { marked } from 'marked'
 import { api } from '@/api/client'
+import CommentSection from '@/components/CommentSection.vue'
 
 marked.setOptions({ breaks: true, gfm: true })
 

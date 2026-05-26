@@ -426,7 +426,8 @@
       "submitting": "Submitting...",
       "submit": "Submit Application",
       "success": "Application submitted. Awaiting review!",
-      "failed": "Submission failed"
+      "failed": "Submission failed",
+      "requiredField": "Please fill in {field}"
     }
   },
   "map": {
@@ -518,7 +519,8 @@
       "coupons": "Coupons",
       "knowledge": "Knowledge",
       "docs": "Docs",
-      "stats": "Statistics"
+      "stats": "Statistics",
+      "analytics": "Analytics"
     },
     "verified": "Verified",
     "pending": "Pending",
@@ -547,7 +549,27 @@
     "cancel": "Cancel",
     "fileSelected": "Selected: ",
     "mdImport": "Import MD",
-    "slugHint": "Leave empty to generate from title"
+    "slugHint": "Leave empty to generate from title",
+    "totalViews": "Total Page Views",
+    "recentViews": "Recent 7 Days",
+    "topPages": "Top Pages",
+    "views": " views"
+  },
+  "comments": {
+    "title": "Comments",
+    "placeholder": "Write a comment...",
+    "loginPrompt": "Login to comment",
+    "login": "Login",
+    "submit": "Submit",
+    "reply": "Reply",
+    "replyPlaceholder": "Write a reply...",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "empty": "No comments yet. Be the first!",
+    "justNow": "just now",
+    "minutesAgo": "min ago",
+    "hoursAgo": "hr ago",
+    "error": "Something went wrong, please try again"
   },
   "profile": {
     "pageTitle": "Profile",
@@ -750,7 +772,8 @@
       "greeting": "Need Hua Nuo's help?",
       "chatWithNuo": "Chat with Nuo",
       "playGames": "Play games",
-      "launchFirework": "Launch firework"
+      "launchFirework": "Launch firework",
+      "toggleLive2D": "Switch Live2D"
     },
     "generationError": "Sorry, failed to generate a response. Please try again later."
   },

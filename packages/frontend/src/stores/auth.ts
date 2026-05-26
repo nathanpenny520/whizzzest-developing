@@ -15,7 +15,13 @@ function saveUser(u: UserProfile | null) {
   if (u)
     sessionStorage.setItem(
       STORAGE_KEYS.user,
-      JSON.stringify({ id: u.id, nickname: u.nickname, role: u.role, email: u.email }),
+      JSON.stringify({
+        id: u.id,
+        nickname: u.nickname,
+        role: u.role,
+        email: u.email,
+        isMerchant: u.isMerchant,
+      }),
     )
   else sessionStorage.removeItem(STORAGE_KEYS.user)
 }
@@ -27,6 +33,7 @@ interface UserProfile {
   email?: string
   phone?: string
   role: string
+  isMerchant?: boolean
   createdAt?: string
 }
 
@@ -87,6 +94,9 @@ export const useAuthStore = defineStore('auth', () => {
       saveUser(user.value)
       sessionStorage.setItem('accessToken', data.accessToken)
       localStorage.setItem('refreshToken', data.refreshToken)
+
+      // Hydrate full profile (includes isMerchant flag omitted from login response)
+      await fetchProfile()
 
       if (pendingAction) {
         const action = pendingAction

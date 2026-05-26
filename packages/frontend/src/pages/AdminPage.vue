@@ -5,7 +5,7 @@
     <div v-if="pageLoading" class="loading-box">{{ t('admin.loading') }}</div>
     <div v-if="pageError" class="error-box">{{ pageError }}</div>
 
-    <div v-if="!pageLoading && !pageError" class="tabs">
+    <div v-if="!pageLoading" class="tabs">
       <button
         v-for="tb in tabs"
         :key="tb.key"
@@ -26,10 +26,20 @@
           >
         </div>
         <div class="card-actions">
-          <button v-if="!m.isVerified" @click="verify(m.id, true)" class="btn approve">
+          <button
+            v-if="!m.isVerified"
+            @click="verify(m.id, true)"
+            :disabled="actionLoading"
+            class="btn approve"
+          >
             {{ t('admin.approve') }}
           </button>
-          <button v-if="m.isVerified" @click="verify(m.id, false)" class="btn reject">
+          <button
+            v-if="m.isVerified"
+            @click="verify(m.id, false)"
+            :disabled="actionLoading"
+            class="btn reject"
+          >
             {{ t('admin.revoke') }}
           </button>
         </div>
@@ -46,7 +56,9 @@
             {{ t('admin.stock') }}: {{ c.totalStock - c.usedStock }}/{{ c.totalStock }}</span
           >
         </div>
-        <button @click="delCoupon(c.id)" class="btn reject">{{ t('admin.delete') }}</button>
+        <button @click="delCoupon(c.id)" :disabled="actionLoading" class="btn reject">
+          {{ t('admin.delete') }}
+        </button>
       </div>
     </div>
 
@@ -60,11 +72,15 @@
           >{{ t('admin.contentEn') }} <textarea v-model="newKnowledge.contentEn" rows="2" />
         </label>
         <label>{{ t('admin.keywords') }} <input v-model="newKnowledge.keywordsStr" /></label>
-        <button @click="addKnowledge" class="btn approve">{{ t('admin.add') }}</button>
+        <button @click="addKnowledge" :disabled="actionLoading" class="btn approve">
+          {{ t('admin.add') }}
+        </button>
       </div>
       <div v-for="k in knowledge" :key="k.id" class="card">
         <strong>[{{ k.category }}] {{ k.content.slice(0, 80) }}...</strong>
-        <button @click="delKnowledge(k.id)" class="btn reject">{{ t('admin.delete') }}</button>
+        <button @click="delKnowledge(k.id)" :disabled="actionLoading" class="btn reject">
+          {{ t('admin.delete') }}
+        </button>
       </div>
     </div>
 
@@ -129,7 +145,7 @@
           {{ docError }}
         </div>
         <div style="display: flex; gap: 8px">
-          <button @click="saveDoc" class="btn approve">
+          <button @click="saveDoc" :disabled="actionLoading" class="btn approve">
             {{ editingDoc ? t('admin.update') : t('admin.add') }}
           </button>
           <button
@@ -148,10 +164,17 @@
           <span>{{ d.slug }} | {{ formatDate(d.createdAt) }}</span>
         </div>
         <div class="card-actions" style="gap: 4px">
-          <button @click="editDoc(d)" class="btn" style="background: #3b82f6; color: #fff">
+          <button
+            @click="editDoc(d)"
+            :disabled="actionLoading"
+            class="btn"
+            style="background: #3b82f6; color: #fff"
+          >
             {{ t('admin.editDoc') }}
           </button>
-          <button @click="delDoc(d.slug)" class="btn reject">{{ t('admin.delete') }}</button>
+          <button @click="delDoc(d.slug)" :disabled="actionLoading" class="btn reject">
+            {{ t('admin.delete') }}
+          </button>
         </div>
       </div>
     </div>
@@ -169,11 +192,39 @@
         </div>
       </div>
     </div>
+
+    <!-- 数据统计 -->
+    <div v-if="tab === 'admin.tabs.analytics'" class="tab-content">
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-num">{{ analytics.total }}</span
+          ><span class="stat-label">{{ t('admin.totalViews') }}</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num">{{ analytics.recentViews }}</span
+          ><span class="stat-label">{{ t('admin.recentViews') }}</span>
+        </div>
+      </div>
+      <h3 style="margin-top: 24px; font-weight: 600">{{ t('admin.topPages') }}</h3>
+      <div v-if="analytics.topPages?.length" style="margin-top: 12px">
+        <div
+          v-for="(p, i) in analytics.topPages"
+          :key="i"
+          class="card"
+          style="justify-content: space-between"
+        >
+          <span>{{ p.path }}</span>
+          <span style="color: #6b7280; font-size: 13px"
+            >{{ p._count.path }}{{ t('admin.views') }}</span
+          >
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { api } from '@/api/client'
 
@@ -185,6 +236,7 @@ const tabs = [
   { key: 'admin.tabs.knowledge' },
   { key: 'admin.tabs.docs' },
   { key: 'admin.tabs.stats' },
+  { key: 'admin.tabs.analytics' },
 ]
 const tab = ref('admin.tabs.merchants')
 
@@ -227,8 +279,22 @@ const docForm = ref({
 const editingDoc = ref<string | null>(null)
 const docError = ref('')
 const stats = ref({ totalUsers: 0, todayNew: 0 })
+const analytics = ref<{
+  total: number
+  recentViews: number
+  topPages: { path: string; _count: { path: number } }[]
+}>({
+  total: 0,
+  recentViews: 0,
+  topPages: [],
+})
 const pageLoading = ref(true)
 const pageError = ref('')
+const actionLoading = ref(false)
+
+watch(tab, () => {
+  pageError.value = ''
+})
 
 onMounted(async () => {
   try {
@@ -248,6 +314,12 @@ onMounted(async () => {
         stats.value = s.data.data
       })
       .catch(() => {})
+    api
+      .get('/analytics/stats?days=7')
+      .then((a) => {
+        analytics.value = a.data.data
+      })
+      .catch(() => {})
   } catch {
     pageError.value = t('admin.loadError')
   } finally {
@@ -256,31 +328,59 @@ onMounted(async () => {
 })
 
 async function verify(id: string, isVerified: boolean) {
-  await api.put(`/merchants/${id}/verify`, { isVerified })
-  const m = await api.get('/merchants?all=true')
-  merchants.value = m.data.data
+  actionLoading.value = true
+  try {
+    await api.put(`/merchants/${id}/verify`, { isVerified })
+    const m = await api.get('/merchants?all=true')
+    merchants.value = m.data.data
+  } catch {
+    pageError.value = t('admin.loadError')
+  } finally {
+    actionLoading.value = false
+  }
 }
 async function delCoupon(id: string) {
-  await api.delete(`/coupons/${id}`)
-  coupons.value = coupons.value.filter((c) => c.id !== id)
+  actionLoading.value = true
+  try {
+    await api.delete(`/coupons/${id}`)
+    coupons.value = coupons.value.filter((c) => c.id !== id)
+  } catch {
+    pageError.value = t('admin.loadError')
+  } finally {
+    actionLoading.value = false
+  }
 }
 async function addKnowledge() {
-  await api.post('/knowledge', {
-    category: newKnowledge.value.category,
-    content: newKnowledge.value.content,
-    contentEn: newKnowledge.value.contentEn || null,
-    keywords: newKnowledge.value.keywordsStr
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean),
-  })
-  newKnowledge.value = { category: '', content: '', contentEn: '', keywordsStr: '' }
-  const k = await api.get('/knowledge')
-  knowledge.value = k.data.data
+  actionLoading.value = true
+  try {
+    await api.post('/knowledge', {
+      category: newKnowledge.value.category,
+      content: newKnowledge.value.content,
+      contentEn: newKnowledge.value.contentEn || null,
+      keywords: newKnowledge.value.keywordsStr
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    })
+    newKnowledge.value = { category: '', content: '', contentEn: '', keywordsStr: '' }
+    const k = await api.get('/knowledge')
+    knowledge.value = k.data.data
+  } catch {
+    pageError.value = t('admin.loadError')
+  } finally {
+    actionLoading.value = false
+  }
 }
 async function delKnowledge(id: string) {
-  await api.delete(`/knowledge/${id}`)
-  knowledge.value = knowledge.value.filter((k) => k.id !== id)
+  actionLoading.value = true
+  try {
+    await api.delete(`/knowledge/${id}`)
+    knowledge.value = knowledge.value.filter((k) => k.id !== id)
+  } catch {
+    pageError.value = t('admin.loadError')
+  } finally {
+    actionLoading.value = false
+  }
 }
 
 // Doc CRUD
@@ -348,6 +448,7 @@ function cancelEdit() {
 
 async function saveDoc() {
   docError.value = ''
+  actionLoading.value = true
   try {
     const payload: Record<string, unknown> = {
       title: docForm.value.title,
@@ -383,12 +484,21 @@ async function saveDoc() {
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e)
     docError.value = msg || t('admin.loadError')
+  } finally {
+    actionLoading.value = false
   }
 }
 
 async function delDoc(slug: string) {
-  await api.delete(`/docs/${slug}`)
-  docs.value = docs.value.filter((d) => d.slug !== slug)
+  actionLoading.value = true
+  try {
+    await api.delete(`/docs/${slug}`)
+    docs.value = docs.value.filter((d) => d.slug !== slug)
+  } catch {
+    pageError.value = t('admin.loadError')
+  } finally {
+    actionLoading.value = false
+  }
 }
 
 function formatDate(d: string) {
@@ -462,6 +572,10 @@ h1 {
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .btn.approve {
   background: #059669;

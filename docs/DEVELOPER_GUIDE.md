@@ -134,7 +134,7 @@ pnpm build:backend
 curl -s http://localhost:3002/api/v1/auth/login \
   -X POST \
   -H 'Content-Type: application/json' \
-  -d '{"phone":"13800000001","code":"000000"}'
+  -d '{"email":"test@example.com","code":"000000"}'
 ```
 
 **预期响应**：
@@ -148,7 +148,7 @@ curl -s http://localhost:3002/api/v1/auth/login \
     "user": {
       "id": "uuid",
       "nickname": "游客",
-      "phone": "13800000001",
+      "email": "test@example.com",
       "role": "TOURIST",
       "isNew": true
     }
@@ -156,9 +156,10 @@ curl -s http://localhost:3002/api/v1/auth/login \
 }
 ```
 
-- 验证码 `000000` 为开发环境万能码，任何手机号均可通过
+- 验证码 `000000` 为开发环境万能码，任何邮箱均可通过（生产环境需验证码）
 - `isNew: true` 表示首次注册，`false` 表示已有账户
-- JWT 负载包含 `sub`（用户ID）、`phone`、`role`
+- JWT 负载包含 `sub`（用户ID）、`email`、`role`
+- `/users/me` 响应含 `isMerchant: boolean`，标识用户是否同时是商户
 
 #### 3.1.2 刷新 Token
 
@@ -222,10 +223,10 @@ curl -s http://localhost:3002/api/v1/ai/chat \
 ### 3.3 知识库管理（ADMIN）
 
 ```bash
-# 登录 ADMIN 账户（种子数据已预置 ADMIN 账号，手机号见 .env 中 ADMIN_PHONES）
+# 登录 ADMIN 账户（种子数据已预置 ADMIN 账号，邮箱见 .env 中 ADMIN_EMAILS）
 ADMIN_TOKEN=$(curl -s http://localhost:3002/api/v1/auth/login \
   -X POST -H 'Content-Type: application/json' \
-  -d '{"phone":"你的管理员手机号","code":"000000"}' | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['accessToken'])")
+  -d '{"email":"nathanpenny@qq.com","code":"000000"}' | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['accessToken'])")
 
 # 查看全量知识库
 curl -s http://localhost:3002/api/v1/knowledge \
@@ -251,7 +252,64 @@ curl -s http://localhost:3002/api/v1/knowledge/_system_prompt_zh \
 
 ---
 
-### 3.4 烟花配方
+### 3.4 评论系统
+
+#### 3.4.1 获取评论列表（可选鉴权）
+
+```bash
+# 未登录也能查看，登录后返回点赞状态
+curl -s "http://localhost:3002/api/v1/comments?topicSlug=home&topicType=page"
+# 登录后
+curl -s "http://localhost:3002/api/v1/comments?topicSlug=home&topicType=page" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+#### 3.4.2 发表评论（支持 Markdown）
+
+```bash
+curl -s http://localhost:3002/api/v1/comments \
+  -X POST -H 'Content-Type: application/json' \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"topicSlug":"home","topicType":"page","content":"**Markdown** 评论内容","locale":"zh"}'
+```
+
+#### 3.4.3 点赞评论
+
+```bash
+curl -s "http://localhost:3002/api/v1/comments/$COMMENT_ID/like" \
+  -X POST -H "Authorization: Bearer $TOKEN"
+```
+
+#### 3.4.4 删除评论（作者或 ADMIN）
+
+```bash
+curl -s "http://localhost:3002/api/v1/comments/$COMMENT_ID" \
+  -X DELETE -H "Authorization: Bearer $TOKEN"
+```
+
+---
+
+### 3.5 数据分析
+
+```bash
+# 页面浏览埋点
+curl -s http://localhost:3002/api/v1/analytics/pageview \
+  -X POST -H 'Content-Type: application/json' \
+  -d '{"path":"/en","referrer":""}'
+
+# ADMIN 查看统计
+curl -s http://localhost:3002/api/v1/analytics/stats \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+```
+
+**验证要点**：
+
+- 埋点返回 204 No Content
+- 统计面板返回当日/累计页面浏览数据
+
+---
+
+### 3.6 烟花配方
 
 #### 3.4.1 保存配方
 
@@ -301,7 +359,7 @@ curl -s http://localhost:3002/api/v1/fireworks \
 
 ---
 
-### 3.5 商户系统
+### 3.7 商户系统
 
 #### 3.5.1 申请入驻
 
@@ -349,15 +407,15 @@ curl -s 'http://localhost:3002/api/v1/merchants?all=true' \
 
 ---
 
-### 3.6 优惠券系统（核心商业闭环）
+### 3.8 优惠券系统（核心商业闭环）
 
-#### 3.6.1 商户发布优惠券
+#### 3.8.1 商户发布优惠券
 
 ```bash
-# 先用商户手机号登录（种子数据：merchant_001）
+# 先用商户邮箱登录（种子数据：merchant_001）
 M_TOKEN=$(curl -s http://localhost:3002/api/v1/auth/login \
   -X POST -H 'Content-Type: application/json' \
-  -d '{"phone":"merchant_001","code":"000000"}' | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['accessToken'])")
+  -d '{"email":"merchant_001","code":"000000"}' | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['accessToken'])")
 
 # 发布优惠券
 curl -s http://localhost:3002/api/v1/coupons \
@@ -375,7 +433,7 @@ curl -s http://localhost:3002/api/v1/coupons/merchant \
   -H "Authorization: Bearer $M_TOKEN"
 ```
 
-#### 3.6.2 验证 Redis 库存初始化
+#### 3.8.2 验证 Redis 库存初始化
 
 ```bash
 COUPON_ID="上一步返回的优惠券id"
@@ -383,13 +441,13 @@ redis-cli get "coupon:stock:$COUPON_ID"
 # 预期输出："10"
 ```
 
-#### 3.6.3 用户领券（Redis DECR 防超发）
+#### 3.8.3 用户领券（Redis DECR 防超发）
 
 ```bash
 # 用普通用户登录
 U_TOKEN=$(curl -s http://localhost:3002/api/v1/auth/login \
   -X POST -H 'Content-Type: application/json' \
-  -d '{"phone":"13800000001","code":"000000"}' | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['accessToken'])")
+  -d '{"email":"tourist@example.com","code":"000000"}' | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['accessToken'])")
 
 # 领券
 curl -s "http://localhost:3002/api/v1/coupons/$COUPON_ID/claim" \
@@ -400,7 +458,7 @@ redis-cli get "coupon:stock:$COUPON_ID"
 # 预期输出："9"
 ```
 
-#### 3.6.4 重复领券（应拒绝）
+#### 3.8.4 重复领券（应拒绝）
 
 ```bash
 # 同一用户再次领同一券
@@ -409,14 +467,14 @@ curl -s "http://localhost:3002/api/v1/coupons/$COUPON_ID/claim" \
 # 预期：{"message":"已领取过该优惠券"}
 ```
 
-#### 3.6.5 超发测试
+#### 3.8.5 超发测试
 
 ```bash
 # 如果库存为 10，用 11 个不同用户领取，第 11 次应返回"已领完"
 # 每次 DECR 后结果 < 0 时自动 INCR 回滚
 ```
 
-#### 3.6.6 商户核销
+#### 3.8.6 商户核销
 
 ```bash
 # 获取核销码
@@ -431,7 +489,7 @@ curl -s http://localhost:3002/api/v1/coupons/redeem \
 # 预期：{"code":0,"message":"ok"}
 ```
 
-#### 3.6.7 验证 PostgreSQL 库存同步
+#### 3.8.7 验证 PostgreSQL 库存同步
 
 ```bash
 psql -d wanzai -c "SELECT title, total_stock, used_stock FROM \"Coupon\" WHERE id='$COUPON_ID';"
@@ -458,7 +516,7 @@ psql -d wanzai -c "SELECT title, total_stock, used_stock FROM \"Coupon\" WHERE i
 | 像素世界 | `/games`                | `/en/games`                | Minecraft 1.8.8 + PvZ 即点即玩，点击遮罩启动，IndexedDB 存档                |
 | 烟花分享 | `/firework/share/:slug` | `/en/firework/share/:slug` | 加载配方回放                                                                |
 | 商户入驻 | `/merchant/apply`       | —                          | 表单提交                                                                    |
-| 商户后台 | `/merchant/dashboard`   | —                          | 需 MERCHANT 角色                                                            |
+| 商户后台 | `/merchant/dashboard`   | —                          | 需 MERCHANT 角色（ADMIN 同时为商户时也可访问）                              |
 | 管理后台 | `/admin`                | —                          | 需 ADMIN 角色                                                               |
 
 ### 4.2 花傩 AI 对话（含全屏与对话管理）
@@ -494,19 +552,40 @@ psql -d wanzai -c "SELECT title, total_stock, used_stock FROM \"Coupon\" WHERE i
 
 ### 4.5 商户入驻流程（端到端）
 
-1. 用普通账户（如 `13800000001`）登录
-2. 访问 `/merchant/apply` → 填写商户信息 → 提交
-3. 用 ADMIN 账户登录（手机号见 `.env` 中 `ADMIN_PHONES`）
+1. 用普通账户（如 `test@example.com`）登录
+2. 访问 `/merchant/apply` → 填写商户信息 → 提交（必填字段未填时浏览器 tooltip 显示当前语言提示）
+3. 用 ADMIN 账户登录（邮箱见 `.env` 中 `ADMIN_EMAILS`，如 `nathanpenny@qq.com`）
 4. 访问 `/admin` → 商户审核 Tab → 找到刚才的申请 → 点击"通过"
-5. 将该用户角色设为 MERCHANT（通过数据库或 ADMIN 后台）
-6. 重新登录 → 访问 `/merchant/dashboard`
-7. 验证四个 Tab：
+5. 重新登录普通账户 → 角色变为 MERCHANT → 访问 `/merchant/dashboard`
+6. 验证四个 Tab：
    - **概览**：显示统计数据
    - **店铺信息**：可编辑
    - **优惠券管理**：发布新券 → 可查看
    - **核销工具**：输入核销码 → 核销
+7. **ADMIN+商户共存**：ADMIN 账号申请商户后角色保留为 ADMIN，`/users/me` 返回 `isMerchant: true`，Navbar 同时显示「管理后台」+「商户后台」
 
-### 4.6 用户领券
+### 4.6 Live2D 花傩角色
+
+1. 访问任意页面，确认左下角显示 **CSS 花傩按钮**（红金圆形头像）
+2. 点击按钮 → 弹出快捷菜单 → 点击 **切换 Live2D** → Live2D 角色渐入
+3. 验证：
+   - Live2D 角色出现在左下角，有呼吸动画
+   - 鼠标悬停 → 右侧出现 4 个圆形工具按钮（聊天/游戏/烟花/切换）
+   - 点击角色身体 → 弹出随机对话气泡（中英文跟随当前语言）
+   - 点击工具按钮 → 分别触发聊天窗口 / 跳转游戏页 / 跳转烟花页 / 切换回 CSS
+4. 切换语言（中文 ↔ 英文）→ 气泡语言实时切换，无需刷新
+5. 再次切换回 CSS → Live2D 消失，CSS 花傩按钮重新显示，不刷新页面
+
+### 4.7 评论系统
+
+1. 访问文库详情页 `/docs/:slug` → 底部可见评论区
+2. 未登录 → 可查看评论列表，发表按钮触发登录弹窗
+3. 登录后 → 输入 Markdown 内容发表评论
+4. 查看自己的评论 → 显示删除按钮 → 可删除
+5. 查看他人评论 → 无删除按钮（除非是 ADMIN）
+6. 点击点赞按钮 → 数字 +1，再次点击 → 取消点赞
+
+### 4.8 用户领券
 
 1. 访问 `/merchant` 页面
 2. 应看到已审核商户列表及其优惠券
@@ -588,11 +667,13 @@ redis-cli ping
 cat packages/backend/.env
 
 # 重新构建
-cd packages/backend
+cd "packages/backend"
 rm -rf dist tsconfig.build.tsbuildinfo
 pnpm build
 node dist/main.js
 ```
+
+> **注意**：项目路径 `whizzzest(website-version)` 含括号，`nest start --watch` 可能因 shell 转义失败无法启动。解决方案：手动启动 `node dist/main.js`，或修改父目录名去掉括号。
 
 ### 7.2 AI 对话返回"充电中"
 

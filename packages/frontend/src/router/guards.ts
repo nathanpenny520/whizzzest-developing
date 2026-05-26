@@ -5,6 +5,13 @@ export function registerAuthGuard(router: Router) {
   let isGuarding = false
 
   router.beforeEach(async (to, _from, next) => {
+    const auth = useAuthStore()
+
+    // 等待初始化完成（所有路由都需要，确保公共页面也能用 token）
+    if (!auth.isInitialized) {
+      await auth.init()
+    }
+
     const requiredRole = to.meta.requiresRole as string | undefined
     if (!requiredRole) {
       next()
@@ -15,13 +22,6 @@ export function registerAuthGuard(router: Router) {
     if (isGuarding) {
       next(false)
       return
-    }
-
-    const auth = useAuthStore()
-
-    // 等待初始化完成
-    if (!auth.isInitialized) {
-      await auth.init()
     }
 
     // 已登录且角色匹配

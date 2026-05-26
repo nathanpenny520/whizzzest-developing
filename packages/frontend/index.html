@@ -62,6 +62,16 @@
   </head>
   <body>
     <div id="app"></div>
+    <script>
+      ;(function () {
+        fetch('/api/v1/analytics/pageview', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path: location.pathname, referrer: document.referrer || undefined, title: document.title }),
+          keepalive: true,
+        }).catch(function () {})
+      })()
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

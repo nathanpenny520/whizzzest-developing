@@ -264,7 +264,7 @@
     </section>
 
     <!-- Music Player Section -->
-    <MusicPlayer />
+    <MusicPlayer :src="audioFile" />
 
     <!-- Digital Firework Entrance Section -->
     <section id="firework-section" class="py-16 bg-gray-50 text-gray-800">
@@ -446,6 +446,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import MusicPlayer from '../components/MusicPlayer.vue'
+import audioFile from '../assets/audio/one_place_wanzai.mp3'
 import { useLocalizedPath } from '../composables/useLocalizedPath'
 import { useAuthStore } from '@/stores/auth'
 

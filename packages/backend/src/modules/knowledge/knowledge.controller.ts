@@ -1,5 +1,9 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common'
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common'
 import { KnowledgeService } from './knowledge.service.js'
+import { JwtAuthGuard } from '../auth/jwt-auth.guard.js'
+import { RolesGuard } from '../../common/guards/roles.guard.js'
+import { Roles } from '../../common/decorators/roles.decorator.js'
+import { UserRole } from '@prisma/client'
 
 interface KnowledgeEntry {
   id: string
@@ -20,12 +24,18 @@ export class KnowledgeController {
   }
 
   @Post()
-  async create(@Body() body: Omit<KnowledgeEntry, 'id'>): Promise<{ code: number; data: KnowledgeEntry; message: string }> {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async create(
+    @Body() body: Omit<KnowledgeEntry, 'id'>,
+  ): Promise<{ code: number; data: KnowledgeEntry; message: string }> {
     const data = await this.knowledgeService.create(body)
     return { code: 0, data, message: 'created' }
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   async update(
     @Param('id') id: string,
     @Body() body: Partial<KnowledgeEntry>,
@@ -35,6 +45,8 @@ export class KnowledgeController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   async remove(@Param('id') id: string): Promise<{ code: number; data: null; message: string }> {
     await this.knowledgeService.remove(id)
     return { code: 0, data: null, message: 'deleted' }

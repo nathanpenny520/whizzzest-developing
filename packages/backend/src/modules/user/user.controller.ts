@@ -16,8 +16,9 @@ export class UserController {
     if (!user) {
       return { code: 40400, data: null, message: '用户不存在' }
     }
-    const { phone, ...safe } = user
-    return { code: 0, data: safe, message: 'ok' }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+    const { phone, merchant, ...safe } = user as any
+    return { code: 0, data: { ...safe, isMerchant: !!merchant }, message: 'ok' }
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -35,13 +36,17 @@ export class UserController {
     if (!user) {
       return { code: 40400, data: null, message: '用户不存在' }
     }
-    const { phone: _, ...safe } = user
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+    const { phone: _, merchant: _m, ...safe } = user as any
     return { code: 0, data: safe, message: 'ok' }
   }
 
   @UseGuards(JwtAuthGuard)
   @Put('me')
-  async updateProfile(@Req() req: { user: { id: string } }, @Body() body: { nickname?: string; avatarUrl?: string }) {
+  async updateProfile(
+    @Req() req: { user: { id: string } },
+    @Body() body: { nickname?: string; avatarUrl?: string },
+  ) {
     const user = await this.userService.updateProfile(req.user.id, body)
     return { code: 0, data: user, message: 'ok' }
   }

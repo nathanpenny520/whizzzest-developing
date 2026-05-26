@@ -36,8 +36,14 @@ const cacheProfiles: Array<{ method: string; pattern: RegExp; cacheControl: stri
   },
   {
     method: 'GET',
-    pattern: /^\/?(?:api\/v1\/)?coupons/,
+    pattern: /^\/?(?:api\/v1\/)?coupons\/public/,
     cacheControl: 'public, max-age=60',
+  },
+  // 商户专属优惠券列表不缓存
+  {
+    method: 'GET',
+    pattern: /^\/?(?:api\/v1\/)?coupons\/merchant/,
+    cacheControl: 'private, no-cache',
   },
   // 用户相关、认证相关默认不缓存
   {

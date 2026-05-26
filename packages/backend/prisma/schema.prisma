@@ -19,7 +19,9 @@ model User {
 
   fireworks  FireworkRecipe[]
   coupons    UserCoupon[]
-  merchant   Merchant?
+  comments      Comment[]
+  commentLikes  CommentLike[]
+  merchant      Merchant?
 }
 
 enum UserRole {
@@ -108,4 +110,39 @@ model Doc {
   order      Int      @default(0)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model PageView {
+  id        String   @id @default(uuid())
+  path      String
+  referrer  String?
+  title     String?
+  userAgent String?
+  ip        String?
+  createdAt DateTime @default(now())
+}
+
+model Comment {
+  id        String    @id @default(uuid())
+  page      String
+  content   String
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id])
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+  likes     Int       @default(0)
+  createdAt DateTime  @default(now())
+  likedBy   CommentLike[]
+}
+
+model CommentLike {
+  id        String   @id @default(uuid())
+  userId    String
+  commentId String
+  user      User     @relation(fields: [userId], references: [id])
+  comment   Comment  @relation(fields: [commentId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, commentId])
 }

@@ -6,6 +6,48 @@
 
 ---
 
+## [2.6.0] — 2026-05-26
+
+### 新增
+
+- **Live2D 花傩角色** (`AIChatButtonLive2D.vue`)：可切换的 Live2D 动画角色作为 CSS 花傩的替代方案，histoire 模型，自定义工具按钮（聊天/游戏/烟花/切换），中英双语 waifu-tips，身体点击触发对话
+- **Live2D 无刷新切换**：`window.__toggleLive2D` 纯响应式切换，Live2D ↔ CSS 不刷新页面
+- **评论系统** (`CommentSection.vue` + `CommentModule`)：文章评论 CRUD，支持 Markdown 渲染、点赞、作者或 ADMIN 删除
+- **数据分析模块** (`AnalyticsModule`)：页面浏览埋点 + ADMIN 统计面板
+- **可选鉴权守卫** (`optional-auth.guard.ts`)：有 Token 则解析用户，无 Token 也放行（评论列表用）
+- **音频播放器** (`useAudioPlayer.ts`)：可复用的音频播放 composable，播放/暂停/进度/音量控制
+- **i18n 按需加载**：语言包拆分为独立 JSON 文件（`zh-CN.json` / `en.json`），首屏 JS 减少 ~40KB
+- **llms.txt**：AI 爬虫优化文件，帮助 LLM 理解网站结构
+- **网站更新检测**：`version.json` + 自动更新提示条
+- **花傩 AI 常量提取** (`constants/huaNuo.ts`, `knowledge/prompts.ts`)：提示词、状态消息、路由白名单统一管理
+
+### 变更
+
+- **AI 代码清理**：统一提示词管理，i18n 补全，常量提取
+- **管理员+商户共存**：ADMIN 申请商户后角色保留为 ADMIN，`/users/me` 返回 `isMerchant`，Navbar 同时显示两个后台链接
+- **商户申请表单验证**：浏览器 tooltip 保留 + `setCustomValidity()` 自定义消息语言（中英文），成功/错误提示加 fade 动画
+- **认证升级**：邮箱注册登录替代手机号，邮箱验证码登录流程
+- **用户体系更新**：`User.role` 支持 ADMIN + 商户身份共存，ProfilePage 不显示 phone
+- **商户入驻**：`MerchantApply.vue` 去除 HTML5 `required` → `oninvalid` + `setCustomValidity` 动态语言
+- **花傩图标统一**：聊天窗口标题栏 + 欢迎页图标替换为 `<HuaNuoCharacter>` 组件
+
+### 移除
+
+- **Three.js**：删除 `ThreeAiModel.vue`（557 行）和 `three` / `@types/three` 依赖
+
+### 新增 API 端点（5 条）
+
+| 端点                  | 方法   | 鉴权     | 说明                      |
+| --------------------- | ------ | -------- | ------------------------- |
+| `/comments`           | GET    | 可选鉴权 | 评论列表（含点赞状态）    |
+| `/comments`           | POST   | 登录     | 发表评论（支持 Markdown） |
+| `/comments/:id`       | DELETE | 登录     | 删除评论（作者或 ADMIN）  |
+| `/comments/:id/like`  | POST   | 登录     | 点赞/取消点赞             |
+| `/analytics/pageview` | POST   | 公开     | 页面浏览埋点              |
+| `/analytics/stats`    | GET    | ADMIN    | 浏览统计                  |
+
+---
+
 ## [2.5.0] — 2026-05-24
 
 ### 新增

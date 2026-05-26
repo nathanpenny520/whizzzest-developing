@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  UseGuards,
   UseInterceptors,
   UploadedFile,
   BadRequestException,
@@ -16,6 +17,10 @@ import { extname, join } from 'path'
 import { existsSync, mkdirSync } from 'fs'
 import type { Request } from 'express'
 import { DocsService } from './docs.service.js'
+import { JwtAuthGuard } from '../auth/jwt-auth.guard.js'
+import { RolesGuard } from '../../common/guards/roles.guard.js'
+import { Roles } from '../../common/decorators/roles.decorator.js'
+import { UserRole } from '@prisma/client'
 
 const UPLOAD_DIR = join(process.cwd(), 'uploads', 'docs')
 
@@ -39,6 +44,8 @@ export class DocsController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   async create(
     @Body()
     body: {
@@ -58,6 +65,8 @@ export class DocsController {
   }
 
   @Put(':slug')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   async update(
     @Param('slug') slug: string,
     @Body()
@@ -76,6 +85,8 @@ export class DocsController {
   }
 
   @Delete(':slug')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   async remove(
     @Param('slug') slug: string,
   ): Promise<{ code: number; data: null; message: string }> {
@@ -84,6 +95,8 @@ export class DocsController {
   }
 
   @Post('upload')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({

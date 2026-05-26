@@ -1,4 +1,4 @@
-<!-- AI聊天浮动入口按钮 - 3D 花傩模型版 -->
+<!-- AI聊天浮动入口按钮 -->
 <template>
   <div class="ai-button-wrapper">
     <!-- 主动招呼气泡 -->
@@ -46,6 +46,20 @@
         </svg>
         <span>{{ t('huaNuo.button.launchFirework') }}</span>
       </button>
+      <div class="quick-menu-divider" />
+      <button class="quick-menu-item quick-menu-toggle" @click="handleToggleLive2D">
+        <svg
+          class="menu-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M12 5v14M5 12h14" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+        <span>{{ t('huaNuo.button.toggleLive2D') }}</span>
+      </button>
     </div>
 
     <!-- CSS 花傩角色按钮 -->
@@ -70,10 +84,6 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useHuaNuo } from '@/composables/useHuaNuo'
 import HuaNuoCharacter from '@/components/HuaNuoCharacter.vue'
-
-// 3D 模型代码保留，需要时取消注释：
-// import { defineAsyncComponent } from 'vue'
-// const ThreeAiModel = defineAsyncComponent(() => import('@/components/ThreeAiModel.vue'))
 
 const { t } = useI18n()
 const router = useRouter()
@@ -107,6 +117,12 @@ function handleGames() {
 function handleFirework() {
   showQuickMenu.value = false
   router.push('/firework')
+}
+
+function handleToggleLive2D() {
+  showQuickMenu.value = false
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(window as any).__toggleLive2D?.()
 }
 
 function handleFallbackClick() {
@@ -155,6 +171,20 @@ onUnmounted(() => {
   min-width: 200px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
   animation: menuIn 0.2s ease-out;
+}
+
+.quick-menu-divider {
+  height: 1px;
+  margin: 2px 10px;
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.quick-menu-toggle {
+  font-size: 12px;
+  color: #9ca3af;
+}
+.quick-menu-toggle:hover {
+  color: #f59e0b;
 }
 
 .quick-menu-item {

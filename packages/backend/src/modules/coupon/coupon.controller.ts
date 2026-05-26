@@ -17,9 +17,22 @@ export class CouponController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.MERCHANT)
   @Post()
-  async create(@Req() req: { user: { id: string } }, @Body() body: { title: string; titleEn?: string; discount: number; totalStock: number; expiresAt: string }) {
+  async create(
+    @Req() req: { user: { id: string } },
+    @Body()
+    body: {
+      title: string
+      titleEn?: string
+      discount: number
+      totalStock: number
+      expiresAt: string
+    },
+  ) {
     const merchant = await this.merchantService.findByUserId(req.user.id)
-    const data = await this.couponService.create(merchant.id, { ...body, expiresAt: new Date(body.expiresAt) })
+    const data = await this.couponService.create(merchant.id, {
+      ...body,
+      expiresAt: new Date(body.expiresAt),
+    })
     return { code: 0, data, message: 'ok' }
   }
 
@@ -41,7 +54,11 @@ export class CouponController {
 
   @UseGuards(JwtAuthGuard)
   @Post(':id/claim')
-  async claim(@Param('id') id: string, @Req() req: { user: { id: string } }, @Body() body?: { locale?: string }) {
+  async claim(
+    @Param('id') id: string,
+    @Req() req: { user: { id: string } },
+    @Body() body?: { locale?: string },
+  ) {
     const data = await this.couponService.claim(id, req.user.id, body?.locale || 'zh')
     return { code: 0, data, message: 'ok' }
   }
@@ -62,10 +79,10 @@ export class CouponController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MERCHANT)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    await this.couponService.remove(id)
+  async remove(@Param('id') id: string, @Req() req: { user: { id: string; role: string } }) {
+    await this.couponService.remove(id, req.user.id, req.user.role === 'ADMIN')
     return { code: 0, data: null, message: 'deleted' }
   }
 }

@@ -410,7 +410,8 @@
       "submitting": "提交中...",
       "submit": "提交申请",
       "success": "申请已提交，等待审核！",
-      "failed": "提交失败"
+      "failed": "提交失败",
+      "requiredField": "请填写{field}"
     }
   },
   "map": {
@@ -502,7 +503,8 @@
       "coupons": "优惠券管理",
       "knowledge": "知识库",
       "docs": "文档管理",
-      "stats": "用户统计"
+      "stats": "用户统计",
+      "analytics": "数据统计"
     },
     "verified": "已通过",
     "pending": "待审核",
@@ -532,7 +534,27 @@
     "save": "保存",
     "fileSelected": "已选: ",
     "mdImport": "导入 MD",
-    "slugHint": "留空自动从标题生成"
+    "slugHint": "留空自动从标题生成",
+    "totalViews": "总页面访问",
+    "recentViews": "近7日访问",
+    "topPages": "热门页面",
+    "views": "次访问"
+  },
+  "comments": {
+    "title": "评论",
+    "placeholder": "写下你的评论...",
+    "loginPrompt": "登录后即可评论",
+    "login": "登录",
+    "submit": "发布",
+    "reply": "回复",
+    "replyPlaceholder": "写下你的回复...",
+    "cancel": "取消",
+    "delete": "删除",
+    "empty": "暂无评论，来说点什么吧",
+    "justNow": "刚刚",
+    "minutesAgo": "分钟前",
+    "hoursAgo": "小时前",
+    "error": "操作失败，请稍后重试"
   },
   "profile": {
     "pageTitle": "个人中心",
@@ -735,7 +757,8 @@
       "greeting": "需要傩帮忙吗？",
       "chatWithNuo": "和傩对话",
       "playGames": "玩玩游戏",
-      "launchFirework": "放个烟花"
+      "launchFirework": "放个烟花",
+      "toggleLive2D": "切换 Live2D"
     },
     "generationError": "抱歉，回答生成失败，请稍后再试。"
   },

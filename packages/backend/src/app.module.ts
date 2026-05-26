@@ -9,9 +9,12 @@ import { KnowledgeModule } from './modules/knowledge/knowledge.module.js'
 import { MerchantModule } from './modules/merchant/merchant.module.js'
 import { CouponModule } from './modules/coupon/coupon.module.js'
 import { DocsModule } from './modules/docs/docs.module.js'
+import { AnalyticsModule } from './modules/analytics/analytics.module.js'
+import { CommentModule } from './modules/comment/comment.module.js'
 import { PrismaModule } from './prisma/prisma.module.js'
 import { RedisModule } from './redis/redis.module.js'
 import { CacheControlInterceptor } from './common/interceptors/cache.interceptor.js'
+import { RolesGuard } from './common/guards/roles.guard.js'
 
 @Module({
   imports: [
@@ -26,7 +29,9 @@ import { CacheControlInterceptor } from './common/interceptors/cache.interceptor
     MerchantModule,
     CouponModule,
     DocsModule,
+    AnalyticsModule,
+    CommentModule,
   ],
-  providers: [{ provide: APP_INTERCEPTOR, useClass: CacheControlInterceptor }],
+  providers: [{ provide: APP_INTERCEPTOR, useClass: CacheControlInterceptor }, RolesGuard],
 })
 export class AppModule {}

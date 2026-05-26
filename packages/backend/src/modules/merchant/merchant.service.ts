@@ -5,13 +5,33 @@ import { PrismaService } from '../../prisma/prisma.service.js'
 export class MerchantService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async apply(userId: string, data: { name: string; category: string; mapLng: number; mapLat: number; businessHours?: string; phone?: string; description?: string; coverImage?: string }) {
+  async apply(
+    userId: string,
+    data: {
+      name: string
+      category: string
+      mapLng: number
+      mapLat: number
+      businessHours?: string
+      phone?: string
+      description?: string
+      coverImage?: string
+    },
+  ) {
     const existing = await this.prisma.merchant.findUnique({ where: { userId } })
     if (existing) throw new ForbiddenException('已申请过商户，请勿重复申请')
 
     const merchant = await this.prisma.merchant.create({ data: { userId, ...data } })
-    // 自动提升用户角色为 MERCHANT
-    await this.prisma.user.update({ where: { id: userId }, data: { role: 'MERCHANT', nickname: data.name } })
+    // 自动提升用户角色为 MERCHANT（但不覆盖 ADMIN）
+    const user = await this.prisma.user.findUnique({ where: { id: userId } })
+    if (user && user.role !== 'ADMIN') {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { role: 'MERCHANT', nickname: data.name },
+      })
+    } else {
+      await this.prisma.user.update({ where: { id: userId }, data: { nickname: data.name } })
+    }
     return merchant
   }
 
@@ -21,7 +41,19 @@ export class MerchantService {
     return m
   }
 
-  async update(userId: string, data: { name?: string; category?: string; mapLng?: number; mapLat?: number; businessHours?: string; phone?: string; description?: string; coverImage?: string }) {
+  async update(
+    userId: string,
+    data: {
+      name?: string
+      category?: string
+      mapLng?: number
+      mapLat?: number
+      businessHours?: string
+      phone?: string
+      description?: string
+      coverImage?: string
+    },
+  ) {
     await this.findByUserId(userId)
     const merchant = await this.prisma.merchant.update({ where: { userId }, data })
     // 同步更新用户昵称

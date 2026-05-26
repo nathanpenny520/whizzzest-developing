@@ -6,8 +6,8 @@
           <picture>
             <source srcset="/optimized/one_place_wanzai.webp" type="image/webp" />
             <img
-              src="../assets/images/one_place_wanzai.png"
-              :alt="t('musicPlayer.title')"
+              :src="coverSrc"
+              :alt="displayTitle"
               class="w-full h-full object-cover"
               loading="lazy"
             />
@@ -15,8 +15,8 @@
         </div>
 
         <div class="flex-1">
-          <h3 class="text-xl font-bold mb-1">{{ t('musicPlayer.title') }}</h3>
-          <p class="text-gray-600 text-sm mb-4">{{ t('musicPlayer.artist') }}</p>
+          <h3 class="text-xl font-bold mb-1">{{ displayTitle }}</h3>
+          <p class="text-gray-600 text-sm mb-4">{{ displayArtist }}</p>
 
           <div class="mb-4">
             <div class="flex justify-between text-xs text-gray-600 mb-1">
@@ -43,7 +43,7 @@
 
           <div class="flex items-center">
             <button
-              @click="togglePlay"
+              @click="toggle"
               class="text-gray-900 hover:text-red-600 transition-colors focus:outline-none"
               :aria-label="t('musicPlayer.playPause')"
             >
@@ -109,87 +109,44 @@
         </div>
       </div>
       <div class="text-center mt-4 text-3xl font-bold text-gray-900">
-        {{ t('musicPlayer.theme') }}
+        {{ displayTheme }}
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import audioFile from '../assets/audio/one_place_wanzai.mp3'
+import { useAudioPlayer } from '@/composables/useAudioPlayer'
+import defaultCover from '../assets/images/one_place_wanzai.png'
+
+const props = withDefaults(
+  defineProps<{
+    src: string
+    title?: string
+    artist?: string
+    cover?: string
+    theme?: string
+  }>(),
+  {
+    title: '',
+    artist: '',
+    cover: '',
+    theme: '',
+  },
+)
 
 const { t } = useI18n()
+const { isPlaying, currentTime, duration, isDragging, toggle, seekTo, suspendAudio, resumeAudio } =
+  useAudioPlayer(props.src)
 
-const isPlaying = ref(false)
-const currentTime = ref(0)
-const duration = ref(264)
-const isDragging = ref(false)
-const audioElement = ref<HTMLAudioElement | null>(null)
+const displayTitle = computed(() => props.title || t('musicPlayer.title'))
+const displayArtist = computed(() => props.artist || t('musicPlayer.artist'))
+const displayTheme = computed(() => props.theme || t('musicPlayer.theme'))
+const coverSrc = computed(() => props.cover || defaultCover)
+
 const progressBar = ref<HTMLElement | null>(null)
-
-const initAudio = () => {
-  audioElement.value = new Audio()
-  audioElement.value.src = audioFile
-
-  audioElement.value.addEventListener('timeupdate', () => {
-    if (audioElement.value && !isDragging.value) {
-      currentTime.value = Math.floor(audioElement.value.currentTime)
-    }
-  })
-
-  audioElement.value.addEventListener('ended', () => {
-    isPlaying.value = false
-    currentTime.value = 0
-  })
-
-  audioElement.value.addEventListener('loadedmetadata', () => {
-    if (audioElement.value) {
-      duration.value = Math.floor(audioElement.value.duration)
-    }
-  })
-}
-
-const togglePlay = () => {
-  if (!audioElement.value) {
-    initAudio()
-  }
-
-  if (audioElement.value) {
-    if (isPlaying.value) {
-      audioElement.value.pause()
-    } else {
-      audioElement.value.play().catch(() => {
-        startSimulatedPlayback()
-      })
-    }
-    isPlaying.value = !isPlaying.value
-  }
-}
-
-let simulatedInterval: number | null = null
-
-const startSimulatedPlayback = () => {
-  if (simulatedInterval) return
-
-  simulatedInterval = window.setInterval(() => {
-    if (currentTime.value < duration.value) {
-      currentTime.value += 1
-    } else {
-      isPlaying.value = false
-      stopSimulatedPlayback()
-      currentTime.value = 0
-    }
-  }, 1000)
-}
-
-const stopSimulatedPlayback = () => {
-  if (simulatedInterval) {
-    clearInterval(simulatedInterval)
-    simulatedInterval = null
-  }
-}
 
 const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60)
@@ -202,13 +159,7 @@ const seek = (event: MouseEvent) => {
   const rect = target.getBoundingClientRect()
   const clickX = event.clientX - rect.left
   const percentage = clickX / rect.width
-  const newTime = Math.floor(percentage * duration.value)
-
-  currentTime.value = newTime
-
-  if (audioElement.value) {
-    audioElement.value.currentTime = newTime
-  }
+  seekTo(Math.floor(percentage * duration.value))
 }
 
 const startDrag = (event: MouseEvent) => {
@@ -218,22 +169,15 @@ const startDrag = (event: MouseEvent) => {
   document.addEventListener('mousemove', drag)
   document.addEventListener('mouseup', endDrag)
 
-  if (audioElement.value && !audioElement.value.paused) {
-    audioElement.value.pause()
-  }
+  suspendAudio()
 }
 
 const drag = (event: MouseEvent) => {
-  if (!isDragging.value) return
-  if (!progressBar.value) return
+  if (!isDragging.value || !progressBar.value) return
 
   const rect = progressBar.value.getBoundingClientRect()
-  let dragX = event.clientX - rect.left
-
-  dragX = Math.max(0, Math.min(dragX, rect.width))
-
-  const percentage = dragX / rect.width
-  currentTime.value = Math.floor(percentage * duration.value)
+  const dragX = Math.max(0, Math.min(event.clientX - rect.left, rect.width))
+  seekTo(Math.floor((dragX / rect.width) * duration.value))
 }
 
 const endDrag = () => {
@@ -242,32 +186,8 @@ const endDrag = () => {
   document.removeEventListener('mousemove', drag)
   document.removeEventListener('mouseup', endDrag)
 
-  if (audioElement.value) {
-    audioElement.value.currentTime = currentTime.value
-
-    if (isPlaying.value) {
-      audioElement.value.play().catch(() => {
-        startSimulatedPlayback()
-      })
-    }
-  }
+  resumeAudio()
 }
-
-onMounted(() => {
-  initAudio()
-})
-
-onUnmounted(() => {
-  stopSimulatedPlayback()
-
-  if (audioElement.value) {
-    audioElement.value.pause()
-    audioElement.value.src = ''
-  }
-
-  document.removeEventListener('mousemove', drag)
-  document.removeEventListener('mouseup', endDrag)
-})
 </script>
 
 <style scoped>

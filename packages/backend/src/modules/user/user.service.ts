@@ -6,7 +6,7 @@ export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findById(id: string) {
-    return this.prisma.user.findUnique({ where: { id } })
+    return this.prisma.user.findUnique({ where: { id }, include: { merchant: true } })
   }
 
   async findByPhone(phone: string) {

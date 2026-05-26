@@ -5,22 +5,11 @@
     @mousedown="$emit('mousedown', $event)"
   >
     <div class="flex items-center gap-3">
-      <!-- AI图标 -->
-      <div class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-5 h-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-          />
-        </svg>
+      <!-- 花傩图标 -->
+      <div
+        class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center overflow-hidden"
+      >
+        <HuaNuoCharacter :size="24" state="smile" />
       </div>
 
       <!-- 标题 -->
@@ -39,8 +28,19 @@
         class="w-8 h-8 hover:bg-white hover:bg-opacity-20 rounded-full flex items-center justify-center transition-colors"
         aria-label="全屏"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"
+          />
         </svg>
       </button>
       <!-- 最小化按钮 -->
@@ -57,12 +57,7 @@
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M20 12H4"
-          />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
         </svg>
       </button>
 
@@ -93,10 +88,12 @@
 </template>
 
 <script setup lang="ts">
+import HuaNuoCharacter from '@/components/HuaNuoCharacter.vue'
+
 defineProps<{
-  title: string;
-  subtitle?: string;
-}>();
+  title: string
+  subtitle?: string
+}>()
 
 defineEmits<{
   (e: 'minimize'): void

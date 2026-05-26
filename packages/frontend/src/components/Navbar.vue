@@ -68,7 +68,10 @@
               t('profile.personalCenter')
             }}</span>
             <span
-              v-if="authStore.user?.role === 'MERCHANT'"
+              v-if="
+                authStore.user?.role === 'MERCHANT' ||
+                (authStore.user?.role === 'ADMIN' && authStore.user?.isMerchant)
+              "
               @click="onUserMenuItem('/merchant/dashboard')"
               class="ud-item"
               >{{ t('auth.merchantDashboard') }}</span
@@ -143,7 +146,10 @@
               t('profile.personalCenter')
             }}</span>
             <span
-              v-if="authStore.user?.role === 'MERCHANT'"
+              v-if="
+                authStore.user?.role === 'MERCHANT' ||
+                (authStore.user?.role === 'ADMIN' && authStore.user?.isMerchant)
+              "
               @click="onMobileNav('/merchant/dashboard')"
               class="ud-item"
               >{{ t('auth.merchantDashboard') }}</span
@@ -205,6 +211,8 @@ function clearCloseTimer() {
 
 const roleLabel = computed(() => {
   const role = authStore.user?.role
+  if (role === 'ADMIN' && authStore.user?.isMerchant)
+    return t('auth.admin') + ' / ' + t('auth.merchant')
   if (role === 'ADMIN') return t('auth.admin')
   if (role === 'MERCHANT') return t('auth.merchant')
   return t('auth.user')

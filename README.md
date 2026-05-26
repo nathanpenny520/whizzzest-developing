@@ -22,40 +22,43 @@
 
 **GitHub仓库地址：** https://github.com/nathanpenny520/WhizzZest
 
-| 功能        | 说明                                                                              |
-| ----------- | --------------------------------------------------------------------------------- |
-| 🎆 数字烟花 | Canvas 粒子引擎，12+ 类型，配方编排、保存、分享、排行榜                           |
-| 🤖 AI 花傩  | RAG 增强智能导游，六状态动画，全屏对话+对话历史管理，AI 指令驱动页面跳转/地图飞行 |
-| 🗺️ 高德地图 | POI 标记、驾车路线、商户标记、AI 指令联动                                         |
-| 🏪 商户生态 | 入驻申请、ADMIN 审核、商户后台、优惠券发布/领券（Redis 防超发）/核销              |
-| 👤 用户体系 | 手机号注册登录（万能码），JWT 认证，RBAC 三角色（游客/商户/管理员），个人中心     |
-| 🧭 导航集群 | 万载风物 / 互动体验 / 商业服务 三大下拉集群                                       |
-| 🎮 像素世界 | Minecraft 1.8.8 + Plants vs. Zombies，浏览器即点即玩，IndexedDB 存档              |
-| 📖 万载文库 | Markdown 文档系统，分类筛选，封面图 + 代码高亮，后台导入 .md 文件                 |
-| 🌍 中英双语 | vue-i18n，URL 路径前缀切换                                                        |
-| 📱 PWA      | 离线缓存、桌面安装、自动更新提示                                                  |
-| 🔍 SEO      | 三层 SEO 体系：静态 meta + 运行时注入 + 预渲染                                    |
-| 🔐 安全     | CSP、HTTPS、API Key 代理、RBAC 角色守卫                                           |
+| 功能        | 说明                                                                               |
+| ----------- | ---------------------------------------------------------------------------------- |
+| 🎆 数字烟花 | Canvas 粒子引擎，12+ 类型，配方编排、保存、分享、排行榜                            |
+| 🤖 AI 花傩  | RAG 增强智能导游，六状态动画，全屏对话+对话历史管理，AI 指令驱动页面跳转/地图飞行  |
+| 🎎 Live2D   | 可切换的 Live2D 动画角色（与 CSS 花傩二选一），双语对话气泡，自定义工具按钮        |
+| 🗺️ 高德地图 | POI 标记、驾车路线、商户标记、AI 指令联动                                          |
+| 🏪 商户生态 | 入驻申请、ADMIN 审核、商户后台、优惠券发布/领券（Redis 防超发）/核销               |
+| 👤 用户体系 | 邮箱注册登录（万能码），JWT 认证，RBAC 三角色（游客/商户/管理员），管理员+商户共存 |
+| 💬 评论系统 | 文章评论，支持 Markdown 渲染、点赞、作者或管理员删除                               |
+| 🧭 导航集群 | 万载风物 / 互动体验 / 商业服务 三大下拉集群                                        |
+| 🎮 像素世界 | Minecraft 1.8.8 + Plants vs. Zombies，浏览器即点即玩，IndexedDB 存档               |
+| 📖 万载文库 | Markdown 文档系统，分类筛选，封面图 + 代码高亮，后台导入 .md 文件                  |
+| 🌍 中英双语 | vue-i18n，URL 路径前缀切换，语言包按需加载（首屏减少 ~40KB）                       |
+| 📱 PWA      | 离线缓存、桌面安装、自动更新提示                                                   |
+| 🔍 SEO      | 三层 SEO 体系：静态 meta + 运行时注入 + 预渲染 + llms.txt                          |
+| 🔐 安全     | CSP、HTTPS、API Key 代理、RBAC 角色守卫                                            |
 
 ## 技术栈
 
-| 层级     | 技术                       | 说明                     |
-| -------- | -------------------------- | ------------------------ |
-| 前端框架 | Vue 3.5 + TypeScript 5.9   | Composition API          |
-| 构建工具 | Vite 7                     | 开发/构建                |
-| CSS      | Tailwind CSS 3.4           | 实用优先                 |
-| 状态管理 | Pinia 3                    | 全局状态                 |
-| 国际化   | vue-i18n 11                | 中英双语                 |
-| 地图     | 高德地图 JS API 2.0        | POI + 路线               |
-| 烟花引擎 | Canvas 2D + Web Worker     | 粒子模拟                 |
-| 后端框架 | NestJS 11                  | 模块化架构               |
-| 数据库   | PostgreSQL 16 + Prisma ORM | 主数据存储               |
-| 缓存     | Redis 7 + ioredis          | 高频查询/限流            |
-| 认证     | Passport + JWT             | 渐进式鉴权               |
-| 包管理   | pnpm workspace             | Monorepo                 |
-| 测试     | Vitest + Supertest         | 单元 + 集成              |
-| CI/CD    | GitHub Actions             | 自动构建部署到生产服务器 |
-| 共享类型 | @wanzai/contracts          | 契约层                   |
+| 层级     | 技术                         | 说明                     |
+| -------- | ---------------------------- | ------------------------ |
+| 前端框架 | Vue 3.5 + TypeScript 5.9     | Composition API          |
+| 构建工具 | Vite 7                       | 开发/构建                |
+| CSS      | Tailwind CSS 3.4             | 实用优先                 |
+| 状态管理 | Pinia 3                      | 全局状态                 |
+| 国际化   | vue-i18n 11                  | 中英双语                 |
+| 地图     | 高德地图 JS API 2.0          | POI + 路线               |
+| 烟花引擎 | Canvas 2D + Web Worker       | 粒子模拟                 |
+| Live2D   | Cubism 2 SDK + 第三方 widget | 可切换动画角色           |
+| 后端框架 | NestJS 11                    | 模块化架构               |
+| 数据库   | PostgreSQL 16 + Prisma ORM   | 主数据存储               |
+| 缓存     | Redis 7 + ioredis            | 高频查询/限流            |
+| 认证     | Passport + JWT               | 渐进式鉴权               |
+| 包管理   | pnpm workspace               | Monorepo                 |
+| 测试     | Vitest + Supertest           | 单元 + 集成              |
+| CI/CD    | GitHub Actions               | 自动构建部署到生产服务器 |
+| 共享类型 | @wanzai/contracts            | 契约层                   |
 
 ## 项目结构
 
@@ -82,7 +85,7 @@ wanzai/
 │   │   │   ├── locales/       ← i18n 文本（1773+ 行）
 │   │   │   ├── assets/        ← 图片/音频（视频通过 B 站播放器嵌入）
 │   │   │   └── router/        ← 38 条双语路由 + role-based 守卫
-│   │   ├── public/            ← favicon、robots.txt、sitemap.xml、CNAME、games/
+│   │   ├── public/            ← favicon、robots.txt、sitemap.xml、CNAME、games/、live2d/
 │   │   ├── vite.config.ts
 │   │   └── tailwind.config.js
 │   │
@@ -96,10 +99,12 @@ wanzai/
 │       │   │   ├── knowledge/ ← 知识库管理（从 DB 读取 System Prompt）
 │       │   │   ├── merchant/  ← 商户入驻 + ADMIN 审核
 │       │   │   ├── coupon/    ← 优惠券 + Redis 库存 + 核销
-│       │   │   └── docs/      ← 万载文库 CRUD + 图片上传
+│       │   │   ├── docs/      ← 万载文库 CRUD + 图片上传
+│       │   │   ├── comment/   ← 评论 CRUD + 点赞
+│       │   │   └── analytics/ ← 页面浏览统计
 │       │   ├── prisma/        ← PrismaService
 │       │   ├── redis/         ← RedisService（ioredis 封装）
-│       │   ├── common/        ← 守卫、装饰器
+│       │   ├── common/        ← 守卫（RBAC、可选鉴权）、装饰器
 │       │   └── main.ts
 │       └── prisma/
 │           ├── schema.prisma  ← 7 个数据模型
@@ -230,6 +235,11 @@ pnpm build:backend # 构建后端 → packages/backend/dist/
 | 文档   | `/docs/:slug`           | PUT        | ADMIN    | 更新文档                           |
 | 文档   | `/docs/:slug`           | DELETE     | ADMIN    | 删除文档                           |
 | 文档   | `/docs/upload`          | POST       | ADMIN    | 上传封面图片                       |
+| 评论   | `/comments`             | GET/POST   | 可选鉴权 | 评论列表 / 发表评论                |
+| 评论   | `/comments/:id`         | DELETE     | 登录     | 删除评论（作者或 ADMIN）           |
+| 评论   | `/comments/:id/like`    | POST       | 登录     | 点赞评论                           |
+| 分析   | `/analytics/pageview`   | POST       | 公开     | 页面浏览埋点                       |
+| 分析   | `/analytics/stats`      | GET        | ADMIN    | 浏览统计面板                       |
 
 ## 部署
 
@@ -308,6 +318,7 @@ chore: 升级依赖版本
 - 中文：`zh-CN`（默认）
 - 英文：`en`
 - 切换：导航栏语言按钮 / URL 路径 `/en` 前缀
+- 按需加载：语言包拆分为独立 JSON 文件（`zh-CN.json` / `en.json`），首屏 JS 减少 ~40KB
 
 ## PWA
 

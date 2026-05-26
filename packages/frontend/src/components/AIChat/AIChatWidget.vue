@@ -77,22 +77,9 @@
         <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 bg-gray-50">
           <!-- 欢迎区域 -->
           <div v-if="!hasMessages" class="text-center py-6">
-            <!-- 欢迎图标 -->
-            <div class="text-4xl mb-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-16 h-16 mx-auto text-red-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                  d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
-              </svg>
+            <!-- 花傩欢迎图标 -->
+            <div class="mb-3">
+              <HuaNuoCharacter :size="48" state="smile" />
             </div>
 
             <!-- 欢迎语 -->
@@ -155,8 +142,13 @@
   </div>
 
   <!-- 浮动按钮（彻底关闭时显示） -->
+  <AIChatButtonLive2D
+    v-if="!isOpen && !isMinimized && useLive2D"
+    :show-greeting="false"
+    @open-chat="openChat"
+  />
   <AIChatButton
-    v-if="!isOpen && !isMinimized"
+    v-else-if="!isOpen && !isMinimized"
     :show-greeting="showGreeting"
     @open-chat="openChat"
   />
@@ -173,6 +165,7 @@ import ChatHeader from './ChatHeader.vue'
 import ChatBubble from './ChatBubble.vue'
 import ChatInput from './ChatInput.vue'
 import AIChatButton from './AIChatButton.vue'
+import AIChatButtonLive2D from './AIChatButtonLive2D.vue'
 import HuaNuoCharacter from '@/components/HuaNuoCharacter.vue'
 
 const { t } = useI18n()
@@ -450,6 +443,25 @@ const handleWindowResize = () => {
 // 主动招呼：15s 未打开且无历史消息
 const showGreeting = ref(false)
 let greetingTimer: ReturnType<typeof setTimeout> | null = null
+
+// Live2D 版本切换（localStorage 持久化，默认关闭）
+const LIVE2D_KEY = 'live2d-enabled'
+const useLive2D = ref(localStorage.getItem(LIVE2D_KEY) === 'true')
+
+// 暴露全局切换函数：无需刷新页面即可切换 Live2D / CSS 版本
+;(window as unknown as Record<string, unknown>).__toggleLive2D = () => {
+  const next = !useLive2D.value
+  localStorage.setItem(LIVE2D_KEY, String(next))
+  useLive2D.value = next
+}
+
+// 切换回 CSS 版时隐藏 Live2D widget；切换到 Live2D 时恢复
+watch(useLive2D, (enabled) => {
+  const waifu = document.getElementById('waifu')
+  if (waifu) waifu.style.display = enabled ? '' : 'none'
+  const waifuToggle = document.getElementById('waifu-toggle')
+  if (waifuToggle) waifuToggle.style.display = enabled ? '' : 'none'
+})
 
 onMounted(() => {
   if (!hasMessages.value && !isOpen.value) {

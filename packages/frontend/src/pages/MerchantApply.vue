@@ -4,10 +4,33 @@
     <p class="subtitle">{{ t('merchant.apply.subtitle') }}</p>
 
     <form @submit.prevent="submit" class="apply-form">
-      <label> {{ t('merchant.apply.storeName') }} <input v-model="form.name" required /></label>
+      <label>
+        {{ t('merchant.apply.storeName') }}
+        <input
+          v-model="form.name"
+          required
+          @invalid="
+            (e) =>
+              (e.target as HTMLInputElement).setCustomValidity(
+                t('merchant.apply.requiredField', { field: t('merchant.apply.storeName') }),
+              )
+          "
+          @input="(e) => (e.target as HTMLInputElement).setCustomValidity('')"
+        />
+      </label>
       <label>
         {{ t('merchant.apply.category') }}
-        <select v-model="form.category" required>
+        <select
+          v-model="form.category"
+          required
+          @invalid="
+            (e) =>
+              (e.target as HTMLSelectElement).setCustomValidity(
+                t('merchant.apply.requiredField', { field: t('merchant.apply.category') }),
+              )
+          "
+          @change="(e) => (e.target as HTMLSelectElement).setCustomValidity('')"
+        >
           <option value="dining">{{ t('merchant.apply.dining') }}</option>
           <option value="lodging">{{ t('merchant.apply.lodging') }}</option>
           <option value="firework">{{ t('merchant.apply.firework') }}</option>
@@ -16,11 +39,33 @@
       </label>
       <label>
         {{ t('merchant.apply.longitude') }}
-        <input v-model.number="form.mapLng" type="number" step="0.0001" required
+        <input
+          v-model.number="form.mapLng"
+          type="number"
+          step="0.0001"
+          required
+          @invalid="
+            (e) =>
+              (e.target as HTMLInputElement).setCustomValidity(
+                t('merchant.apply.requiredField', { field: t('merchant.apply.longitude') }),
+              )
+          "
+          @input="(e) => (e.target as HTMLInputElement).setCustomValidity('')"
       /></label>
       <label>
         {{ t('merchant.apply.latitude') }}
-        <input v-model.number="form.mapLat" type="number" step="0.0001" required
+        <input
+          v-model.number="form.mapLat"
+          type="number"
+          step="0.0001"
+          required
+          @invalid="
+            (e) =>
+              (e.target as HTMLInputElement).setCustomValidity(
+                t('merchant.apply.requiredField', { field: t('merchant.apply.latitude') }),
+              )
+          "
+          @input="(e) => (e.target as HTMLInputElement).setCustomValidity('')"
       /></label>
       <label> {{ t('merchant.apply.phone') }} <input v-model="form.phone" /></label>
       <label>
@@ -37,13 +82,17 @@
       </button>
     </form>
 
-    <p v-if="error" class="error">{{ error }}</p>
-    <p v-if="success" class="success">{{ t('merchant.apply.success') }}</p>
+    <Transition name="fade">
+      <p v-if="error" class="error">{{ error }}</p>
+    </Transition>
+    <Transition name="fade">
+      <p v-if="success" class="success">{{ t('merchant.apply.success') }}</p>
+    </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { api } from '@/api/client'
 
@@ -62,13 +111,27 @@ const form = ref({
 const loading = ref(false)
 const error = ref('')
 const success = ref(false)
+let successTimer: ReturnType<typeof setTimeout> | null = null
+
+onUnmounted(() => {
+  if (successTimer) clearTimeout(successTimer)
+})
 
 async function submit() {
-  loading.value = true
   error.value = ''
+  success.value = false
+  if (successTimer) {
+    clearTimeout(successTimer)
+    successTimer = null
+  }
+
+  loading.value = true
   try {
     await api.post('/merchants/apply', form.value)
     success.value = true
+    successTimer = setTimeout(() => {
+      success.value = false
+    }, 5000)
   } catch (e: unknown) {
     error.value =
       (e as { response?: { data?: { message?: string } } }).response?.data?.message ||
@@ -140,5 +203,15 @@ h1 {
 .success {
   color: #059669;
   margin-top: 12px;
+}
+
+/* Transition */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
