@@ -3,6 +3,7 @@ import type { Request } from 'express'
 import { CommentService } from './comment.service.js'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js'
 import { OptionalAuthGuard } from '../../common/guards/optional-auth.guard.js'
+import { UserRole } from '@prisma/client'
 
 @Controller('comments')
 export class CommentController {
@@ -31,7 +32,7 @@ export class CommentController {
     @Param('id') id: string,
     @Req() req: Request & { user: { id: string; role: string } },
   ) {
-    await this.commentService.remove(id, req.user.id, req.user.role === 'ADMIN')
+    await this.commentService.remove(id, req.user.id, req.user.role === UserRole.ADMIN)
     return { code: 0, message: 'deleted' }
   }
 

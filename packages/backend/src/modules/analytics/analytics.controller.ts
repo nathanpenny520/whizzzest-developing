@@ -4,6 +4,7 @@ import { AnalyticsService } from './analytics.service.js'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js'
 import { RolesGuard } from '../../common/guards/roles.guard.js'
 import { Roles } from '../../common/decorators/roles.decorator.js'
+import { UserRole } from '@prisma/client'
 
 @Controller('analytics')
 export class AnalyticsController {
@@ -31,7 +32,7 @@ export class AnalyticsController {
 
   @Get('stats')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles(UserRole.ADMIN)
   async stats(@Query('days') days = '7') {
     const data = await this.analyticsService.getStats(Number(days))
     return { code: 0, data, message: 'ok' }

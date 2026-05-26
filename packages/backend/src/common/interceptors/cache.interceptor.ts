@@ -56,6 +56,12 @@ const cacheProfiles: Array<{ method: string; pattern: RegExp; cacheControl: stri
     pattern: /^\/?(?:api\/v1\/)?auth/,
     cacheControl: 'private, no-cache',
   },
+  // 评论数据包含用户相关 likedBy，不可缓存
+  {
+    method: 'GET',
+    pattern: /^\/?(?:api\/v1\/)?comments/,
+    cacheControl: 'private, no-cache, no-store, must-revalidate',
+  },
   // 所有 GET API 请求默认缓存 60 秒
   {
     method: 'GET',

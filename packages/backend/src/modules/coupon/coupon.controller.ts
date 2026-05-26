@@ -37,6 +37,14 @@ export class CouponController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Get()
+  async findAll() {
+    const data = await this.couponService.findAll()
+    return { code: 0, data, message: 'ok' }
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.MERCHANT)
   @Get('merchant')
   async merchantCoupons(@Req() req: { user: { id: string } }) {
@@ -82,7 +90,7 @@ export class CouponController {
   @Roles(UserRole.ADMIN, UserRole.MERCHANT)
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: { user: { id: string; role: string } }) {
-    await this.couponService.remove(id, req.user.id, req.user.role === 'ADMIN')
+    await this.couponService.remove(id, req.user.id, req.user.role === UserRole.ADMIN)
     return { code: 0, data: null, message: 'deleted' }
   }
 }

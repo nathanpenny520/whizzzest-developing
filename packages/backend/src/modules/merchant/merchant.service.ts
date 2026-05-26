@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service.js'
+import { UserRole } from '@prisma/client'
 
 @Injectable()
 export class MerchantService {
@@ -24,7 +25,7 @@ export class MerchantService {
     const merchant = await this.prisma.merchant.create({ data: { userId, ...data } })
     // 自动提升用户角色为 MERCHANT（但不覆盖 ADMIN）
     const user = await this.prisma.user.findUnique({ where: { id: userId } })
-    if (user && user.role !== 'ADMIN') {
+    if (user && user.role !== UserRole.ADMIN) {
       await this.prisma.user.update({
         where: { id: userId },
         data: { role: 'MERCHANT', nickname: data.name },

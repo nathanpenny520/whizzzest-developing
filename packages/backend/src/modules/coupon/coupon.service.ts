@@ -37,6 +37,13 @@ export class CouponService {
     return this.prisma.coupon.findMany({ where: { merchantId }, orderBy: { createdAt: 'desc' } })
   }
 
+  async findAll() {
+    return this.prisma.coupon.findMany({
+      include: { merchant: { select: { id: true, name: true } } },
+      orderBy: { createdAt: 'desc' },
+    })
+  }
+
   async findPublic() {
     return this.prisma.coupon.findMany({
       where: { expiresAt: { gt: new Date() } },

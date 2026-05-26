@@ -25,6 +25,12 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // If the refresh endpoint itself returns 401, fail fast to prevent deadlock
+      if (originalRequest.url === '/auth/refresh') {
+        isRefreshing = false
+        return Promise.reject(error)
+      }
+
       originalRequest._retry = true
 
       if (!isRefreshing) {

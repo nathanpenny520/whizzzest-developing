@@ -300,7 +300,7 @@ onMounted(async () => {
   try {
     const [m, c, k, d] = await Promise.all([
       api.get('/merchants?all=true'),
-      api.get('/coupons/public'),
+      api.get('/coupons'),
       api.get('/knowledge'),
       api.get('/docs'),
     ])
@@ -343,7 +343,8 @@ async function delCoupon(id: string) {
   actionLoading.value = true
   try {
     await api.delete(`/coupons/${id}`)
-    coupons.value = coupons.value.filter((c) => c.id !== id)
+    const c = await api.get('/coupons')
+    coupons.value = c.data.data
   } catch {
     pageError.value = t('admin.loadError')
   } finally {
@@ -375,7 +376,8 @@ async function delKnowledge(id: string) {
   actionLoading.value = true
   try {
     await api.delete(`/knowledge/${id}`)
-    knowledge.value = knowledge.value.filter((k) => k.id !== id)
+    const k = await api.get('/knowledge')
+    knowledge.value = k.data.data
   } catch {
     pageError.value = t('admin.loadError')
   } finally {
@@ -493,7 +495,8 @@ async function delDoc(slug: string) {
   actionLoading.value = true
   try {
     await api.delete(`/docs/${slug}`)
-    docs.value = docs.value.filter((d) => d.slug !== slug)
+    const d = await api.get('/docs')
+    docs.value = d.data.data
   } catch {
     pageError.value = t('admin.loadError')
   } finally {
