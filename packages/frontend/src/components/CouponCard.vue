@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { api } from '@/api/client'
+import { claimCoupon } from '@/api/coupons'
 import { extractErrorMessage } from '@/utils/extractErrorMessage'
 import { useAuthStore } from '@/stores/auth'
 import type { ICouponWithMerchant } from '@/types/coupon'
@@ -72,9 +72,7 @@ async function handleClaim() {
   if (remaining.value <= 0) return
   errorMsg.value = ''
   try {
-    await api.post(`/coupons/${props.coupon.id}/claim`, {
-      locale: (locale.value as string) === 'en' ? 'en' : 'zh',
-    })
+    await claimCoupon(props.coupon.id, (locale.value as string) === 'en' ? 'en' : 'zh')
     isClaimed.value = true
     localUsed.value++
     emit('claimed', props.coupon.id)

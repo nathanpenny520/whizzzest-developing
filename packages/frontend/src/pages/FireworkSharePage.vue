@@ -7,7 +7,9 @@
 
     <div v-else-if="!recipe" class="share-error">
       <h2>{{ t('firework.share.notFound') }}</h2>
-      <router-link to="/firework" class="back-link">{{ t('firework.share.createOwn') }}</router-link>
+      <router-link to="/firework" class="back-link">{{
+        t('firework.share.createOwn')
+      }}</router-link>
     </div>
 
     <div v-else class="share-content">
@@ -15,8 +17,7 @@
         <h1 class="recipe-title">{{ recipe.title }}</h1>
         <p class="recipe-author">
           {{ recipe.authorName || t('firework.share.visitor') }}
-          · {{ recipe.viewCount }} {{ t('firework.share.views') }}
-          · {{ recipe.likeCount ?? 0 }} ❤️
+          · {{ recipe.viewCount }} {{ t('firework.share.views') }} · {{ recipe.likeCount ?? 0 }} ❤️
         </p>
       </div>
 
@@ -45,7 +46,9 @@
           </div>
           <div class="config-item" v-if="recipe.config?.timeline?.length">
             <span class="config-label">{{ t('firework.share.timeline') }}</span>
-            <span class="config-value">{{ recipe.config.timeline.length }} {{ t('firework.share.events') }}</span>
+            <span class="config-value"
+              >{{ recipe.config.timeline.length }} {{ t('firework.share.events') }}</span
+            >
           </div>
         </div>
       </div>
@@ -85,7 +88,8 @@
           <canvas ref="replayMain" class="replay-canvas" />
         </div>
         <div class="replay-info">
-          {{ recipe.title }} · {{ t('firework.share.replayBy') }} {{ recipe.authorName || t('firework.share.visitor') }}
+          {{ recipe.title }} · {{ t('firework.share.replayBy') }}
+          {{ recipe.authorName || t('firework.share.visitor') }}
         </div>
         <div class="replay-progress" v-if="replayDuration > 0" @click="seekReplay">
           <div class="replay-progress-fill" :style="{ width: seekPercent + '%' }" />
@@ -97,13 +101,14 @@
 </template>
 
 <script setup lang="ts">
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { api } from '@/api/client'
+import { getRecipeBySlug, likeFirework, updateRecipe, deleteRecipe } from '@/api/fireworks'
 import { useAuthStore } from '@/stores/auth'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const route = useRoute()
 const authStore = useAuthStore()
 
@@ -119,12 +124,18 @@ const deleting = ref(false)
 
 // Shell type name mapping
 const shellTypeMap: Record<string, string> = {
-  Random: 'firework.types.random', Crackle: 'firework.types.crackle',
-  Crossette: 'firework.types.crossette', Crysanthemum: 'firework.types.crysanthemum',
-  'Falling Leaves': 'firework.types.fallingLeaves', Floral: 'firework.types.floral',
-  Ghost: 'firework.types.ghost', 'Horse Tail': 'firework.types.horseTail',
-  Palm: 'firework.types.palm', Ring: 'firework.types.ring',
-  Strobe: 'firework.types.strobe', Willow: 'firework.types.willow',
+  Random: 'firework.types.random',
+  Crackle: 'firework.types.crackle',
+  Crossette: 'firework.types.crossette',
+  Crysanthemum: 'firework.types.crysanthemum',
+  'Falling Leaves': 'firework.types.fallingLeaves',
+  Floral: 'firework.types.floral',
+  Ghost: 'firework.types.ghost',
+  'Horse Tail': 'firework.types.horseTail',
+  Palm: 'firework.types.palm',
+  Ring: 'firework.types.ring',
+  Strobe: 'firework.types.strobe',
+  Willow: 'firework.types.willow',
   Text: 'firework.types.text',
 }
 
@@ -138,13 +149,13 @@ const shellTypeLabel = computed(() => {
 onMounted(async () => {
   const slug = route.params.slug as string
   try {
-    const res = await api.get(`/fireworks/${slug}`)
-    if (res.data.code === 0 && res.data.data) {
-      recipe.value = res.data.data
-      currentLikeCount.value = res.data.data.likeCount ?? 0
+    const data = await getRecipeBySlug(slug)
+    if (data) {
+      recipe.value = data
+      currentLikeCount.value = data.likeCount ?? 0
       const likedMap = JSON.parse(localStorage.getItem('wanzai_liked') || '{}')
       liked.value = !!likedMap[slug]
-      if (authStore.user && authStore.user.id === res.data.data.userId) {
+      if (authStore.user && authStore.user.id === data.userId) {
         isOwner.value = true
       }
     }
@@ -153,25 +164,30 @@ onMounted(async () => {
   }
 })
 
-function copyLink() { navigator.clipboard.writeText(window.location.href).catch(() => {}) }
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href).catch(() => {})
+}
 
 async function handleLike() {
   const slug = route.params.slug as string
   if (liked.value) return
   try {
-    const res = await api.post('/fireworks/like', { slug })
-    if (res.data.code === 0) {
-      currentLikeCount.value = res.data.data.likeCount
-      liked.value = true
-      const likedMap = JSON.parse(localStorage.getItem('wanzai_liked') || '{}')
-      likedMap[slug] = true
-      localStorage.setItem('wanzai_liked', JSON.stringify(likedMap))
-    }
-  } catch { /* ignore */ }
+    const result = await likeFirework(slug)
+    currentLikeCount.value = result.likeCount
+    liked.value = true
+    const likedMap = JSON.parse(localStorage.getItem('wanzai_liked') || '{}')
+    likedMap[slug] = true
+    localStorage.setItem('wanzai_liked', JSON.stringify(likedMap))
+  } catch {
+    /* ignore */
+  }
 }
 
 function startEdit() {
-  if (editMode.value) { editMode.value = false; return }
+  if (editMode.value) {
+    editMode.value = false
+    return
+  }
   editTitle.value = recipe.value?.title || ''
   editMode.value = true
 }
@@ -180,11 +196,14 @@ async function doEdit() {
   if (editSaving.value || !recipe.value) return
   editSaving.value = true
   try {
-    const res = await api.put(`/fireworks/${recipe.value.id}`, { title: editTitle.value })
-    recipe.value.title = res.data.data.title
+    const updated = await updateRecipe(recipe.value.id, { title: editTitle.value })
+    recipe.value.title = updated.title
     editMode.value = false
-  } catch { alert(t('firework.share.updateFailed')) }
-  finally { editSaving.value = false }
+  } catch {
+    alert(t('firework.share.updateFailed'))
+  } finally {
+    editSaving.value = false
+  }
 }
 
 async function handleDelete() {
@@ -192,10 +211,13 @@ async function handleDelete() {
   if (!confirm(t('aiChat.confirmDelete'))) return
   deleting.value = true
   try {
-    await api.delete(`/fireworks/${recipe.value.id}`)
+    await deleteRecipe(recipe.value.id)
     recipe.value = null
-  } catch { alert(t('firework.share.deleteFailed')) }
-  finally { deleting.value = false }
+  } catch {
+    alert(t('firework.share.deleteFailed'))
+  } finally {
+    deleting.value = false
+  }
 }
 
 // --- Replay engine with audio + clickable progress ---
@@ -209,7 +231,9 @@ let replayEngine: any = null
 let replayAudioCtx: AudioContext | null = null
 let replayBurstBuffer: AudioBuffer | null = null
 
-const seekPercent = computed(() => replayDuration.value > 0 ? Math.min(100, replayProgress.value / replayDuration.value * 100) : 0)
+const seekPercent = computed(() =>
+  replayDuration.value > 0 ? Math.min(100, (replayProgress.value / replayDuration.value) * 100) : 0,
+)
 
 async function loadReplayAudio() {
   try {
@@ -218,7 +242,9 @@ async function loadReplayAudio() {
     const buf = await resp.arrayBuffer()
     replayBurstBuffer = await ctx.decodeAudioData(buf)
     replayAudioCtx = ctx
-  } catch { /* audio optional */ }
+  } catch {
+    /* audio optional */
+  }
 }
 
 function playBurst() {
@@ -228,7 +254,8 @@ function playBurst() {
   src.buffer = replayBurstBuffer
   const gain = replayAudioCtx.createGain()
   gain.gain.value = 0.3
-  src.connect(gain); gain.connect(replayAudioCtx.destination)
+  src.connect(gain)
+  gain.connect(replayAudioCtx.destination)
   src.start(0)
 }
 
@@ -245,7 +272,9 @@ async function startReplay() {
     ? Math.max(...timeline.map((e: any) => e.delay)) + 3000
     : 3000
 
-  const trails = replayTrails.value, main = replayMain.value, wrap = replayWrap.value
+  const trails = replayTrails.value,
+    main = replayMain.value,
+    wrap = replayWrap.value
   if (!trails || !main || !wrap) return
 
   wrap.style.width = innerWidth + 'px'
@@ -253,10 +282,21 @@ async function startReplay() {
   trails.width = main.width = innerWidth
   trails.height = main.height = innerHeight
 
-  const tctx = trails.getContext('2d')!, mctx = main.getContext('2d')!
+  const tctx = trails.getContext('2d')!,
+    mctx = main.getContext('2d')!
   const shellTypes = getMiniShellTypes()
-  let startTime = Date.now()
-  const events = timeline?.length ? timeline : [{ delay: 500, shellType: config.shellType || 'Random', shellSize: config.shellSize || 2, x: 0.5, height: 0.35 }]
+  const startTime = Date.now()
+  const events = timeline?.length
+    ? timeline
+    : [
+        {
+          delay: 500,
+          shellType: config.shellType || 'Random',
+          shellSize: config.shellSize || 2,
+          x: 0.5,
+          height: 0.35,
+        },
+      ]
   firedEvents = new Set<number>()
   let lastBurstTime = 0
 
@@ -276,7 +316,10 @@ async function startReplay() {
         if (sc) {
           const s = new MiniShell(sc(ev.shellSize || 2))
           launchMiniShell(s, ev.x || 0.5, ev.height || 0.35, innerWidth, innerHeight)
-          if (elapsed - lastBurstTime > 150) { playBurst(); lastBurstTime = elapsed }
+          if (elapsed - lastBurstTime > 150) {
+            playBurst()
+            lastBurstTime = elapsed
+          }
         }
       }
     }
@@ -286,14 +329,22 @@ async function startReplay() {
     tctx.fillStyle = 'rgba(0,0,0,0.15)'
     tctx.fillRect(0, 0, innerWidth, innerHeight)
     tctx.globalCompositeOperation = 'lighten'
-    tctx.lineWidth = 2; tctx.lineCap = 'round'
-    const colors = ['#ff0043','#14fc56','#1e7fff','#e60aff','#ffbf36','#ffffff']
+    tctx.lineWidth = 2
+    tctx.lineCap = 'round'
+    const colors = ['#ff0043', '#14fc56', '#1e7fff', '#e60aff', '#ffbf36', '#ffffff']
     for (const c of colors) {
-      tctx.strokeStyle = c; tctx.beginPath()
-      for (const s of miniStarActive.filter((s: any) => s.color === c)) { tctx.moveTo(s.x,s.y); tctx.lineTo(s.prevX,s.prevY) }
+      tctx.strokeStyle = c
+      tctx.beginPath()
+      for (const s of miniStarActive.filter((s: any) => s.color === c)) {
+        tctx.moveTo(s.x, s.y)
+        tctx.lineTo(s.prevX, s.prevY)
+      }
       tctx.stroke()
       tctx.beginPath()
-      for (const s of miniSparkActive.filter((s: any) => s.color === c)) { tctx.moveTo(s.x,s.y); tctx.lineTo(s.prevX,s.prevY) }
+      for (const s of miniSparkActive.filter((s: any) => s.color === c)) {
+        tctx.moveTo(s.x, s.y)
+        tctx.lineTo(s.prevX, s.prevY)
+      }
       tctx.stroke()
     }
     tctx.globalCompositeOperation = 'source-over'
@@ -323,20 +374,30 @@ let firedEvents = new Set<number>()
 function stopReplay() {
   if (replayEngine) replayEngine.active = false
   replaying.value = false
-  miniStarActive = []; miniSparkActive = []
-  if (replayAudioCtx) { replayAudioCtx.close(); replayAudioCtx = null; replayBurstBuffer = null }
+  miniStarActive = []
+  miniSparkActive = []
+  if (replayAudioCtx) {
+    replayAudioCtx.close()
+    replayAudioCtx = null
+    replayBurstBuffer = null
+  }
 }
 
 // Minimal particle system
-let miniStarActive: any[] = [], miniSparkActive: any[] = []
+let miniStarActive: any[] = [],
+  miniSparkActive: any[] = []
 const G = 0.9
 
 class MiniShell {
-  spreadSize: number; starCount: number; starLife: number
-  color: string | string[]; glitter: string; glitterColor: string
+  spreadSize: number
+  starCount: number
+  starLife: number
+  color: string | string[]
+  glitter: string
+  glitterColor: string
   constructor(o: any) {
     this.spreadSize = o.spreadSize || 400
-    this.starCount = o.starCount || Math.max(6, (this.spreadSize/54)**2 * (o.starDensity||1))
+    this.starCount = o.starCount || Math.max(6, (this.spreadSize / 54) ** 2 * (o.starDensity || 1))
     this.starLife = o.starLife || 1200
     this.color = o.color || '#ffbf36'
     this.glitter = o.glitter || ''
@@ -345,102 +406,433 @@ class MiniShell {
 }
 
 function launchMiniShell(shell: MiniShell, px: number, ph: number, w: number, h: number) {
-  const x = px * w, y = ph * h, speed = shell.spreadSize / 96
+  const x = px * w,
+    y = ph * h,
+    speed = shell.spreadSize / 96
   for (let i = 0; i < shell.starCount; i++) {
-    const angle = Math.random() * Math.PI * 2, sm = Math.random()
+    const angle = Math.random() * Math.PI * 2,
+      sm = Math.random()
     miniStarActive.push({
-      x,y,prevX:x,prevY:y,
-      color: Array.isArray(shell.color) ? shell.color[i%2] : shell.color,
-      speedX: Math.sin(angle)*speed*sm, speedY: Math.cos(angle)*speed*sm,
-      life: shell.starLife + Math.random()*shell.starLife*0.3,
-      sparkTimer: 0, sparkFreq: 200 })
+      x,
+      y,
+      prevX: x,
+      prevY: y,
+      color: Array.isArray(shell.color) ? shell.color[i % 2] : shell.color,
+      speedX: Math.sin(angle) * speed * sm,
+      speedY: Math.cos(angle) * speed * sm,
+      life: shell.starLife + Math.random() * shell.starLife * 0.3,
+      sparkTimer: 0,
+      sparkFreq: 200,
+    })
   }
 }
 
 function updateMiniParticles(dt: number) {
-  const g = (dt/1000)*G
-  for (let i = miniStarActive.length-1; i >= 0; i--) {
-    const s = miniStarActive[i]; s.life -= dt
-    if (s.life <= 0) { miniStarActive.splice(i,1); continue }
-    s.prevX=s.x; s.prevY=s.y; s.x+=s.speedX; s.y+=s.speedY
-    s.speedX*=0.98; s.speedY*=0.98; s.speedY+=g
-    if (s.sparkFreq) { s.sparkTimer -= dt
-      while (s.sparkTimer < 0) { s.sparkTimer += s.sparkFreq
-        miniSparkActive.push({ x:s.x,y:s.y,prevX:s.x,prevY:s.y,color:'#ffbf36',
-          speedX:(Math.random()-.5)*.5,speedY:Math.random()*.5,life:400 }) } }
+  const g = (dt / 1000) * G
+  for (let i = miniStarActive.length - 1; i >= 0; i--) {
+    const s = miniStarActive[i]
+    s.life -= dt
+    if (s.life <= 0) {
+      miniStarActive.splice(i, 1)
+      continue
+    }
+    s.prevX = s.x
+    s.prevY = s.y
+    s.x += s.speedX
+    s.y += s.speedY
+    s.speedX *= 0.98
+    s.speedY *= 0.98
+    s.speedY += g
+    if (s.sparkFreq) {
+      s.sparkTimer -= dt
+      while (s.sparkTimer < 0) {
+        s.sparkTimer += s.sparkFreq
+        miniSparkActive.push({
+          x: s.x,
+          y: s.y,
+          prevX: s.x,
+          prevY: s.y,
+          color: '#ffbf36',
+          speedX: (Math.random() - 0.5) * 0.5,
+          speedY: Math.random() * 0.5,
+          life: 400,
+        })
+      }
+    }
   }
-  for (let i = miniSparkActive.length-1; i >= 0; i--) {
-    const sp = miniSparkActive[i]; sp.life -= dt
-    if (sp.life <= 0) { miniSparkActive.splice(i,1); continue }
-    sp.prevX=sp.x; sp.prevY=sp.y; sp.x+=sp.speedX; sp.y+=sp.speedY
-    sp.speedX*=0.9; sp.speedY*=0.9; sp.speedY+=g
+  for (let i = miniSparkActive.length - 1; i >= 0; i--) {
+    const sp = miniSparkActive[i]
+    sp.life -= dt
+    if (sp.life <= 0) {
+      miniSparkActive.splice(i, 1)
+      continue
+    }
+    sp.prevX = sp.x
+    sp.prevY = sp.y
+    sp.x += sp.speedX
+    sp.y += sp.speedY
+    sp.speedX *= 0.9
+    sp.speedY *= 0.9
+    sp.speedY += g
   }
 }
 
 function getMiniShellTypes(): Record<string, (size: number) => any> {
-  const c = () => ['#ff0043','#14fc56','#1e7fff','#e60aff','#ffbf36','#ffffff'][Math.floor(Math.random()*6)]
+  const c = () =>
+    ['#ff0043', '#14fc56', '#1e7fff', '#e60aff', '#ffbf36', '#ffffff'][
+      Math.floor(Math.random() * 6)
+    ]
   return {
-    Random: s => ({ spreadSize:300+s*100, starDensity:1.25, starLife:900+s*200, color:c() }),
-    Crysanthemum: s => ({ spreadSize:300+s*100, starDensity:1.25, starLife:900+s*200, color:c(), glitter:'light', glitterColor:'#ffbf36' }),
-    Crackle: s => ({ spreadSize:380+s*75, starDensity:1, starLife:600+s*100, color:Math.random()<.75?'#ffbf36':c(), glitter:'light', glitterColor:'#ffbf36' }),
-    Crossette: s => ({ spreadSize:300+s*100, starDensity:.85, starLife:750+s*160, color:c() }),
-    FallingLeaves: s => ({ spreadSize:300+s*120, starDensity:.12, starLife:500+s*50, color:'_INVISIBLE_', glitter:'medium', glitterColor:'#ffbf36' }),
-    Floral: s => ({ spreadSize:300+s*120, starDensity:.12, starLife:500+s*50, color:c() }),
-    Ghost: s => ({ spreadSize:300+s*100, starDensity:1.1, starLife:1400+s*200, color:c() }),
-    HorseTail: s => ({ spreadSize:250+s*38, starDensity:.9, starLife:2500+s*300, color:c() }),
-    Palm: s => ({ spreadSize:250+s*75, starDensity:.4, starLife:1800+s*200, color:c() }),
-    Ring: s => ({ spreadSize:300+s*100, starDensity:.8, starLife:900+s*200, color:c(), glitter:'light', glitterColor:'#ffffff' }),
-    Strobe: s => ({ spreadSize:280+s*92, starDensity:1.1, starLife:1100+s*200, color:c(), glitter:'light', glitterColor:'#ffffff' }),
-    Willow: s => ({ spreadSize:300+s*100, starDensity:.6, starLife:3000+s*300, color:'_INVISIBLE_', glitter:'willow', glitterColor:'#ffbf36' }),
+    Random: (s) => ({
+      spreadSize: 300 + s * 100,
+      starDensity: 1.25,
+      starLife: 900 + s * 200,
+      color: c(),
+    }),
+    Crysanthemum: (s) => ({
+      spreadSize: 300 + s * 100,
+      starDensity: 1.25,
+      starLife: 900 + s * 200,
+      color: c(),
+      glitter: 'light',
+      glitterColor: '#ffbf36',
+    }),
+    Crackle: (s) => ({
+      spreadSize: 380 + s * 75,
+      starDensity: 1,
+      starLife: 600 + s * 100,
+      color: Math.random() < 0.75 ? '#ffbf36' : c(),
+      glitter: 'light',
+      glitterColor: '#ffbf36',
+    }),
+    Crossette: (s) => ({
+      spreadSize: 300 + s * 100,
+      starDensity: 0.85,
+      starLife: 750 + s * 160,
+      color: c(),
+    }),
+    FallingLeaves: (s) => ({
+      spreadSize: 300 + s * 120,
+      starDensity: 0.12,
+      starLife: 500 + s * 50,
+      color: '_INVISIBLE_',
+      glitter: 'medium',
+      glitterColor: '#ffbf36',
+    }),
+    Floral: (s) => ({
+      spreadSize: 300 + s * 120,
+      starDensity: 0.12,
+      starLife: 500 + s * 50,
+      color: c(),
+    }),
+    Ghost: (s) => ({
+      spreadSize: 300 + s * 100,
+      starDensity: 1.1,
+      starLife: 1400 + s * 200,
+      color: c(),
+    }),
+    HorseTail: (s) => ({
+      spreadSize: 250 + s * 38,
+      starDensity: 0.9,
+      starLife: 2500 + s * 300,
+      color: c(),
+    }),
+    Palm: (s) => ({
+      spreadSize: 250 + s * 75,
+      starDensity: 0.4,
+      starLife: 1800 + s * 200,
+      color: c(),
+    }),
+    Ring: (s) => ({
+      spreadSize: 300 + s * 100,
+      starDensity: 0.8,
+      starLife: 900 + s * 200,
+      color: c(),
+      glitter: 'light',
+      glitterColor: '#ffffff',
+    }),
+    Strobe: (s) => ({
+      spreadSize: 280 + s * 92,
+      starDensity: 1.1,
+      starLife: 1100 + s * 200,
+      color: c(),
+      glitter: 'light',
+      glitterColor: '#ffffff',
+    }),
+    Willow: (s) => ({
+      spreadSize: 300 + s * 100,
+      starDensity: 0.6,
+      starLife: 3000 + s * 300,
+      color: '_INVISIBLE_',
+      glitter: 'willow',
+      glitterColor: '#ffbf36',
+    }),
   }
 }
 
 onUnmounted(() => {
   if (replayEngine) replayEngine.active = false
-  if (replayAudioCtx) { replayAudioCtx.close(); replayAudioCtx = null }
+  if (replayAudioCtx) {
+    replayAudioCtx.close()
+    replayAudioCtx = null
+  }
 })
 </script>
 
 <style scoped>
-.share-page { min-height: 100vh; background: #0a0a1a; display: flex; flex-direction: column; align-items: center; }
-.share-loading, .share-error { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 16px; color: #fff; }
-.spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,.1); border-top-color: #f59e0b; border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.share-error h2 { font-size: 20px; margin: 0; color: #fff; }
-.back-link { color: #f59e0b; text-decoration: none; }
-.share-content { max-width: 600px; width: 100%; padding: 60px 24px; }
-.recipe-hero { text-align: center; margin-bottom: 32px; }
-.recipe-title { font-size: 28px; font-weight: 700; color: #fff; margin: 0 0 8px; }
-.recipe-author { font-size: 14px; color: #9ca3af; margin: 0; }
-.recipe-card { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 24px; margin-bottom: 32px; }
-.card-title { font-size: 16px; color: #f59e0b; margin: 0 0 16px; }
-.config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.config-item { display: flex; flex-direction: column; gap: 2px; }
-.config-label { font-size: 11px; color: #6b7280; text-transform: uppercase; }
-.config-value { font-size: 14px; color: #e2e8f0; font-weight: 500; }
-.share-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-.btn-primary { padding: 12px 28px; background: linear-gradient(135deg, #dc2626, #d97706); color: #fff; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; }
-.btn-primary:hover { opacity: 0.9; }
-.btn-secondary { padding: 12px 20px; background: rgba(255,255,255,.08); color: #e2e8f0; border: 1px solid rgba(255,255,255,.1); border-radius: 12px; font-size: 14px; cursor: pointer; }
-.btn-secondary:hover { background: rgba(255,255,255,.12); }
-.btn-like { padding: 12px 20px; background: rgba(239,68,68,.15); color: #fca5a5; border: 1px solid rgba(239,68,68,.3); border-radius: 12px; font-size: 14px; cursor: pointer; }
-.btn-like:disabled { opacity: 0.7; cursor: default; }
-.btn-like:hover:not(:disabled) { background: rgba(239,68,68,.25); }
-.btn-danger { padding: 12px 20px; background: rgba(239,68,68,.2); color: #ef4444; border: 1px solid rgba(239,68,68,.4); border-radius: 12px; font-size: 14px; cursor: pointer; }
-.btn-danger:hover { background: rgba(239,68,68,.35); }
-.btn-danger:disabled { opacity: 0.5; }
-.edit-row { display: flex; gap: 8px; margin-top: 16px; max-width: 340px; margin-left: auto; margin-right: auto; }
-.save-input { flex: 1; padding: 10px 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.15); border-radius: 10px; color: #fff; font-size: 14px; outline: none; }
-.save-input:focus { border-color: #f59e0b; }
-.save-submit { padding: 10px 20px; background: linear-gradient(135deg, #dc2626, #d97706); color: #fff; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+.share-page {
+  min-height: 100vh;
+  background: #0a0a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.share-loading,
+.share-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+  color: #fff;
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #f59e0b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.share-error h2 {
+  font-size: 20px;
+  margin: 0;
+  color: #fff;
+}
+.back-link {
+  color: #f59e0b;
+  text-decoration: none;
+}
+.share-content {
+  max-width: 600px;
+  width: 100%;
+  padding: 60px 24px;
+}
+.recipe-hero {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.recipe-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px;
+}
+.recipe-author {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0;
+}
+.recipe-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+.card-title {
+  font-size: 16px;
+  color: #f59e0b;
+  margin: 0 0 16px;
+}
+.config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.config-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.config-label {
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+.config-value {
+  font-size: 14px;
+  color: #e2e8f0;
+  font-weight: 500;
+}
+.share-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn-primary {
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #dc2626, #d97706);
+  color: #fff;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  opacity: 0.9;
+}
+.btn-secondary {
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.btn-like {
+  padding: 12px 20px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn-like:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+.btn-like:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.25);
+}
+.btn-danger {
+  padding: 12px 20px;
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.35);
+}
+.btn-danger:disabled {
+  opacity: 0.5;
+}
+.edit-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.save-input {
+  flex: 1;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+}
+.save-input:focus {
+  border-color: #f59e0b;
+}
+.save-submit {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #dc2626, #d97706);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
 
-.replay-overlay { position: fixed; inset: 0; z-index: 9999; background: #000; display: flex; align-items: center; justify-content: center; }
-.replay-canvas-wrap { position: absolute; inset: 0; }
-.replay-canvas { position: absolute; inset: 0; mix-blend-mode: lighten; }
-.replay-info { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,.7); font-size: 14px; background: rgba(0,0,0,.6); padding: 6px 20px; border-radius: 20px; pointer-events: none; }
-.replay-progress { position: absolute; bottom: 30px; left: 10%; width: 80%; height: 6px; background: rgba(255,255,255,.15); border-radius: 3px; overflow: hidden; cursor: pointer; }
-.replay-progress:hover { height: 10px; }
-.replay-progress-fill { height: 100%; background: linear-gradient(90deg, #f59e0b, #ef4444); transition: width .1s; pointer-events: none; }
-.replay-close { position: absolute; top: 20px; right: 20px; width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,.6); color: #fff; font-size: 20px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
-.replay-close:hover { background: rgba(239,68,68,.7); }
+.replay-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.replay-canvas-wrap {
+  position: absolute;
+  inset: 0;
+}
+.replay-canvas {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: lighten;
+}
+.replay-info {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 6px 20px;
+  border-radius: 20px;
+  pointer-events: none;
+}
+.replay-progress {
+  position: absolute;
+  bottom: 30px;
+  left: 10%;
+  width: 80%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.replay-progress:hover {
+  height: 10px;
+}
+.replay-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #ef4444);
+  transition: width 0.1s;
+  pointer-events: none;
+}
+.replay-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+.replay-close:hover {
+  background: rgba(239, 68, 68, 0.7);
+}
 </style>

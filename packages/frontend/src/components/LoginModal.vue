@@ -64,6 +64,7 @@ import { useI18n } from 'vue-i18n'
 import HuaNuoCharacter from '@/components/HuaNuoCharacter.vue'
 import { extractErrorMessage } from '@/utils/extractErrorMessage'
 import { useAuthStore } from '@/stores/auth'
+import { emitter } from '@/eventBus'
 
 const { t } = useI18n()
 
@@ -93,7 +94,7 @@ function show(reasonText: string) {
 
 function cancel() {
   visible.value = false
-  window.dispatchEvent(new CustomEvent('login-cancelled'))
+  emitter.emit('login-cancelled')
 }
 
 const loginError = ref('')
@@ -130,15 +131,14 @@ async function handleLogin() {
   }
 }
 
-// 监听全局事件
-if (typeof window !== 'undefined') {
-  window.addEventListener('show-login-modal', ((e: CustomEvent) => {
-    show(e.detail?.reason || 'default')
-  }) as EventListener)
+const showLoginHandler = ({ reason: reasonText }: { reason: string }) => {
+  show(reasonText || 'default')
 }
+emitter.on('show-login-modal', showLoginHandler)
 
 onUnmounted(() => {
   if (timer) clearInterval(timer)
+  emitter.off('show-login-modal', showLoginHandler)
 })
 
 defineExpose({ show, cancel })

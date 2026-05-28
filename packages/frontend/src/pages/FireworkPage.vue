@@ -360,7 +360,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
-import { api } from '@/api/client'
+import { createRecipe } from '@/api/fireworks'
 import defaultBgImage from '../assets/images/guchen_yanhua.jpeg'
 import shootingstarsBgImage from '../assets/images/shootingstars.jpeg'
 import moonuniverseBgImage from '../assets/images/moonuniverse.jpeg'
@@ -588,8 +588,9 @@ async function doSave() {
       sparkAmount: sparkAmount.value,
       timeline: timeline.value.length > 0 ? timeline.value : undefined,
     }
-    const res = await api.post('/fireworks', { title: saveTitle.value, config })
-    shareSlug.value = res.data.data.shareSlug
+    // @ts-expect-error config is dynamic engine state, not typed as IFireworkConfig
+    const recipe = await createRecipe({ title: saveTitle.value, config })
+    shareSlug.value = recipe.shareSlug
     saveSuccess.value = true
   } catch {
     alert(t('common.saveFailed'))

@@ -356,7 +356,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { api } from '@/api/client'
+import { getPublicCoupons, getMyCoupons } from '@/api/coupons'
 import { useAuthStore } from '@/stores/auth'
 import CouponCard from '@/components/CouponCard.vue'
 import wanzaihuapaoImg from '../assets/images/changfang.png'
@@ -401,16 +401,15 @@ const claimedIds = ref(new Set<string>())
 
 onMounted(async () => {
   try {
-    const res = await api.get('/coupons/public')
-    coupons.value = res.data.data || []
+    coupons.value = await getPublicCoupons()
   } catch {
     /* fallback */
   }
   // 恢复已领取状态（防止刷新后丢失）
   if (authStore.isLoggedIn) {
     try {
-      const my = await api.get('/coupons/my')
-      const ids: string[] = (my.data.data || []).map((uc: { couponId: string }) => uc.couponId)
+      const my = await getMyCoupons()
+      const ids: string[] = (my || []).map((uc) => uc.couponId)
       claimedIds.value = new Set(ids)
     } catch {
       /* */

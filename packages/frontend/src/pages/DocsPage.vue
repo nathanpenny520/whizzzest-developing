@@ -88,7 +88,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useIsZh } from '@/composables/useIsZh'
 import { useLocalizedPath } from '@/composables/useLocalizedPath'
-import { api } from '@/api/client'
+import { getAllDocs } from '@/api/docs'
 
 const { t } = useI18n()
 const { isZh } = useIsZh()
@@ -141,8 +141,7 @@ const { getLocalizedPath: localizedPath } = useLocalizedPath()
 
 onMounted(async () => {
   try {
-    const res = await api.get('/docs')
-    docs.value = (res.data.data || []) as DocItem[]
+    docs.value = (await getAllDocs()) as unknown as DocItem[]
   } catch {
     // silently fail
   } finally {

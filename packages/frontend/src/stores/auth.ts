@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { sendCode as apiSendCode, login as apiLogin, refresh as apiRefresh } from '@/api/auth'
 import { getMyProfile } from '@/api/users'
 import { extractErrorMessage } from '@/utils/extractErrorMessage'
+import { emitter } from '@/eventBus'
 import { STORAGE_KEYS } from '@/constants/huaNuo'
 import type { UserRole } from '@wanzai/contracts'
 
@@ -172,7 +173,7 @@ export const useAuthStore = defineStore('auth', () => {
       return
     }
     pendingAction = action
-    window.dispatchEvent(new CustomEvent('show-login-modal', { detail: { reason } }))
+    emitter.emit('show-login-modal', { reason })
   }
 
   return {

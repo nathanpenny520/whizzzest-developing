@@ -94,7 +94,7 @@
 <script setup lang="ts">
 import { ref, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { api } from '@/api/client'
+import { applyMerchant } from '@/api/merchants'
 import { extractErrorMessage } from '@/utils/extractErrorMessage'
 
 const { t } = useI18n()
@@ -128,7 +128,7 @@ async function submit() {
 
   loading.value = true
   try {
-    await api.post('/merchants/apply', form.value)
+    await applyMerchant(form.value)
     success.value = true
     successTimer = setTimeout(() => {
       success.value = false

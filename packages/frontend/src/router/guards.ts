@@ -1,5 +1,6 @@
 import type { Router } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { emitter } from '@/eventBus'
 
 export function registerAuthGuard(router: Router) {
   let isGuarding = false
@@ -47,7 +48,7 @@ export function registerAuthGuard(router: Router) {
   })
 
   // 用户取消登录时重置守卫，允许下次再触发
-  window.addEventListener('login-cancelled', () => {
+  emitter.on('login-cancelled', () => {
     isGuarding = false
   })
 }

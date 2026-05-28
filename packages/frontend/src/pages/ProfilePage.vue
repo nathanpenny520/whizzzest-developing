@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { api } from '@/api/client'
+import { getMyProfile, updateProfile } from '@/api/users'
 import { extractErrorMessage } from '@/utils/extractErrorMessage'
 import { useAuthStore } from '@/stores/auth'
 
@@ -90,9 +90,12 @@ const roleLabel = computed(() => {
 
 onMounted(async () => {
   try {
-    const r = await api.get('/users/me')
-    profile.value = r.data.data
-    edit.value = { nickname: profile.value.nickname, avatarUrl: profile.value.avatarUrl || '' }
+    const userData = await getMyProfile()
+    profile.value = userData as unknown as typeof profile.value
+    edit.value = {
+      nickname: userData.nickname,
+      avatarUrl: (userData as unknown as Record<string, string>).avatarUrl || '',
+    }
   } catch {
     /* */
   }
@@ -103,7 +106,7 @@ async function save() {
   saving.value = true
   msg.value = ''
   try {
-    await api.put('/users/me', {
+    await updateProfile({
       nickname: edit.value.nickname,
       avatarUrl: edit.value.avatarUrl || undefined,
     })
