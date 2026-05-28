@@ -1,6 +1,6 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import type { IAIResponse } from '@wanzai/contracts'
+import type { IAIResponse } from './interfaces/ai-response.interface.js'
 import { ErrorCode } from '@wanzai/contracts'
 import { KnowledgeService } from '../knowledge/knowledge.service.js'
 import { getHuaNuoMessage } from './messages.js'

@@ -27,8 +27,10 @@ export function useFireworkRecipe(
     saveLoading.value = true
     try {
       const config = getConfig()
-      // @ts-expect-error config is dynamic engine state
-      const recipe = await createRecipe({ title: saveTitle.value, config })
+      const recipe = await createRecipe({
+        title: saveTitle.value,
+        config: config as Record<string, unknown>,
+      })
       shareSlug.value = recipe.shareSlug
       saveSuccess.value = true
     } finally {

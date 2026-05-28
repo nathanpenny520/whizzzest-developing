@@ -1,12 +1,13 @@
 // AI聊天API调用 — 接入 NestJS /api/v1
 import { api } from './client'
-import type { AIResponse, ChatRequest } from '@/types/aiChat'
+import type { AIResponse } from '@/types/aiChat'
+import type { IChatRequest } from '@wanzai/contracts'
 import { getHuaNuoError } from '@/constants/huaNuo'
 import type { IApiResponse } from '@wanzai/contracts'
 
 export async function sendChatMessage(question: string, locale: string): Promise<AIResponse> {
   try {
-    const request: ChatRequest = { question, locale }
+    const request: IChatRequest = { question, locale }
 
     const response = await api.post<IApiResponse<{ text: string; action?: AIResponse['action'] }>>(
       '/ai/chat',

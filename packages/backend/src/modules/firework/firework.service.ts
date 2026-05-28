@@ -5,8 +5,8 @@ import type {
   IFireworkRecipeCreate,
   IFireworkRecipeUpdate,
   IFireworkRecipeSummary,
-  IFireworkListParams,
 } from '@wanzai/contracts'
+import type { IFireworkListParams } from './dto/list-params.dto.js'
 
 @Injectable()
 export class FireworkService {

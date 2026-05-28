@@ -1,11 +1,18 @@
 // AI聊天相关类型定义
 // 共享类型从 @wanzai/contracts 导入，前端专用类型在此定义
 
-import type { IChatMessage, IChatRequest, AIActionType } from '@wanzai/contracts'
+import type { AIActionType } from '@wanzai/contracts'
 
-// 向后兼容别名（新代码请直接用 contracts 的 I 前缀类型）
+export interface IChatMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: Date
+  isTyping?: boolean
+}
+
+// 向后兼容别名
 export type ChatMessage = IChatMessage
-export type ChatRequest = IChatRequest
 export type { AIActionType }
 
 export interface ChatState {

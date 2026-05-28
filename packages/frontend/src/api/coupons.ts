@@ -1,5 +1,6 @@
 import { api } from './client'
-import type { IApiResponse, ICoupon, ICouponCreate, IUserCoupon } from '@wanzai/contracts'
+import type { IApiResponse } from '@wanzai/contracts'
+import type { ICoupon, ICouponCreate, IUserCoupon } from '@/types/coupon'
 
 export async function createCoupon(data: ICouponCreate): Promise<ICoupon> {
   const res = await api.post<IApiResponse<ICoupon>>('/coupons', data)

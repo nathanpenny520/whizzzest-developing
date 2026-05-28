@@ -1,6 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common'
 import { AiService } from './ai.service.js'
-import type { IChatRequest, IAIResponse } from '@wanzai/contracts'
+import type { IChatRequest } from '@wanzai/contracts'
+import type { IAIResponse } from './interfaces/ai-response.interface.js'
 import { ErrorCode } from '@wanzai/contracts'
 
 @Controller('ai')

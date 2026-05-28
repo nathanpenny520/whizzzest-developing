@@ -1,5 +1,6 @@
 import { api } from './client'
-import type { IApiResponse, IMerchant } from '@wanzai/contracts'
+import type { IApiResponse } from '@wanzai/contracts'
+import type { IMerchant } from '@/types/merchant'
 
 export async function applyMerchant(data: Record<string, unknown>): Promise<IMerchant> {
   const res = await api.post<IApiResponse<IMerchant>>('/merchants/apply', data)

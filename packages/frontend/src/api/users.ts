@@ -1,5 +1,6 @@
 import { api } from './client'
-import type { IApiResponse, IUser } from '@wanzai/contracts'
+import type { IApiResponse } from '@wanzai/contracts'
+import type { IUser } from '@/types/user'
 
 export async function getMyProfile(): Promise<IUser & { isMerchant?: boolean }> {
   const res = await api.get<IApiResponse<IUser & { isMerchant?: boolean }>>('/users/me')
