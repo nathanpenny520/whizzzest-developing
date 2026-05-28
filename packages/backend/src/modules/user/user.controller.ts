@@ -1,9 +1,8 @@
 import { Controller, Get, Put, Param, Body, Req, UseGuards } from '@nestjs/common'
 import { UserService } from './user.service.js'
-import { JwtAuthGuard } from '../auth/jwt-auth.guard.js'
-import { RolesGuard } from '../../common/guards/roles.guard.js'
-import { Roles } from '../../common/decorators/roles.decorator.js'
-import { UserRole } from '@prisma/client'
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js'
+import { Public } from '../../common/decorators/public.decorator.js'
+import { ErrorCode } from '@wanzai/contracts'
 
 @Controller('users')
 export class UserController {
@@ -14,19 +13,20 @@ export class UserController {
   async me(@Req() req: { user: { id: string } }) {
     const user = await this.userService.findById(req.user.id)
     if (!user) {
-      return { code: 40400, data: null, message: '用户不存在' }
+      return { code: ErrorCode.NOT_FOUND, data: null, message: '用户不存在' }
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-    const { phone, merchant, ...safe } = user as any
-    return { code: 0, data: { ...safe, isMerchant: !!merchant }, message: 'ok' }
+    return {
+      code: ErrorCode.SUCCESS,
+      data: this.userService.sanitizeUserResponse(user, true),
+      message: 'ok',
+    }
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Public()
   @Get('stats')
   async stats() {
     const data = await this.userService.getStats()
-    return { code: 0, data, message: 'ok' }
+    return { code: ErrorCode.SUCCESS, data, message: 'ok' }
   }
 
   @UseGuards(JwtAuthGuard)
@@ -34,11 +34,13 @@ export class UserController {
   async findOne(@Param('id') id: string) {
     const user = await this.userService.findById(id)
     if (!user) {
-      return { code: 40400, data: null, message: '用户不存在' }
+      return { code: ErrorCode.NOT_FOUND, data: null, message: '用户不存在' }
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-    const { phone: _, merchant: _m, ...safe } = user as any
-    return { code: 0, data: safe, message: 'ok' }
+    return {
+      code: ErrorCode.SUCCESS,
+      data: this.userService.sanitizeUserResponse(user),
+      message: 'ok',
+    }
   }
 
   @UseGuards(JwtAuthGuard)
@@ -48,6 +50,6 @@ export class UserController {
     @Body() body: { nickname?: string; avatarUrl?: string },
   ) {
     const user = await this.userService.updateProfile(req.user.id, body)
-    return { code: 0, data: user, message: 'ok' }
+    return { code: ErrorCode.SUCCESS, data: user, message: 'ok' }
   }
 }

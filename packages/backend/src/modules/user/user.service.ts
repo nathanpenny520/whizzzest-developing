@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service.js'
+import { UserRole } from '@wanzai/contracts'
 
 @Injectable()
 export class UserService {
@@ -102,5 +103,35 @@ export class UserService {
 
   async updateProfile(id: string, data: { nickname?: string; avatarUrl?: string }) {
     return this.prisma.user.update({ where: { id }, data })
+  }
+
+  /** Strip sensitive fields from user response */
+  sanitizeUserResponse(
+    user: { phone?: string | null; merchant?: unknown; [key: string]: unknown },
+    includeIsMerchant = false,
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { phone, merchant, ...safe } = user
+    if (includeIsMerchant) {
+      return { ...safe, isMerchant: !!merchant }
+    }
+    return safe
+  }
+
+  /** Promote user to MERCHANT role (does not override ADMIN) and set nickname */
+  async promoteToMerchant(userId: string, name: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } })
+    if (!user) throw new NotFoundException('用户不存在')
+    if (user.role !== UserRole.ADMIN) {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { role: 'MERCHANT', nickname: name },
+      })
+    } else {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { nickname: name },
+      })
+    }
   }
 }

@@ -18,7 +18,7 @@ export interface IAIAction {
 }
 
 // 前端聊天消息
-export interface ChatMessage {
+export interface IChatMessage {
   id: string
   role: 'user' | 'assistant'
   content: string
@@ -27,14 +27,14 @@ export interface ChatMessage {
 }
 
 // 发送给后端的请求
-export interface ChatRequest {
+export interface IChatRequest {
   question: string
   locale: string
   sessionId?: string
 }
 
 // SSE 事件类型
-export interface SSEEvent {
+export interface ISSEEvent {
   type: 'text' | 'action' | 'error' | 'done'
   data: unknown
 }

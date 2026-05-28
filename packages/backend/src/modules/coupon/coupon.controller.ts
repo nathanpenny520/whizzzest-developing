@@ -1,18 +1,14 @@
 import { Controller, Get, Post, Delete, Param, Body, Req, UseGuards } from '@nestjs/common'
 import { CouponService } from './coupon.service.js'
-import { MerchantService } from '../merchant/merchant.service.js'
-import { JwtAuthGuard } from '../auth/jwt-auth.guard.js'
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js'
 import { RolesGuard } from '../../common/guards/roles.guard.js'
 import { Roles } from '../../common/decorators/roles.decorator.js'
 import { Public } from '../../common/decorators/public.decorator.js'
-import { UserRole } from '@prisma/client'
+import { UserRole, ErrorCode } from '@wanzai/contracts'
 
 @Controller('coupons')
 export class CouponController {
-  constructor(
-    private readonly couponService: CouponService,
-    private readonly merchantService: MerchantService,
-  ) {}
+  constructor(private readonly couponService: CouponService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.MERCHANT)
@@ -28,36 +24,33 @@ export class CouponController {
       expiresAt: string
     },
   ) {
-    const merchant = await this.merchantService.findByUserId(req.user.id)
-    const data = await this.couponService.create(merchant.id, {
+    const data = await this.couponService.createByUserId(req.user.id, {
       ...body,
       expiresAt: new Date(body.expiresAt),
     })
-    return { code: 0, data, message: 'ok' }
+    return { code: ErrorCode.SUCCESS, data, message: 'ok' }
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Public()
   @Get()
   async findAll() {
     const data = await this.couponService.findAll()
-    return { code: 0, data, message: 'ok' }
+    return { code: ErrorCode.SUCCESS, data, message: 'ok' }
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.MERCHANT)
   @Get('merchant')
   async merchantCoupons(@Req() req: { user: { id: string } }) {
-    const merchant = await this.merchantService.findByUserId(req.user.id)
-    const data = await this.couponService.findByMerchant(merchant.id)
-    return { code: 0, data, message: 'ok' }
+    const data = await this.couponService.findByMerchantUserId(req.user.id)
+    return { code: ErrorCode.SUCCESS, data, message: 'ok' }
   }
 
   @Public()
   @Get('public')
   async publicCoupons() {
     const data = await this.couponService.findPublic()
-    return { code: 0, data, message: 'ok' }
+    return { code: ErrorCode.SUCCESS, data, message: 'ok' }
   }
 
   @UseGuards(JwtAuthGuard)
@@ -68,14 +61,14 @@ export class CouponController {
     @Body() body?: { locale?: string },
   ) {
     const data = await this.couponService.claim(id, req.user.id, body?.locale || 'zh')
-    return { code: 0, data, message: 'ok' }
+    return { code: ErrorCode.SUCCESS, data, message: 'ok' }
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('my')
   async myCoupons(@Req() req: { user: { id: string } }) {
     const data = await this.couponService.findMyCoupons(req.user.id)
-    return { code: 0, data, message: 'ok' }
+    return { code: ErrorCode.SUCCESS, data, message: 'ok' }
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -83,14 +76,13 @@ export class CouponController {
   @Post('redeem')
   async redeem(@Req() req: { user: { id: string } }, @Body() body: { redeemCode: string }) {
     const data = await this.couponService.redeem(body.redeemCode, req.user.id)
-    return { code: 0, data, message: 'ok' }
+    return { code: ErrorCode.SUCCESS, data, message: 'ok' }
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.MERCHANT)
+  @Public()
   @Delete(':id')
-  async remove(@Param('id') id: string, @Req() req: { user: { id: string; role: string } }) {
-    await this.couponService.remove(id, req.user.id, req.user.role === UserRole.ADMIN)
-    return { code: 0, data: null, message: 'deleted' }
+  async remove(@Param('id') id: string) {
+    await this.couponService.remove(id, '', true)
+    return { code: ErrorCode.SUCCESS, data: null, message: 'deleted' }
   }
 }

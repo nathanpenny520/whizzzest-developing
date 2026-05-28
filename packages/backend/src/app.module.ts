@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { APP_INTERCEPTOR } from '@nestjs/core'
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core'
 import { ConfigModule } from '@nestjs/config'
 import { AiModule } from './modules/ai/ai.module.js'
 import { AuthModule } from './modules/auth/auth.module.js'
@@ -15,6 +15,7 @@ import { PrismaModule } from './prisma/prisma.module.js'
 import { RedisModule } from './redis/redis.module.js'
 import { CacheControlInterceptor } from './common/interceptors/cache.interceptor.js'
 import { RolesGuard } from './common/guards/roles.guard.js'
+import { HttpExceptionFilter } from './common/filters/http-exception.filter.js'
 
 @Module({
   imports: [
@@ -32,6 +33,10 @@ import { RolesGuard } from './common/guards/roles.guard.js'
     AnalyticsModule,
     CommentModule,
   ],
-  providers: [{ provide: APP_INTERCEPTOR, useClass: CacheControlInterceptor }, RolesGuard],
+  providers: [
+    { provide: APP_INTERCEPTOR, useClass: CacheControlInterceptor },
+    { provide: APP_FILTER, useClass: HttpExceptionFilter },
+    RolesGuard,
+  ],
 })
 export class AppModule {}

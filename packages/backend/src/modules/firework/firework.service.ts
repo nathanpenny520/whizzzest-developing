@@ -1,6 +1,12 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service.js'
-import type { IFireworkRecipe, IFireworkRecipeCreate, IFireworkRecipeUpdate, IFireworkRecipeSummary, IFireworkListParams } from '@wanzai/contracts'
+import type {
+  IFireworkRecipe,
+  IFireworkRecipeCreate,
+  IFireworkRecipeUpdate,
+  IFireworkRecipeSummary,
+  IFireworkListParams,
+} from '@wanzai/contracts'
 
 @Injectable()
 export class FireworkService {
@@ -75,6 +81,12 @@ export class FireworkService {
     }
   }
 
+  async findBySlugOrThrow(slug: string): Promise<IFireworkRecipe> {
+    const recipe = await this.findBySlug(slug)
+    if (!recipe) throw new NotFoundException('配方不存在')
+    return recipe
+  }
+
   async like(slug: string): Promise<{ likeCount: number }> {
     const recipe = await this.prisma.fireworkRecipe.findUnique({
       where: { shareSlug: slug },
@@ -99,9 +111,7 @@ export class FireworkService {
           ? { createdAt: 'desc' as const }
           : { viewCount: 'desc' as const }
 
-    const where = params?.search
-      ? { title: { contains: params.search } }
-      : {}
+    const where = params?.search ? { title: { contains: params.search } } : {}
 
     const recipes = await this.prisma.fireworkRecipe.findMany({
       orderBy,

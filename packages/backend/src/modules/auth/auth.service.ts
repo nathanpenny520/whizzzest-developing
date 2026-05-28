@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException, HttpException, HttpStatus } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
+import { ErrorCode } from '@wanzai/contracts'
 import { randomInt } from 'crypto'
 import { UserService } from '../user/user.service.js'
 import { RedisService } from '../../redis/redis.service.js'
@@ -21,12 +22,19 @@ export class AuthService {
 
   /** 生成并发送邮箱验证码 */
   async sendCode(email: string): Promise<void> {
+    if (!email?.includes('@')) {
+      throw new HttpException(
+        { code: ErrorCode.BAD_REQUEST, message: '邮箱格式不正确', data: null },
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+
     // 限流检查
     const rateKey = `${this.RATE_PREFIX}${email}`
     if (await this.redisService.get(rateKey)) {
       throw new HttpException(
         {
-          code: 42900,
+          code: ErrorCode.TOO_MANY_REQUESTS,
           message: '发送过于频繁，请60秒后再试',
           messageEn: 'Too frequent, please try again in 60 seconds',
         },
@@ -45,7 +53,7 @@ export class AuthService {
       await this.redisService.del(`${this.CODE_PREFIX}${email}`)
       throw new HttpException(
         {
-          code: 50000,
+          code: ErrorCode.INTERNAL_ERROR,
           message: '邮件发送失败，请稍后再试',
           messageEn: 'Email send failed, please try again later',
         },
@@ -89,8 +97,35 @@ export class AuthService {
     }
   }
 
+  /** 构建登录响应数据（含脱敏用户信息） */
+  async buildLoginResponse(user: {
+    id: string
+    email?: string
+    nickname: string
+    role: string
+    isNew?: boolean
+  }) {
+    const tokens = await this.login(user)
+    return {
+      ...tokens,
+      user: {
+        id: user.id,
+        nickname: user.nickname,
+        email: user.email,
+        role: user.role,
+        isNew: (user as { isNew?: boolean }).isNew,
+      },
+    }
+  }
+
   /** 刷新 Access Token */
   async refresh(refreshToken: string) {
+    if (!refreshToken) {
+      throw new HttpException(
+        { code: ErrorCode.BAD_REQUEST, message: 'Refresh Token 不能为空', data: null },
+        HttpStatus.BAD_REQUEST,
+      )
+    }
     try {
       const payload = this.jwtService.verify(refreshToken)
       const user = await this.userService.findById(payload.sub)

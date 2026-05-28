@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { RedisService } from '../../redis/redis.service.js'
+import { MerchantService } from '../merchant/merchant.service.js'
 
 const L = (locale: string, zh: string, en: string) => (locale === 'en' ? en : zh)
 
@@ -14,6 +15,7 @@ export class CouponService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
+    private readonly merchantService: MerchantService,
   ) {}
 
   async create(
@@ -35,6 +37,25 @@ export class CouponService {
 
   async findByMerchant(merchantId: string) {
     return this.prisma.coupon.findMany({ where: { merchantId }, orderBy: { createdAt: 'desc' } })
+  }
+
+  async createByUserId(
+    userId: string,
+    data: {
+      title: string
+      titleEn?: string
+      discount: number
+      totalStock: number
+      expiresAt: Date
+    },
+  ) {
+    const merchant = await this.merchantService.findByUserId(userId)
+    return this.create(merchant.id, data)
+  }
+
+  async findByMerchantUserId(userId: string) {
+    const merchant = await this.merchantService.findByUserId(userId)
+    return this.findByMerchant(merchant.id)
   }
 
   async findAll() {

@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common'
 import type { Request } from 'express'
 import { CommentService } from './comment.service.js'
-import { JwtAuthGuard } from '../auth/jwt-auth.guard.js'
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js'
 import { OptionalAuthGuard } from '../../common/guards/optional-auth.guard.js'
-import { UserRole } from '@prisma/client'
+import { UserRole, ErrorCode } from '@wanzai/contracts'
 
 @Controller('comments')
 export class CommentController {
@@ -13,7 +13,7 @@ export class CommentController {
   @UseGuards(OptionalAuthGuard)
   async findByPage(@Query('page') page: string, @Req() req: Request & { user?: { id: string } }) {
     const data = await this.commentService.findByPage(page, req.user?.id)
-    return { code: 0, data, message: 'ok' }
+    return { code: ErrorCode.SUCCESS, data, message: 'ok' }
   }
 
   @Post()
@@ -23,7 +23,7 @@ export class CommentController {
     @Req() req: Request & { user: { id: string } },
   ) {
     const data = await this.commentService.create({ ...body, authorId: req.user.id })
-    return { code: 0, data, message: 'ok' }
+    return { code: ErrorCode.SUCCESS, data, message: 'ok' }
   }
 
   @Delete(':id')
@@ -33,13 +33,13 @@ export class CommentController {
     @Req() req: Request & { user: { id: string; role: string } },
   ) {
     await this.commentService.remove(id, req.user.id, req.user.role === UserRole.ADMIN)
-    return { code: 0, message: 'deleted' }
+    return { code: ErrorCode.SUCCESS, message: 'deleted' }
   }
 
   @Post(':id/like')
   @UseGuards(JwtAuthGuard)
   async like(@Param('id') id: string, @Req() req: Request & { user: { id: string } }) {
     const data = await this.commentService.like(id, req.user.id)
-    return { code: 0, data, message: 'ok' }
+    return { code: ErrorCode.SUCCESS, data, message: 'ok' }
   }
 }

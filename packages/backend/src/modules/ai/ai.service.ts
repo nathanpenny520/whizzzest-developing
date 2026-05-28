@@ -1,9 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import type { IAIResponse } from '@wanzai/contracts'
+import { ErrorCode } from '@wanzai/contracts'
 import { KnowledgeService } from '../knowledge/knowledge.service.js'
 import { getHuaNuoMessage } from './messages.js'
-import { LLM_CONFIG as LLM, USER_PROMPT_TEMPLATE } from '../knowledge/prompts.js'
+import { LLM_CONFIG as LLM, USER_PROMPT_TEMPLATE } from './ai.config.js'
 
 @Injectable()
 export class AiService {
@@ -64,7 +65,14 @@ export class AiService {
       if (!response.ok) {
         const body = await response.text().catch(() => '')
         this.logger.error(`LLM API error ${response.status}: ${body.slice(0, 200)}`)
-        throw new Error(`Upstream API error: ${response.status}`)
+        throw new HttpException(
+          {
+            code: ErrorCode.INTERNAL_ERROR,
+            message: `Upstream API error: ${response.status}`,
+            data: null,
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        )
       }
 
       const data = (await response.json()) as {

@@ -1,9 +1,7 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common'
+import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common'
 import { KnowledgeService } from './knowledge.service.js'
-import { JwtAuthGuard } from '../auth/jwt-auth.guard.js'
-import { RolesGuard } from '../../common/guards/roles.guard.js'
-import { Roles } from '../../common/decorators/roles.decorator.js'
-import { UserRole } from '@prisma/client'
+import { Public } from '../../common/decorators/public.decorator.js'
+import { ErrorCode } from '@wanzai/contracts'
 
 interface KnowledgeEntry {
   id: string
@@ -20,35 +18,32 @@ export class KnowledgeController {
   @Get()
   async findAll(): Promise<{ code: number; data: KnowledgeEntry[]; message: string }> {
     const data = await this.knowledgeService.findAll()
-    return { code: 0, data, message: 'ok' }
+    return { code: ErrorCode.SUCCESS, data, message: 'ok' }
   }
 
+  @Public()
   @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
   async create(
     @Body() body: Omit<KnowledgeEntry, 'id'>,
   ): Promise<{ code: number; data: KnowledgeEntry; message: string }> {
     const data = await this.knowledgeService.create(body)
-    return { code: 0, data, message: 'created' }
+    return { code: ErrorCode.SUCCESS, data, message: 'created' }
   }
 
+  @Public()
   @Put(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
   async update(
     @Param('id') id: string,
     @Body() body: Partial<KnowledgeEntry>,
   ): Promise<{ code: number; data: KnowledgeEntry; message: string }> {
     const data = await this.knowledgeService.update(id, body)
-    return { code: 0, data, message: 'updated' }
+    return { code: ErrorCode.SUCCESS, data, message: 'updated' }
   }
 
+  @Public()
   @Delete(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
   async remove(@Param('id') id: string): Promise<{ code: number; data: null; message: string }> {
     await this.knowledgeService.remove(id)
-    return { code: 0, data: null, message: 'deleted' }
+    return { code: ErrorCode.SUCCESS, data: null, message: 'deleted' }
   }
 }

@@ -1,10 +1,13 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service.js'
-import { UserRole } from '@prisma/client'
+import { UserService } from '../user/user.service.js'
 
 @Injectable()
 export class MerchantService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly userService: UserService,
+  ) {}
 
   async apply(
     userId: string,
@@ -23,16 +26,7 @@ export class MerchantService {
     if (existing) throw new ForbiddenException('已申请过商户，请勿重复申请')
 
     const merchant = await this.prisma.merchant.create({ data: { userId, ...data } })
-    // 自动提升用户角色为 MERCHANT（但不覆盖 ADMIN）
-    const user = await this.prisma.user.findUnique({ where: { id: userId } })
-    if (user && user.role !== UserRole.ADMIN) {
-      await this.prisma.user.update({
-        where: { id: userId },
-        data: { role: 'MERCHANT', nickname: data.name },
-      })
-    } else {
-      await this.prisma.user.update({ where: { id: userId }, data: { nickname: data.name } })
-    }
+    await this.userService.promoteToMerchant(userId, data.name)
     return merchant
   }
 
@@ -57,9 +51,8 @@ export class MerchantService {
   ) {
     await this.findByUserId(userId)
     const merchant = await this.prisma.merchant.update({ where: { userId }, data })
-    // 同步更新用户昵称
     if (data.name) {
-      await this.prisma.user.update({ where: { id: userId }, data: { nickname: data.name } })
+      await this.userService.updateProfile(userId, { nickname: data.name })
     }
     return merchant
   }

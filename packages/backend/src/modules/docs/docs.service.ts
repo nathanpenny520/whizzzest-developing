@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service.js'
 
 @Injectable()
@@ -36,6 +36,7 @@ export class DocsService {
     category?: string
     order?: number
   }) {
+    if (!data.slug?.trim()) throw new BadRequestException('slug is required')
     return this.prisma.doc.create({ data })
   }
 
@@ -54,7 +55,9 @@ export class DocsService {
     return this.prisma.doc.update({ where: { slug }, data })
   }
 
-  remove(slug: string) {
+  async remove(slug: string) {
+    const doc = await this.prisma.doc.findUnique({ where: { slug } })
+    if (!doc) throw new NotFoundException('文档不存在')
     return this.prisma.doc.delete({ where: { slug } })
   }
 }
