@@ -352,266 +352,105 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /*
  * 烟花引擎 - 复刻自 Firework_Simulator
- * Copyright © 2022 NianBroken. All rights reserved.
+ * Copyright (C) 2022 NianBroken. All rights reserved.
  * Github：https://github.com/NianBroken/Firework_Simulator
  * 本项目采用 Apache-2.0 许可证
  */
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '@/stores/auth'
-import { createRecipe } from '@/api/fireworks'
-import {
-  FireworkEngine,
-  Shell,
-  loadTextPresets,
-  saveTextPresets,
-  rasterizeText,
-  textShell,
-} from '@/composables/useFireworkEngine'
-import defaultBgImage from '../assets/images/guchen_yanhua.jpeg'
-import shootingstarsBgImage from '../assets/images/shootingstars.jpeg'
-import moonuniverseBgImage from '../assets/images/moonuniverse.jpeg'
-import mountainsBgImage from '../assets/images/mountains.jpeg'
+import { FireworkEngine } from '@/composables/useFireworkEngine'
+import { useFireworkSettings } from '@/composables/useFireworkSettings'
+import { useFireworkRecipe } from '@/composables/useFireworkRecipe'
 
-// 背景图片选项
-const getBackgroundOptions = (t: any) => [
-  { value: 'default', label: t('firework.bgDefault'), image: defaultBgImage },
-  { value: 'shootingstars', label: t('firework.bgShootingStars'), image: shootingstarsBgImage },
-  { value: 'moonuniverse', label: t('firework.bgMoonUniverse'), image: moonuniverseBgImage },
-  { value: 'mountains', label: t('firework.bgMountains'), image: mountainsBgImage },
-  { value: 'none', label: t('firework.bgNone'), image: null },
-]
-
-const backgroundOptions = computed(() => getBackgroundOptions(t))
-
-const router = useRouter()
+const { t } = useI18n()
 const route = useRoute()
-const { t, locale } = useI18n()
 
-const currentLocale = computed(() => locale.value)
+const settings = useFireworkSettings()
+const {
+  loading,
+  loadingStatus,
+  initError,
+  isPaused,
+  soundEnabled,
+  showSettings,
+  shellType,
+  shellSize,
+  quality,
+  skyLighting,
+  autoLaunch,
+  finaleMode,
+  fullscreen,
+  backgroundType,
+  backgroundOptions,
+  textPresets,
+  newPreset,
+  longExposure,
+  launchSequence,
+  simSpeed,
+  showSimSpeedLabel,
+  isRecording,
+  timeline,
+  totalRecordTime,
+  customColor,
+  presetColors,
+  colorPickerHex,
+  gravity,
+  particleDensity,
+  sparkAmount,
+  simSpeedBarRef,
+  currentLocale,
+  addTextPreset,
+  removeTextPreset,
+  launchTextFirework,
+  setEngine,
+  hideSimSpeedLabel,
+  formatDuration,
+  clearRecording,
+  startSimSpeedDrag,
+  goBack,
+  toggleLanguage,
+  togglePause,
+  toggleSound,
+  toggleFullscreen,
+  locale,
+  recordStartTime,
+} = settings
 
-// 状态
-const loading = ref(true)
-const loadingStatus = ref(t('firework.loadingStatus'))
-const initError = ref('')
-const isPaused = ref(false)
-const soundEnabled = ref(true)
-const showSettings = ref(false)
-const shellType = ref('Random')
-const shellSize = ref('2')
-const quality = ref('2')
-const skyLighting = ref('2')
-const autoLaunch = ref(true)
-const finaleMode = ref(false)
-const fullscreen = ref(false)
-
-const backgroundType = ref('default')
-
-// 文字烟花（Phase A1/A2: 整合为主引擎 Shell 类型）
-const textPresets = ref<string[]>(loadTextPresets())
-const newPreset = ref('')
-
-// 在 window 上暴露预设列表供引擎 textShell 使用
-;(window as any).__wanzaiTextPresets = textPresets.value
-
-function addTextPreset() {
-  const val = newPreset.value.trim()
-  if (!val || textPresets.value.length >= 8) return
-  textPresets.value.push(val)
-  saveTextPresets(textPresets.value)
-  ;(window as any).__wanzaiTextPresets = textPresets.value
-  newPreset.value = ''
-}
-function removeTextPreset(i: number) {
-  textPresets.value.splice(i, 1)
-  saveTextPresets(textPresets.value)
-  ;(window as any).__wanzaiTextPresets = textPresets.value
-}
-
-// 发射文字烟花：创建 Text Shell 直接爆在屏幕中间
-function launchTextFirework(text: string) {
-  if (!text || !fireworkEngine) return
-
-  const lattice = rasterizeText(text, 3)
-  if (!lattice || lattice.points.length === 0) return
-
-  const cx = 0.5
-  const cy = 0.35
-  const x = cx * fireworkEngine.width
-  const y = cy * fireworkEngine.height
-
-  const config = textShell(0, text) as any
-  if (!config) return
-  config.textLattice = lattice
-
-  // 录制文字烟花
-  if (isRecording.value) {
-    timeline.value.push({
-      delay: Date.now() - recordStartTime.value,
-      shellType: 'Text',
-      shellSize: 3,
-      x: cx,
-      height: cy,
-      text,
-    })
-  }
-
-  const shell = new Shell(config)
-  shell.burst(x, y, fireworkEngine)
-}
-
-// Phase B/C/D 新增状态
-const longExposure = ref(false)
-const launchSequence = ref('random')
-const simSpeed = ref(0.9)
-const showSimSpeedLabel = ref(false)
-const isRecording = ref(false)
-const timeline = ref<
-  {
-    delay: number
-    shellType: string
-    shellSize: number
-    x: number
-    height: number
-    text?: string
-  }[]
->([])
-const recordStartTime = ref(0)
-const totalRecordTime = ref(0)
-let recordTimer: ReturnType<typeof setInterval> | null = null
-
-watch(isRecording, (val) => {
-  if (val) {
-    recordStartTime.value = Date.now()
-    totalRecordTime.value = 0
-    recordTimer = setInterval(() => {
-      totalRecordTime.value = Date.now() - recordStartTime.value
-    }, 200)
-  } else {
-    if (recordTimer) {
-      clearInterval(recordTimer)
-      recordTimer = null
-    }
-  }
-})
-
-const customColor = ref<string | null>(null)
-const presetColors = ['#ff0043', '#14fc56', '#1e7fff', '#e60aff', '#ffbf36', '#ffffff']
-const colorPickerHex = ref('#ff0043')
-const gravity = ref(0.9)
-const particleDensity = ref(1.0)
-const sparkAmount = ref(1.0)
-const simSpeedBarRef = ref<HTMLElement | null>(null)
-let simSpeedLabelTimer: ReturnType<typeof setTimeout> | null = null
-
-function hideSimSpeedLabel() {
-  simSpeedLabelTimer = setTimeout(() => {
-    showSimSpeedLabel.value = false
-  }, 800)
-}
-
-function formatDuration(ms: number) {
-  const s = Math.floor(ms / 1000)
-  const m = Math.floor(s / 60)
-  return `${m}:${String(s % 60).padStart(2, '0')}`
-}
-
-function clearRecording() {
-  timeline.value = []
-  recordStartTime.value = 0
-}
-
-// Sim Speed 拖拽
-function startSimSpeedDrag(e: MouseEvent | TouchEvent) {
-  e.preventDefault()
-  showSimSpeedLabel.value = true
-  if (simSpeedLabelTimer) clearTimeout(simSpeedLabelTimer)
-  const update = (clientX: number) => {
-    if (!simSpeedBarRef.value) return
-    const rect = simSpeedBarRef.value.getBoundingClientRect()
-    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
-    simSpeed.value = Math.round(ratio * 100) / 100
-    if (fireworkEngine) fireworkEngine.config.simSpeed = simSpeed.value
-  }
-  if ('touches' in e) update(e.touches[0].clientX)
-  else update(e.clientX)
-
-  const onMove = (ev: MouseEvent | TouchEvent) => {
-    const cx = 'touches' in ev ? (ev as TouchEvent).touches[0].clientX : (ev as MouseEvent).clientX
-    update(cx)
-  }
-  const onUp = () => {
-    hideSimSpeedLabel()
-    document.removeEventListener('mousemove', onMove)
-    document.removeEventListener('touchmove', onMove)
-    document.removeEventListener('mouseup', onUp)
-    document.removeEventListener('touchend', onUp)
-  }
-  document.addEventListener('mousemove', onMove)
-  document.addEventListener('touchmove', onMove)
-  document.addEventListener('mouseup', onUp)
-  document.addEventListener('touchend', onUp)
-}
-
-// 保存配方
-const showSaveDialog = ref(false)
-const saveTitle = ref('')
-const shareSlug = ref('')
-const saveSuccess = ref(false)
-const saveLoading = ref(false)
-
-const authStore = useAuthStore()
-
-function handleSave() {
-  authStore.requireLogin(() => {
-    showSaveDialog.value = true
-    saveSuccess.value = false
-    saveTitle.value = currentLocale.value === 'zh-CN' ? '我的烟花秀' : 'My Firework Show'
-    shareSlug.value = ''
-  }, 'save_firework')
-}
-
-async function doSave() {
-  if (saveLoading.value) return
-  saveLoading.value = true
-  try {
-    const config = {
-      shellType: shellType.value,
-      shellSize: Number(shellSize.value),
-      quality: Number(quality.value),
-      skyLighting: Number(skyLighting.value),
-      autoLaunch: autoLaunch.value,
-      finaleMode: finaleMode.value,
-      soundEnabled: soundEnabled.value,
-      backgroundImage: backgroundType.value === 'none' ? null : backgroundType.value,
-      longExposure: longExposure.value,
-      simSpeed: simSpeed.value,
-      launchSequence: launchSequence.value,
-      textFirework: { enabled: textPresets.value.length > 0, preset: textPresets.value },
-      customColor: customColor.value,
-      textPresets: textPresets.value,
-      gravity: gravity.value,
-      particleDensity: particleDensity.value,
-      sparkAmount: sparkAmount.value,
-      timeline: timeline.value.length > 0 ? timeline.value : undefined,
-    }
-    // @ts-expect-error config is dynamic engine state, not typed as IFireworkConfig
-    const recipe = await createRecipe({ title: saveTitle.value, config })
-    shareSlug.value = recipe.shareSlug
-    saveSuccess.value = true
-  } catch {
-    alert(t('common.saveFailed'))
-  } finally {
-    saveLoading.value = false
+function getConfig() {
+  return {
+    shellType: shellType.value,
+    shellSize: Number(shellSize.value),
+    quality: Number(quality.value),
+    skyLighting: Number(skyLighting.value),
+    autoLaunch: autoLaunch.value,
+    finaleMode: finaleMode.value,
+    soundEnabled: soundEnabled.value,
+    backgroundImage: backgroundType.value === 'none' ? null : backgroundType.value,
+    longExposure: longExposure.value,
+    simSpeed: simSpeed.value,
+    launchSequence: launchSequence.value,
+    textFirework: { enabled: textPresets.value.length > 0, preset: textPresets.value },
+    customColor: customColor.value,
+    textPresets: textPresets.value,
+    gravity: gravity.value,
+    particleDensity: particleDensity.value,
+    sparkAmount: sparkAmount.value,
+    timeline: timeline.value.length > 0 ? timeline.value : undefined,
   }
 }
 
-const shareUrl = computed(() => `${window.location.origin}/firework/share/${shareSlug.value}`)
-
-function copyShareLink() {
-  navigator.clipboard.writeText(shareUrl.value).catch(() => {})
-}
+const recipe = useFireworkRecipe(getConfig, currentLocale as { value: string })
+const {
+  showSaveDialog,
+  saveTitle,
+  saveSuccess,
+  saveLoading,
+  handleSave,
+  doSave,
+  shareUrl,
+  copyShareLink,
+} = recipe
 
 // DOM refs
 const stageContainer = ref<HTMLElement | null>(null)
@@ -620,141 +459,11 @@ const skyLightLayer = ref<HTMLElement | null>(null)
 const canvasContainer = ref<HTMLElement | null>(null)
 const trailsCanvas = ref<HTMLCanvasElement | null>(null)
 const mainCanvas = ref<HTMLCanvasElement | null>(null)
-// 烟花引擎实例
-let fireworkEngine: FireworkEngine | null = null
 
-onMounted(() => {
-  const path = route.path
-  if (path.startsWith('/en')) {
-    locale.value = 'en'
-    localStorage.setItem('locale', 'en')
-  } else {
-    locale.value = 'zh-CN'
-    localStorage.setItem('locale', 'zh-CN')
-  }
-  initFirework()
-
-  // 8 秒超时兜底
-  setTimeout(() => {
-    if (loading.value) {
-      loading.value = false
-      if (!fireworkEngine) {
-        initError.value =
-          currentLocale.value === 'zh-CN'
-            ? '引擎初始化超时，请刷新页面重试'
-            : 'Engine init timeout, please refresh'
-      }
-    }
-  }, 8000)
-})
-
-onUnmounted(() => {
-  if (recordTimer) {
-    clearInterval(recordTimer)
-    recordTimer = null
-  }
-  if (fireworkEngine) {
-    fireworkEngine.destroy()
-    fireworkEngine = null
-  }
-})
-
-function goBack() {
-  const currentPath = route.path
-  if (currentPath.startsWith('/en')) {
-    router.push('/en#firework-section')
-  } else {
-    router.push('/#firework-section')
-  }
-}
-
-function toggleLanguage() {
-  const currentPath = route.path
-  let newPath = ''
-
-  if (currentPath === '/firework') {
-    newPath = '/en/firework'
-  } else if (currentPath === '/en/firework') {
-    newPath = '/firework'
-  } else if (currentPath.startsWith('/en')) {
-    newPath = currentPath.replace('/en', '') || '/'
-  } else {
-    newPath = '/en' + currentPath
-  }
-
-  const newLocale = newPath.startsWith('/en') ? 'en' : 'zh-CN'
-  locale.value = newLocale
-  localStorage.setItem('locale', newLocale)
-  router.replace(newPath)
-}
-
-function togglePause() {
-  isPaused.value = !isPaused.value
-  if (fireworkEngine) {
-    fireworkEngine.setPaused(isPaused.value)
-  }
-}
-
-function toggleSound() {
-  soundEnabled.value = !soundEnabled.value
-  if (fireworkEngine) {
-    fireworkEngine.setSoundEnabled(soundEnabled.value)
-  }
-}
-
-function toggleFullscreen() {
-  if (fullscreen.value) {
-    document.documentElement.requestFullscreen?.()
-  } else {
-    document.exitFullscreen?.()
-  }
-}
-
-watch(
-  [
-    shellType,
-    shellSize,
-    quality,
-    skyLighting,
-    autoLaunch,
-    finaleMode,
-    backgroundType,
-    longExposure,
-    launchSequence,
-    simSpeed,
-    gravity,
-    particleDensity,
-    sparkAmount,
-    customColor,
-  ],
-  () => {
-    if (fireworkEngine) {
-      const selectedBg = backgroundOptions.value.find(
-        (opt: any) => opt.value === backgroundType.value,
-      )
-      fireworkEngine.updateConfig({
-        shellType: shellType.value,
-        shellSize: parseInt(shellSize.value),
-        quality: parseInt(quality.value),
-        skyLighting: parseInt(skyLighting.value),
-        autoLaunch: autoLaunch.value,
-        finaleMode: finaleMode.value,
-        longExposure: longExposure.value,
-        launchSequence: launchSequence.value,
-        simSpeed: simSpeed.value,
-        gravity: gravity.value,
-        particleDensity: particleDensity.value,
-        sparkAmount: sparkAmount.value,
-        customColor: customColor.value,
-        backgroundImage: selectedBg?.image || null,
-      })
-    }
-  },
-)
+let engineInstance: FireworkEngine | null = null
 
 function initFirework() {
-  loadingStatus.value = t('firework.initializing')
-
+  loadingStatus.value = loadingStatus.value // keep initialized text from composable
   if (
     !trailsCanvas.value ||
     !mainCanvas.value ||
@@ -762,13 +471,12 @@ function initFirework() {
     !stageContainer.value ||
     !backgroundLayer.value ||
     !skyLightLayer.value
-  ) {
+  )
     return
-  }
 
   const selectedBg = backgroundOptions.value.find((opt: any) => opt.value === backgroundType.value)
 
-  fireworkEngine = new FireworkEngine(
+  engineInstance = new FireworkEngine(
     trailsCanvas.value,
     mainCanvas.value,
     canvasContainer.value,
@@ -797,21 +505,50 @@ function initFirework() {
     },
   )
 
-  // Phase C1: 录制模式回调（所有通过 launchShell 的发射都会被记录）
-  fireworkEngine.onShellLaunch = (shellType, shellSize, x, height) => {
+  engineInstance.onShellLaunch = (st: string, sz: number, x: number, h: number) => {
     if (isRecording.value) {
       timeline.value.push({
         delay: Date.now() - recordStartTime.value,
-        shellType,
-        shellSize,
+        shellType: st,
+        shellSize: sz,
         x,
-        height,
+        height: h,
       })
     }
   }
-}
-</script>
 
+  setEngine(engineInstance)
+}
+
+onMounted(() => {
+  const path = route.path
+  if (path.startsWith('/en')) {
+    locale.value = 'en'
+    localStorage.setItem('locale', 'en')
+  } else {
+    locale.value = 'zh-CN'
+    localStorage.setItem('locale', 'zh-CN')
+  }
+  initFirework()
+
+  setTimeout(() => {
+    if (loading.value) {
+      loading.value = false
+      initError.value =
+        currentLocale.value === 'zh-CN'
+          ? '引擎初始化超时，请刷新页面重试'
+          : 'Engine init timeout, please refresh'
+    }
+  }, 8000)
+})
+
+onUnmounted(() => {
+  if (engineInstance) {
+    engineInstance.destroy()
+    engineInstance = null
+  }
+})
+</script>
 <style scoped>
 .firework-page {
   position: fixed;
