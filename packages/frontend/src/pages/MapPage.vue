@@ -171,11 +171,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useIsZh } from '@/composables/useIsZh'
 import AmapComponent from '@/components/AmapComponent.vue'
 import { locations, viewingSpots, WANZAI_CENTER, type Location } from '@/data/locations'
 
-const { t, locale } = useI18n()
-const isZh = computed(() => locale.value === 'zh-CN')
+const { t } = useI18n()
+const { isZh } = useIsZh()
 
 // 万载中心坐标
 const wanzaiCenter = WANZAI_CENTER

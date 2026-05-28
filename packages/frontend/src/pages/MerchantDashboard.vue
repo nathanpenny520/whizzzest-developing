@@ -95,8 +95,15 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { api } from '@/api/client'
+import { extractErrorMessage } from '@/utils/extractErrorMessage'
 import { useAuthStore } from '@/stores/auth'
+import {
+  getMerchantCoupons,
+  createCoupon as apiCreateCoupon,
+  deleteCoupon as apiDeleteCoupon,
+  redeemCoupon,
+} from '@/api/coupons'
+import { getMyMerchant, updateMyMerchant } from '@/api/merchants'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
@@ -130,39 +137,37 @@ const redeemedCount = computed(() => myCoupons.value.reduce((s, c) => s + c.used
 
 onMounted(async () => {
   try {
-    const m = await api.get('/merchants/me')
-    merchant.value = m.data.data
+    const m = await getMyMerchant()
+    merchant.value = m as typeof merchant.value
     edit.value = {
       name: merchant.value!.name,
       phone: merchant.value!.phone || '',
       businessHours: merchant.value!.businessHours || '',
       description: merchant.value!.description || '',
     }
-    myCoupons.value = (await api.get('/coupons/merchant')).data.data
+    myCoupons.value = (await getMerchantCoupons()) as unknown as typeof myCoupons.value
   } catch {
     /* not a merchant yet */
   }
 })
 
 async function updateInfo() {
-  await api.put('/merchants/me', edit.value)
-  await authStore.fetchProfile() // 刷新昵称
+  await updateMyMerchant(edit.value as Record<string, unknown>)
+  await authStore.fetchProfile()
   alert(t('merchantDashboard.savedMsg'))
 }
 async function createCoupon() {
   couponError.value = ''
   publishing.value = true
   try {
-    await api.post('/coupons', {
+    await apiCreateCoupon({
       ...newCoupon.value,
-      expiresAt: new Date(newCoupon.value.expiresAt).toISOString(),
+      expiresAt: new Date(newCoupon.value.expiresAt),
     })
     newCoupon.value = { title: '', discount: 10, totalStock: 100, expiresAt: '' }
-    // Add timestamp to bypass cache
-    myCoupons.value = (await api.get('/coupons/merchant', { params: { _t: Date.now() } })).data.data
+    myCoupons.value = (await getMerchantCoupons()) as unknown as typeof myCoupons.value
   } catch (e: unknown) {
-    const msg = (e as { response?: { data?: { message?: string } } }).response?.data?.message
-    couponError.value = msg || t('admin.loadError')
+    couponError.value = extractErrorMessage(e, t('admin.loadError'))
   } finally {
     publishing.value = false
   }
@@ -170,7 +175,7 @@ async function createCoupon() {
 async function deleteCoupon(id: string) {
   deletingId.value = id
   try {
-    await api.delete(`/coupons/${id}`)
+    await apiDeleteCoupon(id)
     myCoupons.value = myCoupons.value.filter((c) => c.id !== id)
   } catch {
     couponError.value = t('admin.loadError')
@@ -181,11 +186,14 @@ async function deleteCoupon(id: string) {
 async function doRedeem() {
   redeeming.value = true
   try {
-    const r = await api.post('/coupons/redeem', { redeemCode: redeemCode.value })
-    redeemMsg.value = r.data.code === 0 ? t('merchantDashboard.redeemSuccess') : r.data.message
+    try {
+      await redeemCoupon(redeemCode.value)
+      redeemMsg.value = t('merchantDashboard.redeemSuccess')
+    } catch {
+      redeemMsg.value = t('admin.loadError')
+    }
   } catch (e: unknown) {
-    redeemMsg.value =
-      (e as { response?: { data?: { message?: string } } }).response?.data?.message || 'Error'
+    redeemMsg.value = extractErrorMessage(e, 'Error')
   }
   redeeming.value = false
 }

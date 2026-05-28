@@ -14,8 +14,7 @@
 
 <script setup lang="ts">
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ref, onMounted, onUnmounted, watch, computed, nextTick } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import AMapLoader from '@amap/amap-jsapi-loader'
 import { emitter } from '@/eventBus'
 import type { Location, TravelRoute } from '@/data/locations'
@@ -47,8 +46,8 @@ const emit = defineEmits<{
   (e: 'map-ready'): void
 }>()
 
-const { locale } = useI18n()
-const isZh = computed(() => locale.value === 'zh-CN')
+import { useIsZh } from '@/composables/useIsZh'
+const { isZh } = useIsZh()
 
 const mapContainer = ref<HTMLDivElement>()
 const loading = ref(true)

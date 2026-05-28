@@ -69,10 +69,13 @@ import CommentSection from '@/components/CommentSection.vue'
 
 marked.setOptions({ breaks: true, gfm: true })
 
-const { t, locale } = useI18n()
+import { useIsZh } from '@/composables/useIsZh'
+import { useLocalizedPath } from '@/composables/useLocalizedPath'
+
+const { t } = useI18n()
+const { isZh } = useIsZh()
 const router = useRouter()
 const route = useRoute()
-const isZh = computed(() => (locale.value as string) === 'zh-CN')
 
 interface Doc {
   slug: string
@@ -99,10 +102,7 @@ const renderedContent = computed(() => {
   return marked.parse(md) as string
 })
 
-function localizedPath(path: string) {
-  if (isZh.value) return path
-  return `/en${path}`
-}
+const { getLocalizedPath: localizedPath } = useLocalizedPath()
 
 function categoryLabel(cat: string) {
   return t(`docs.categories.${cat}`)

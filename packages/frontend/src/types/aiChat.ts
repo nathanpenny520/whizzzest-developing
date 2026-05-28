@@ -1,13 +1,12 @@
 // AI聊天相关类型定义
-// 与 @wanzai/contracts 对齐
+// 共享类型从 @wanzai/contracts 导入，前端专用类型在此定义
 
-export interface ChatMessage {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  timestamp: Date
-  isTyping?: boolean
-}
+import type { IChatMessage, IChatRequest, AIActionType } from '@wanzai/contracts'
+
+// 向后兼容别名（新代码请直接用 contracts 的 I 前缀类型）
+export type ChatMessage = IChatMessage
+export type ChatRequest = IChatRequest
+export type { AIActionType }
 
 export interface ChatState {
   messages: ChatMessage[]
@@ -16,27 +15,14 @@ export interface ChatState {
   isMinimized: boolean
 }
 
-// 与 contracts IAIResponse 对齐
+// 前端专有 AI 响应格式（比 contracts IAIResponse 多了 success/sources/兼容字段）
 export interface AIResponse {
   success: boolean
-  message: string       // AI 回复文本（兼容旧格式）
-  text?: string         // 新版 contracts 字段
+  message: string
+  text?: string
   sources?: string[]
   action?: {
     type: AIActionType
     payload: Record<string, unknown>
   }
-}
-
-export type AIActionType =
-  | 'map_navigation'
-  | 'open_page'
-  | 'show_coupon'
-  | 'trigger_firework'
-  | 'show_merchant'
-
-export interface ChatRequest {
-  question: string
-  locale: string
-  sessionId?: string
 }

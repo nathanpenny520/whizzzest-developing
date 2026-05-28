@@ -393,17 +393,10 @@ function webpSrc(imgUrl: string): string | null {
   return name ? `/optimized/${name}.webp` : null
 }
 
+import type { ICouponWithMerchant } from '@/types/coupon'
+
 // 优惠券数据（API 驱动）
-interface CouponItem {
-  id: string
-  title: string
-  titleEn?: string
-  discount: number
-  totalStock: number
-  usedStock: number
-  merchant?: { name: string; nameEn?: string }
-}
-const coupons = ref<CouponItem[]>([])
+const coupons = ref<ICouponWithMerchant[]>([])
 const claimedIds = ref(new Set<string>())
 
 onMounted(async () => {

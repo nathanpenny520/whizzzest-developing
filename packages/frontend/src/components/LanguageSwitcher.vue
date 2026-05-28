@@ -2,7 +2,7 @@
   <button
     @click="toggleLanguage"
     class="flex items-center space-x-1 text-sm text-gray-700 hover:text-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 rounded px-2 py-1"
-    :aria-label="isZhCN ? 'Switch to English' : 'Switch to Chinese'"
+    :aria-label="isZh ? 'Switch to English' : 'Switch to Chinese'"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -18,20 +18,17 @@
         d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"
       />
     </svg>
-    <span>{{ isZhCN ? 'EN' : '中文' }}</span>
+    <span>{{ isZh ? 'EN' : '中文' }}</span>
   </button>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useRouter, useRoute } from 'vue-router'
+import { useIsZh } from '@/composables/useIsZh'
 
-const { locale } = useI18n()
 const router = useRouter()
 const route = useRoute()
-
-const isZhCN = computed(() => locale.value === 'zh-CN')
+const { isZh } = useIsZh()
 
 const toggleLanguage = () => {
   // 保存当前滚动位置

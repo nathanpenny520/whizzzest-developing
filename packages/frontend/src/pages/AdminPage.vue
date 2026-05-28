@@ -224,12 +224,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { api } from '@/api/client'
+import { useIsZh } from '@/composables/useIsZh'
+import type { ICouponWithMerchant } from '@/types/coupon'
+import { getAllMerchants, verifyMerchant } from '@/api/merchants'
+import { getAllCoupons, deleteCoupon } from '@/api/coupons'
+import { getAllKnowledge, createKnowledge, deleteKnowledge } from '@/api/knowledge'
+import { getAllDocs, createDoc, updateDoc, deleteDoc, uploadDocCover } from '@/api/docs'
+import { getUserStats } from '@/api/users'
+import { getAnalyticsStats } from '@/api/analytics'
 
-const { t, locale } = useI18n()
-const isZh = computed(() => (locale.value as string) === 'zh-CN')
+const { t } = useI18n()
+const { isZh } = useIsZh()
 const tabs = [
   { key: 'admin.tabs.merchants' },
   { key: 'admin.tabs.coupons' },
@@ -241,16 +248,7 @@ const tabs = [
 const tab = ref('admin.tabs.merchants')
 
 const merchants = ref<{ id: string; name: string; category: string; isVerified: boolean }[]>([])
-const coupons = ref<
-  {
-    id: string
-    title: string
-    discount: number
-    totalStock: number
-    usedStock: number
-    merchant?: { name: string }
-  }[]
->([])
+const coupons = ref<ICouponWithMerchant[]>([])
 const knowledge = ref<{ id: string; category: string; content: string }[]>([])
 const newKnowledge = ref({ category: '', content: '', contentEn: '', keywordsStr: '' })
 const docs = ref<
@@ -299,25 +297,23 @@ watch(tab, () => {
 onMounted(async () => {
   try {
     const [m, c, k, d] = await Promise.all([
-      api.get('/merchants?all=true'),
-      api.get('/coupons'),
-      api.get('/knowledge'),
-      api.get('/docs'),
+      getAllMerchants(true),
+      getAllCoupons(),
+      getAllKnowledge(),
+      getAllDocs(),
     ])
-    merchants.value = m.data.data
-    coupons.value = c.data.data
-    knowledge.value = k.data.data
-    docs.value = d.data.data
-    api
-      .get('/users/stats')
+    merchants.value = m as typeof merchants.value
+    coupons.value = c as typeof coupons.value
+    knowledge.value = k as typeof knowledge.value
+    docs.value = d as typeof docs.value
+    getUserStats()
       .then((s) => {
-        stats.value = s.data.data
+        stats.value = s
       })
       .catch(() => {})
-    api
-      .get('/analytics/stats?days=7')
+    getAnalyticsStats(7)
       .then((a) => {
-        analytics.value = a.data.data
+        analytics.value = a as typeof analytics.value
       })
       .catch(() => {})
   } catch {
@@ -330,9 +326,8 @@ onMounted(async () => {
 async function verify(id: string, isVerified: boolean) {
   actionLoading.value = true
   try {
-    await api.put(`/merchants/${id}/verify`, { isVerified })
-    const m = await api.get('/merchants?all=true')
-    merchants.value = m.data.data
+    await verifyMerchant(id, isVerified)
+    merchants.value = (await getAllMerchants(true)) as typeof merchants.value
   } catch {
     pageError.value = t('admin.loadError')
   } finally {
@@ -342,9 +337,8 @@ async function verify(id: string, isVerified: boolean) {
 async function delCoupon(id: string) {
   actionLoading.value = true
   try {
-    await api.delete(`/coupons/${id}`)
-    const c = await api.get('/coupons')
-    coupons.value = c.data.data
+    await deleteCoupon(id)
+    coupons.value = (await getAllCoupons()) as typeof coupons.value
   } catch {
     pageError.value = t('admin.loadError')
   } finally {
@@ -354,7 +348,7 @@ async function delCoupon(id: string) {
 async function addKnowledge() {
   actionLoading.value = true
   try {
-    await api.post('/knowledge', {
+    await createKnowledge({
       category: newKnowledge.value.category,
       content: newKnowledge.value.content,
       contentEn: newKnowledge.value.contentEn || null,
@@ -364,8 +358,7 @@ async function addKnowledge() {
         .filter(Boolean),
     })
     newKnowledge.value = { category: '', content: '', contentEn: '', keywordsStr: '' }
-    const k = await api.get('/knowledge')
-    knowledge.value = k.data.data
+    knowledge.value = (await getAllKnowledge()) as typeof knowledge.value
   } catch {
     pageError.value = t('admin.loadError')
   } finally {
@@ -375,9 +368,8 @@ async function addKnowledge() {
 async function delKnowledge(id: string) {
   actionLoading.value = true
   try {
-    await api.delete(`/knowledge/${id}`)
-    const k = await api.get('/knowledge')
-    knowledge.value = k.data.data
+    await deleteKnowledge(id)
+    knowledge.value = (await getAllKnowledge()) as typeof knowledge.value
   } catch {
     pageError.value = t('admin.loadError')
   } finally {
@@ -463,10 +455,8 @@ async function saveDoc() {
     if (coverFile) {
       const fd = new FormData()
       fd.append('file', coverFile)
-      const up = await api.post('/docs/upload', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      payload.coverImage = up.data.data.url
+      const up = await uploadDocCover(fd)
+      payload.coverImage = up.url
     }
     if (!editingDoc.value) {
       payload.slug =
@@ -476,13 +466,12 @@ async function saveDoc() {
           .replace(/[^a-zA-Z0-9一-鿿\-]/g, '')
           .toLowerCase() ||
         'doc-' + Date.now()
-      await api.post('/docs', payload)
+      await createDoc(payload)
     } else {
-      await api.put(`/docs/${editingDoc.value}`, payload)
+      await updateDoc(editingDoc.value, payload)
     }
     resetDocForm()
-    const d = await api.get('/docs')
-    docs.value = d.data.data
+    docs.value = (await getAllDocs()) as typeof docs.value
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e)
     docError.value = msg || t('admin.loadError')
@@ -494,9 +483,8 @@ async function saveDoc() {
 async function delDoc(slug: string) {
   actionLoading.value = true
   try {
-    await api.delete(`/docs/${slug}`)
-    const d = await api.get('/docs')
-    docs.value = d.data.data
+    await deleteDoc(slug)
+    docs.value = (await getAllDocs()) as typeof docs.value
   } catch {
     pageError.value = t('admin.loadError')
   } finally {

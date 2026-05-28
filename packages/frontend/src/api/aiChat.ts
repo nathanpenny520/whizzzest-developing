@@ -1,27 +1,18 @@
 // AI聊天API调用 — 接入 NestJS /api/v1
-import axios from 'axios'
+import { api } from './client'
 import type { AIResponse, ChatRequest } from '@/types/aiChat'
 import { getHuaNuoError } from '@/constants/huaNuo'
-
-const API_BASE = '/api/v1'
-
-interface NestResponse {
-  code: number
-  data: {
-    text: string
-    action?: AIResponse['action']
-  } | null
-  message: string
-}
+import type { IApiResponse } from '@wanzai/contracts'
 
 export async function sendChatMessage(question: string, locale: string): Promise<AIResponse> {
   try {
     const request: ChatRequest = { question, locale }
 
-    const response = await axios.post<NestResponse>(`${API_BASE}/ai/chat`, request, {
-      timeout: 60000,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    const response = await api.post<IApiResponse<{ text: string; action?: AIResponse['action'] }>>(
+      '/ai/chat',
+      request,
+      { timeout: 60000 },
+    )
 
     const body = response.data
 
@@ -41,11 +32,12 @@ export async function sendChatMessage(question: string, locale: string): Promise
   } catch (error) {
     console.error('AI Chat error:', error)
 
-    if (axios.isAxiosError(error)) {
-      if (error.code === 'ECONNABORTED') {
+    if (error && typeof error === 'object' && 'code' in error) {
+      const axiosError = error as { code?: string; response?: { status?: number } }
+      if (axiosError.code === 'ECONNABORTED') {
         return { success: false, message: getHuaNuoError('timeout', locale) }
       }
-      if (error.response?.status === 500) {
+      if (axiosError.response?.status === 500) {
         return { success: false, message: getHuaNuoError('serverError', locale) }
       }
     }

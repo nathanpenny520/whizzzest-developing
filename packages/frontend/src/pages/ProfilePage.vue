@@ -48,6 +48,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { api } from '@/api/client'
+import { extractErrorMessage } from '@/utils/extractErrorMessage'
 import { useAuthStore } from '@/stores/auth'
 
 const { t, locale } = useI18n()
@@ -111,8 +112,7 @@ async function save() {
     await auth.fetchProfile()
     msg.value = t('profile.saved')
   } catch (e: unknown) {
-    msg.value =
-      (e as { response?: { data?: { message?: string } } }).response?.data?.message || 'Error'
+    msg.value = extractErrorMessage(e, 'Error')
   }
   saving.value = false
 }

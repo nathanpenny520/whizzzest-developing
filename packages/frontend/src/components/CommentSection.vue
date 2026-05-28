@@ -153,7 +153,12 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { api } from '@/api/client'
+import {
+  getCommentsByPage,
+  createComment,
+  deleteComment as apiDeleteComment,
+  likeComment as apiLikeComment,
+} from '@/api/comments'
 import { useAuthStore } from '@/stores/auth'
 
 const props = defineProps<{ page: string }>()
@@ -235,21 +240,18 @@ function findComment(items: CommentItem[], id: string): CommentItem | null {
 async function fetchComments(showLoading = true) {
   if (showLoading) loading.value = true
   try {
-    const params: Record<string, string> = { page: props.page }
-    const res = await api.get('/comments', { params })
-    if (res.data.code === 0) {
-      comments.value = res.data.data as CommentItem[]
-      // Rebuild likedIds from server data
-      const ids = new Set<string>()
-      function collectLiked(items: CommentItem[]) {
-        for (const c of items) {
-          if (c.likedBy && c.likedBy.length > 0) ids.add(c.id)
-          if (c.replies) collectLiked(c.replies)
-        }
+    const data = await getCommentsByPage(props.page)
+    comments.value = data as CommentItem[]
+    // Rebuild likedIds from server data
+    const ids = new Set<string>()
+    function collectLiked(items: CommentItem[]) {
+      for (const c of items) {
+        if (c.likedBy && c.likedBy.length > 0) ids.add(c.id)
+        if (c.replies) collectLiked(c.replies)
       }
-      collectLiked(comments.value)
-      likedIds.value = ids
     }
+    collectLiked(comments.value)
+    likedIds.value = ids
   } catch {
     errorMsg.value = t('comments.error')
   } finally {
@@ -263,11 +265,12 @@ async function doSubmitComment() {
   submitting.value = true
   clearError()
   try {
-    const res = await api.post('/comments', { page: props.page, content: newContent.value })
-    if (res.data.code === 0) {
-      const created: CommentItem = { ...res.data.data, replies: [], likedBy: [] }
-      comments.value = [created, ...comments.value]
+    const created: CommentItem = {
+      ...(await createComment({ page: props.page, content: newContent.value })),
+      replies: [],
+      likedBy: [],
     }
+    comments.value = [created, ...comments.value]
     newContent.value = ''
   } catch {
     errorMsg.value = t('comments.error')
@@ -302,18 +305,19 @@ async function submitReply(parentId: string) {
   if (!replyContent.value.trim()) return
 
   try {
-    const res = await api.post('/comments', {
-      page: props.page,
-      content: replyContent.value,
-      parentId,
-    })
-    if (res.data.code === 0) {
-      const created: CommentItem = { ...res.data.data, replies: [], likedBy: [] }
-      const parent = findComment(comments.value, parentId)
-      if (parent) {
-        if (!parent.replies) parent.replies = []
-        parent.replies.push(created)
-      }
+    const created: CommentItem = {
+      ...(await createComment({
+        page: props.page,
+        content: replyContent.value,
+        parentId,
+      })),
+      replies: [],
+      likedBy: [],
+    }
+    const parent = findComment(comments.value, parentId)
+    if (parent) {
+      if (!parent.replies) parent.replies = []
+      parent.replies.push(created)
     }
     cancelReply()
   } catch {
@@ -325,8 +329,8 @@ async function doLikeComment(comment: CommentItem) {
   if (likingId.value) return
   likingId.value = comment.id
   try {
-    const res = await api.post(`/comments/${comment.id}/like`)
-    const { liked } = res.data.data as { liked: boolean }
+    const result = await apiLikeComment(comment.id)
+    const liked = (result as { liked?: boolean }).liked !== false
     if (liked) {
       likedIds.value = new Set([...likedIds.value, comment.id])
       comment.likes += 1
@@ -366,7 +370,7 @@ async function deleteComment(id: string) {
   removeFromList(comments.value)
 
   try {
-    await api.delete(`/comments/${id}`)
+    await apiDeleteComment(id)
   } catch {
     errorMsg.value = t('comments.error')
     // Revert by re-fetching from server

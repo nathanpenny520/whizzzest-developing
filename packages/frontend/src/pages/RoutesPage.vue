@@ -161,15 +161,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useLocalizedPath } from '../composables/useLocalizedPath'
+import { useIsZh } from '@/composables/useIsZh'
 import AmapComponent from '@/components/AmapComponent.vue'
 import { travelRoutes, WANZAI_CENTER } from '@/data/locations'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const { getLocalizedPath } = useLocalizedPath()
-const isZh = computed(() => locale.value === 'zh-CN')
+const { isZh } = useIsZh()
 
 // 正确导入图片
 import gucWenhuaTra from '../assets/images/guc_wenhua_tra.jpg'

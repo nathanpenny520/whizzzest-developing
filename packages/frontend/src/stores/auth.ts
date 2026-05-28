@@ -1,7 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { api } from '@/api/client'
+import { sendCode as apiSendCode, login as apiLogin, refresh as apiRefresh } from '@/api/auth'
+import { getMyProfile } from '@/api/users'
+import { extractErrorMessage } from '@/utils/extractErrorMessage'
 import { STORAGE_KEYS } from '@/constants/huaNuo'
+import type { UserRole } from '@wanzai/contracts'
 
 function loadUser(): UserProfile | null {
   try {
@@ -32,7 +35,7 @@ interface UserProfile {
   avatarUrl?: string
   email?: string
   phone?: string
-  role: string
+  role: UserRole
   isMerchant?: boolean
   createdAt?: string
 }
@@ -49,6 +52,15 @@ export const useAuthStore = defineStore('auth', () => {
   // 待登录后重试的操作
   let pendingAction: (() => void) | null = null
 
+  function isTokenExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      return payload.exp * 1000 < Date.now()
+    } catch {
+      return true
+    }
+  }
+
   /** 启动时恢复登录态 */
   async function init() {
     if (isInitialized.value) return
@@ -56,7 +68,9 @@ export const useAuthStore = defineStore('auth', () => {
 
     if (!accessToken.value && !refreshToken.value) return
 
-    if (refreshToken.value && !accessToken.value) {
+    if (accessToken.value && isTokenExpired(accessToken.value)) {
+      await tryRefreshToken()
+    } else if (refreshToken.value && !accessToken.value) {
       await tryRefreshToken()
     }
 
@@ -67,12 +81,9 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function sendCode(email: string): Promise<{ success: boolean; message?: string }> {
     try {
-      const res = await api.post('/auth/send-code', { email })
-      if (res.data.code === 0) return { success: true }
-      return { success: false, message: res.data.message }
+      return await apiSendCode(email)
     } catch (e: unknown) {
-      const data = (e as { response?: { data?: { message?: string } } }).response?.data
-      return { success: false, message: data?.message || '发送失败，请稍后再试' }
+      return { success: false, message: extractErrorMessage(e, '发送失败，请稍后再试') }
     }
   }
 
@@ -81,14 +92,18 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const locale =
         typeof window !== 'undefined' && window.location.pathname.startsWith('/en') ? 'en' : 'zh'
-      const res = await api.post('/auth/login', { email, code, locale })
-      const data = res.data.data
+      const res = await apiLogin(email, code, locale)
+      const data = res.data as {
+        accessToken: string
+        refreshToken: string
+        user: { id: string; nickname: string; role: string; email: string }
+      }
       accessToken.value = data.accessToken
       refreshToken.value = data.refreshToken
       user.value = {
         id: data.user.id,
         nickname: data.user.nickname,
-        role: data.user.role,
+        role: data.user.role as UserRole,
         email: data.user.email,
       }
       saveUser(user.value)
@@ -112,9 +127,9 @@ export const useAuthStore = defineStore('auth', () => {
   async function tryRefreshToken() {
     if (!refreshToken.value) return false
     try {
-      const res = await api.post('/auth/refresh', { refreshToken: refreshToken.value })
-      accessToken.value = res.data.data.accessToken
-      sessionStorage.setItem('accessToken', res.data.data.accessToken)
+      const res = await apiRefresh(refreshToken.value!)
+      accessToken.value = res.data!.accessToken
+      sessionStorage.setItem('accessToken', res.data!.accessToken)
       await fetchProfile()
       return true
     } catch {
@@ -126,8 +141,13 @@ export const useAuthStore = defineStore('auth', () => {
   async function fetchProfile() {
     if (!accessToken.value) return
     try {
-      const res = await api.get('/users/me')
-      user.value = res.data.data
+      const profile = await getMyProfile()
+      user.value = {
+        id: profile.id,
+        nickname: profile.nickname,
+        role: profile.role,
+        isMerchant: profile.isMerchant,
+      }
       saveUser(user.value)
     } catch {
       if (refreshToken.value) {

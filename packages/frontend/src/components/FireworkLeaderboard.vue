@@ -51,11 +51,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { api } from '@/api/client'
+import { useIsZh } from '@/composables/useIsZh'
+import { getPopularRecipes, likeFirework } from '@/api/fireworks'
 
-const { locale } = useI18n()
-const isZh = computed(() => (locale.value as string) === 'zh-CN')
+const { isZh } = useIsZh()
 
 const sortOptions = [
   { value: 'views', labelZh: '最热', labelEn: 'Hot' },
@@ -104,14 +103,12 @@ async function handleLike(r: RecipeSummary) {
   const slug = r.shareSlug
   if (likedSlugs.value[slug]) return
   try {
-    const res = await api.post('/fireworks/like', { slug })
-    if (res.data.code === 0) {
-      likedSlugs.value = { ...likedSlugs.value, [slug]: true }
-      localStorage.setItem('wanzai_liked', JSON.stringify(likedSlugs.value))
-      localLikeCounts.value = {
-        ...localLikeCounts.value,
-        [slug]: (localLikeCounts.value[slug] || r.likeCount || 0) + 1,
-      }
+    await likeFirework(slug)
+    likedSlugs.value = { ...likedSlugs.value, [slug]: true }
+    localStorage.setItem('wanzai_liked', JSON.stringify(likedSlugs.value))
+    localLikeCounts.value = {
+      ...localLikeCounts.value,
+      [slug]: (localLikeCounts.value[slug] || r.likeCount || 0) + 1,
     }
   } catch {
     /* ignore */
@@ -123,8 +120,12 @@ async function fetchData() {
     const params = new URLSearchParams({ sort: currentSort.value, limit: '10' })
     if (searchText.value.trim()) params.set('search', searchText.value.trim())
     params.set('_t', String(Date.now()))
-    const res = await api.get(`/fireworks/popular?${params.toString()}`)
-    recipes.value = (res.data.data || []).map((r: RecipeSummary) => ({
+    const data = await getPopularRecipes({
+      sort: currentSort.value,
+      search: searchText.value.trim() || undefined,
+      limit: 10,
+    })
+    recipes.value = (data || []).map((r) => ({
       ...r,
       likeCount: localLikeCounts.value[r.shareSlug] ?? r.likeCount ?? 0,
     }))

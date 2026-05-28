@@ -95,6 +95,7 @@
 import { ref, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { api } from '@/api/client'
+import { extractErrorMessage } from '@/utils/extractErrorMessage'
 
 const { t } = useI18n()
 
@@ -133,9 +134,7 @@ async function submit() {
       success.value = false
     }, 5000)
   } catch (e: unknown) {
-    error.value =
-      (e as { response?: { data?: { message?: string } } }).response?.data?.message ||
-      t('merchant.apply.failed')
+    error.value = extractErrorMessage(e, t('merchant.apply.failed'))
   } finally {
     loading.value = false
   }

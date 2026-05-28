@@ -173,6 +173,7 @@ defineOptions({ name: 'AppNavbar' })
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useLocalizedPath } from '@/composables/useLocalizedPath'
 import LanguageSwitcher from './LanguageSwitcher.vue'
 import { useAuthStore } from '@/stores/auth'
 
@@ -189,7 +190,7 @@ declare global {
   }
 }
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const router = useRouter()
 const authStore = useAuthStore()
 const openCluster = ref('')
@@ -257,10 +258,7 @@ const clusters = computed(() => [
   },
 ])
 
-const localizedPath = (rawPath: string) => {
-  if (rawPath === '/') return locale.value === 'en' ? '/en' : '/'
-  return locale.value === 'en' ? `/en${rawPath}` : rawPath
-}
+const { getLocalizedPath: localizedPath } = useLocalizedPath()
 const navigateTo = (rawPath: string, mobile = false) => {
   if (rawPath === '') return
   if (mobile) router.push(localizedPath(rawPath))

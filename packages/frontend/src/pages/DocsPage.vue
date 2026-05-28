@@ -86,11 +86,13 @@ defineOptions({ name: 'DocsPage' })
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useIsZh } from '@/composables/useIsZh'
+import { useLocalizedPath } from '@/composables/useLocalizedPath'
 import { api } from '@/api/client'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
+const { isZh } = useIsZh()
 const router = useRouter()
-const isZh = computed(() => (locale.value as string) === 'zh-CN')
 
 interface DocItem {
   slug: string
@@ -135,10 +137,7 @@ function categoryBadgeClass(cat: string) {
   return map[cat] || 'bg-gray-100 text-gray-600'
 }
 
-function localizedPath(path: string) {
-  if (isZh.value) return path
-  return `/en${path}`
-}
+const { getLocalizedPath: localizedPath } = useLocalizedPath()
 
 onMounted(async () => {
   try {

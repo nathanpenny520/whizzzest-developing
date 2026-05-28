@@ -62,6 +62,7 @@
 import { ref, computed, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import HuaNuoCharacter from '@/components/HuaNuoCharacter.vue'
+import { extractErrorMessage } from '@/utils/extractErrorMessage'
 import { useAuthStore } from '@/stores/auth'
 
 const { t } = useI18n()
@@ -123,8 +124,7 @@ async function handleLogin() {
     await authStore.login(email.value, code.value)
     visible.value = false
   } catch (e: unknown) {
-    const msg = (e as { response?: { data?: { message?: string } } }).response?.data?.message
-    loginError.value = msg || t('auth.loginFailed')
+    loginError.value = extractErrorMessage(e, t('auth.loginFailed'))
   } finally {
     loading.value = false
   }
