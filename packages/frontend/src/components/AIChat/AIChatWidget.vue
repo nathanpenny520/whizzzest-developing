@@ -299,32 +299,12 @@ function _openAiChat() {
   isFullscreen.value = true
 }
 ;(window as unknown as Record<string, unknown>).__huaNuoOpen = _openAiChat
-const windowPosition = ref({ x: 24, y: window.innerHeight - 580 - 24 }) // 左下角
-const windowSize = ref({ width: 420, height: 560 })
 
-// 拖拽和resize状态
-const isDragging = ref(false)
-const isResizing = ref(false)
-const dragOffset = ref({ x: 0, y: 0 })
-const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0 })
-
-// 最小/最大尺寸限制
-const MIN_WIDTH = 360
-const MIN_HEIGHT = 460
-const MAX_WIDTH = 800
-const MAX_HEIGHT = 800
-
-// 计算窗口样式
-const windowStyle = computed(() => {
-  if (isFullscreen.value) {
-    return { left: '0', top: '0', width: '100vw', height: '100vh', borderRadius: '0' }
-  }
-  return {
-    left: `${windowPosition.value.x}px`,
-    top: `${windowPosition.value.y}px`,
-    width: `${windowSize.value.width}px`,
-    height: `${windowSize.value.height}px`,
-  }
+import { useDragResize } from '@/composables/useDragResize'
+const { windowStyle, startDrag, startResize } = useDragResize(isFullscreen, {
+  initialX: 24,
+  initialWidth: 420,
+  initialHeight: 560,
 })
 
 // 快捷问题
@@ -340,81 +320,6 @@ const handleQuickQuestion = (question: string) => {
   sendMessage(question)
 }
 
-// 开始拖拽
-const startDrag = (event: MouseEvent) => {
-  if (isFullscreen.value) return
-  if (event.button !== 0) return
-
-  isDragging.value = true
-  dragOffset.value = {
-    x: event.clientX - windowPosition.value.x,
-    y: event.clientY - windowPosition.value.y,
-  }
-
-  // 阻止默认行为和冒泡
-  event.preventDefault()
-}
-
-// 开始resize
-const startResize = (event: MouseEvent) => {
-  if (isFullscreen.value) return
-  if (event.button !== 0) return
-
-  isResizing.value = true
-  resizeStart.value = {
-    x: event.clientX,
-    y: event.clientY,
-    width: windowSize.value.width,
-    height: windowSize.value.height,
-  }
-
-  event.preventDefault()
-  event.stopPropagation()
-}
-
-// 处理鼠标移动
-const handleMouseMove = (event: MouseEvent) => {
-  if (isDragging.value) {
-    // 计算新位置
-    let newX = event.clientX - dragOffset.value.x
-    let newY = event.clientY - dragOffset.value.y
-
-    // 边界限制
-    newX = Math.max(0, Math.min(newX, window.innerWidth - windowSize.value.width))
-    newY = Math.max(0, Math.min(newY, window.innerHeight - windowSize.value.height))
-
-    windowPosition.value = { x: newX, y: newY }
-  }
-
-  if (isResizing.value) {
-    // 计算新尺寸
-    const deltaX = event.clientX - resizeStart.value.x
-    const deltaY = event.clientY - resizeStart.value.y
-
-    let newWidth = resizeStart.value.width + deltaX
-    let newHeight = resizeStart.value.height + deltaY
-
-    // 尺寸限制
-    newWidth = Math.max(MIN_WIDTH, Math.min(newWidth, MAX_WIDTH))
-    newHeight = Math.max(MIN_HEIGHT, Math.min(newHeight, MAX_HEIGHT))
-
-    windowSize.value = { width: newWidth, height: newHeight }
-
-    // 同时调整位置，确保不超出屏幕
-    let newX = windowPosition.value.x
-    let newY = windowPosition.value.y
-    newX = Math.max(0, Math.min(newX, window.innerWidth - newWidth))
-    newY = Math.max(0, Math.min(newY, window.innerHeight - newHeight))
-    windowPosition.value = { x: newX, y: newY }
-  }
-}
-
-// 处理鼠标释放
-const handleMouseUp = () => {
-  isDragging.value = false
-  isResizing.value = false
-}
-
 // 自动滚动到最新消息
 watch(
   messages,
@@ -427,19 +332,6 @@ watch(
   { deep: true },
 )
 
-// 监听窗口大小变化
-const handleWindowResize = () => {
-  // 确保窗口不超出屏幕
-  let newX = windowPosition.value.x
-  let newY = windowPosition.value.y
-
-  newX = Math.max(0, Math.min(newX, window.innerWidth - windowSize.value.width))
-  newY = Math.max(0, Math.min(newY, window.innerHeight - windowSize.value.height))
-
-  windowPosition.value = { x: newX, y: newY }
-}
-
-// 注册全局事件
 // 主动招呼：15s 未打开且无历史消息
 const showGreeting = ref(false)
 let greetingTimer: ReturnType<typeof setTimeout> | null = null
@@ -469,9 +361,6 @@ onMounted(() => {
       showGreeting.value = true
     }, HUANUO_CONFIG.greetingDelay)
   }
-  document.addEventListener('mousemove', handleMouseMove)
-  document.addEventListener('mouseup', handleMouseUp)
-  window.addEventListener('resize', handleWindowResize)
   document.addEventListener('keydown', handleKeyDown)
   document.addEventListener('open-ai-chat', _openAiChat)
   document.addEventListener('mousemove', handleSidebarMouseMove)
@@ -486,9 +375,6 @@ function handleKeyDown(e: KeyboardEvent) {
 
 onUnmounted(() => {
   if (greetingTimer) clearTimeout(greetingTimer)
-  document.removeEventListener('mousemove', handleMouseMove)
-  document.removeEventListener('mouseup', handleMouseUp)
-  window.removeEventListener('resize', handleWindowResize)
   document.removeEventListener('keydown', handleKeyDown)
   document.removeEventListener('open-ai-chat', _openAiChat)
   document.removeEventListener('mousemove', handleSidebarMouseMove)
