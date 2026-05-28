@@ -3,15 +3,15 @@
     <div class="stats-row">
       <div class="stat-card">
         <span class="stat-num">{{ analytics.total }}</span
-        ><span class="stat-label">{{ $t('admin.analytics.totalViews') }}</span>
+        ><span class="stat-label">{{ $t('admin.totalViews') }}</span>
       </div>
       <div class="stat-card">
         <span class="stat-num">{{ analytics.recentViews }}</span
-        ><span class="stat-label">{{ $t('admin.analytics.recentViews') }}</span>
+        ><span class="stat-label">{{ $t('admin.recentViews') }}</span>
       </div>
     </div>
     <div v-if="analytics.topPages.length > 0" class="analytics-pages">
-      <h3>{{ $t('admin.analytics.topPages') }}</h3>
+      <h3>{{ $t('admin.topPages') }}</h3>
       <div v-for="p in analytics.topPages" :key="p.path" class="analytics-row">
         <span>{{ p.path }}</span>
         <span>{{ p._count.path }}</span>
