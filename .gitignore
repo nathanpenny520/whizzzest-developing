@@ -56,5 +56,8 @@ packages/frontend/src/assets/videos/*.mp4
 packages/frontend/src/assets/videos/*.webm
 packages/frontend/src/assets/videos/*.mov
 
+# Turborepo cache
+.turbo/
+
 # Generated WebP images (built by scripts/optimize-images.mjs)
 packages/frontend/public/optimized

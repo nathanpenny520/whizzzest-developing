@@ -13,12 +13,13 @@ jobs:
   deploy:
     name: 构建并部署
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v6
         with:
-          version: latest
+          version: 11.1.3
 
       - uses: actions/setup-node@v6
         with:
@@ -27,17 +28,22 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: 构建前端
-        run: pnpm build
-        env:
-          VITE_AMAP_KEY: ${{ secrets.VITE_AMAP_KEY }}
-          VITE_AMAP_SECURITY_CODE: ${{ secrets.VITE_AMAP_SECURITY_CODE }}
+      - name: 挂载 Turborepo 缓存
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
 
       - name: 生成 Prisma 客户端
         run: pnpm --filter @wanzai/backend exec prisma generate
 
-      - name: 构建后端
-        run: pnpm build:backend
+      - name: Turborepo 全栈构建
+        run: pnpm build --cache-dir=".turbo"
+        env:
+          VITE_AMAP_KEY: ${{ secrets.VITE_AMAP_KEY }}
+          VITE_AMAP_SECURITY_CODE: ${{ secrets.VITE_AMAP_SECURITY_CODE }}
 
       - name: 准备后端部署包
         run: |

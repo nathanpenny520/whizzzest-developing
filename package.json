@@ -2,17 +2,19 @@
   "name": "wanzai",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@11.1.3",
   "version": "2.0.0",
   "description": "焰境万载 — 数字文旅平台 Monorepo",
   "scripts": {
-    "dev": "pnpm --filter @wanzai/frontend dev",
-    "dev:backend": "pnpm --filter @wanzai/backend start:dev",
-    "build": "pnpm --filter @wanzai/frontend build",
-    "build:backend": "pnpm --filter @wanzai/backend build",
-    "preview": "pnpm --filter @wanzai/frontend preview",
-    "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
+    "dev": "turbo run dev",
+    "dev:backend": "turbo run start:dev --filter=@wanzai/backend",
+    "build": "turbo run build",
+    "build:frontend": "turbo run build --filter=@wanzai/frontend",
+    "build:backend": "turbo run build --filter=@wanzai/backend",
+    "preview": "turbo run preview --filter=@wanzai/frontend",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
     "prepare": "husky"
   },
   "engines": {
@@ -27,12 +29,18 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.0.5",
     "prettier": "^3.8.3",
+    "turbo": "^2.9.16",
     "typescript-eslint": "^8.59.4",
     "vitest": "^4.1.6",
     "vue-eslint-parser": "^10.4.0"
   },
   "lint-staged": {
-    "*.{ts,vue}": ["eslint --fix", "prettier --write"],
-    "*.{json,md,css}": ["prettier --write"]
+    "*.{ts,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
   }
 }
